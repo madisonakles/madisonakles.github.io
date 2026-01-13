@@ -7,16 +7,24 @@
     <style>
         :root { --bg-color: #ffffff; --text-color: #333333; --accent-color: #555555; --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
         body { font-family: var(--font-main); color: var(--text-color); background-color: var(--bg-color); margin: 0; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+        
+        /* Nav & Back Button */
         nav { margin-bottom: 60px; border-bottom: 1px solid #eee; padding-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        /* Back Button Style */
         .back-link { font-size: 1rem; font-weight: bold; text-decoration: none; color: var(--accent-color); transition: color 0.2s; }
         .back-link:hover { color: black; }
         .nav-links a { margin-left: 20px; text-decoration: none; color: var(--accent-color); font-size: 0.9rem; }
         .nav-links a:hover { color: black; text-decoration: underline; }
+        
         h2 { border-bottom: 2px solid #000; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem;}
-        .research-item { margin-bottom: 25px; }
-        .research-title { font-weight: bold; display: block; }
-        .research-meta { font-style: italic; color: #666; font-size: 0.9rem; }
+        
+        /* Research Item Styles */
+        .research-item { margin-bottom: 35px; } /* Increased spacing slightly */
+        .research-title { font-weight: bold; display: block; font-size: 1.05rem; margin-bottom: 4px; }
+        .research-meta { font-style: italic; color: #666; font-size: 0.9rem; display: block; margin-bottom: 10px; }
+        
+        /* Link styling to break long URLs nicely on mobile */
+        .research-item a { color: #000; text-decoration: underline; word-break: break-all; }
+        .research-item a:hover { color: #555; }
     </style>
 </head>
 <body>
@@ -31,21 +39,30 @@
 
     <section>
         <h2>Current Research</h2>
+        
         <div class="research-item">
             <span class="research-title">AI-assisted prosocial chat function for online gaming</span>
             <span class="research-meta">in-progress</span>
-            <p>funded by a grant from the prosocial design network (awarded dec 2025), i am working on an a “pause and suggest” intervention that detects potentially harmful or guideline-violating language before a message is sent.</p>
+            <p>funded by a grant (awarded dec 2025) from the prosocial design network and based on a PDNxRoblox workshop (attended oct 2025), i am working on an a “pause and suggest” intervention that detects potentially harmful or guideline-violating language before a message is sent.</p>
         </div>
+
         <div class="research-item">
-            <span class="research-title"> Preregistered Replication and Extension of “Moral Hypocrisy" </span>
-            <span class="research-meta">may 2024 </span>
-            <p>https://doi.org/10.1177/09567976241246552</p>
-      <div class="research-item">
+            <span class="research-title">Preregistered Replication and Extension of “Moral Hypocrisy"</span>
+            <span class="research-meta">may 2024</span>
+    
+            <p>
+                <a href="https://doi.org/10.1177/09567976241246552" target="_blank">https://doi.org/10.1177/09567976241246552</a>
+            </p>
+        </div>
+
+        <div class="research-item">
             <span class="research-title">White Families' Communications About and Around Race: Conversations Between white Adolescents and Their Mothers</span>
             <span class="research-meta">june 2022</span>
-            <p>https://doi.org/10.1111/jora.12774</p>
+            <p>
+                <a href="https://doi.org/10.1111/jora.12774" target="_blank">https://doi.org/10.1111/jora.12774</a>
+            </p>
         </div>
-        </div>
+
     </section>
 </body>
 </html>
