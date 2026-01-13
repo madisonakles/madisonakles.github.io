@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Madison Akles | Psychology Researcher</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
+        /* --- 1. MINIMALIST DESIGN SYSTEM --- */
         :root {
-            --bg-color: #ffffff;       
-            --text-color: #333333;     
-            --accent-color: #555555;   
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --accent-color: #555555;
             --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
 
@@ -56,6 +56,8 @@
             color: var(--accent-color);
             font-size: 0.9rem;
             transition: color 0.2s;
+            display: flex; /* Helps align icons */
+            align-items: center;
         }
 
         .nav-links a:hover {
@@ -63,13 +65,15 @@
             text-decoration: underline;
         }
 
-        /* Special styling for icons to prevent underline on hover */
-        .social-icon {
-            font-size: 1.1rem; /* Slightly larger for visibility */
+        /* SVG Icon Styling */
+        .icon-svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor; /* This makes the icon take the text color */
         }
-        .social-icon:hover {
+        
+        .social-link:hover {
             text-decoration: none !important; /* No underline for icons */
-            color: #000;
         }
 
         /* Divider between text links and icons */
@@ -81,7 +85,7 @@
 
         /* --- 3. SECTIONS --- */
         section {
-            margin-bottom: 80px; /* Space between sections */
+            margin-bottom: 80px; 
         }
 
         h2 {
@@ -129,7 +133,7 @@
             nav { flex-direction: column; align-items: flex-start; }
             .nav-links { margin-top: 15px; flex-wrap: wrap; }
             .nav-links a { margin-left: 0; margin-right: 15px; margin-bottom: 10px; }
-            .nav-divider { display: none; } /* Hide divider on mobile */
+            .nav-divider { display: none; } 
         }
     </style>
 </head>
@@ -145,16 +149,16 @@
 
             <span class="nav-divider">|</span>
 
-            <a href="mailto:makles@apu.edu" class="social-icon" aria-label="Email">
-                <i class="fa-regular fa-envelope"></i>
+            <a href="mailto:makles@apu.edu" class="social-link" aria-label="Email">
+                <svg class="icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
             </a>
             
-            <a href="https://www.linkedin.com/in/madisonakles/" class="social-icon" target="_blank" aria-label="LinkedIn">
-                <i class="fa-brands fa-linkedin-in"></i>
+            <a href="https://www.linkedin.com/in/madisonakles/" class="social-link" target="_blank" aria-label="LinkedIn">
+                <svg class="icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
             </a>
 
-            <a href="https://www.patreon.com/deadbeatmad" class="social-icon" target="_blank" aria-label="Patreon">
-                <i class="fa-brands fa-patreon"></i>
+            <a href="https://www.patreon.com/deadbeatmad" class="social-link" target="_blank" aria-label="Patreon">
+                <svg class="icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.386 6.226C15.386 9.664 12.597 12.453 9.159 12.453 5.72 12.453 2.932 9.664 2.932 6.226 2.932 2.787 5.72 0 9.159 0 12.597 0 15.386 2.787 15.386 6.226M15.386 24h4.156V0h-4.156v24z"/></svg>
             </a>
         </div>
     </nav>
@@ -166,7 +170,8 @@
         </p>
         <p>
             currently, I am working on early intervention and behavior change for at-risk youth at APU. i am pursuing a M.S. in Data Science & Applied Statistics (and applied for PhD programs in Social Psychology for Fall 2026 so hopefully if you are stalking me this deeply you will take me on as a graduate student!)
-
+        </p>
+        <p>
             when i am not working, i am probably writing letters!
         </p>
     </section>
@@ -177,11 +182,11 @@
         <div class="research-item">
             <span class="research-title">AI-assisted prosocial chat function for online gaming</span>
             <span class="research-meta">in-progress</span>
-            <p>funded by a grant from the prosocial design network (announded dec 2025), i am working on an a “pause and suggest” intervention that detects potentially harmful or guideline-violating language before a message is sent. When triggered, the system displays a gentle feedback
+            <p>funded by a grant from the prosocial design network (awarded dec 2025), i am working on an a “pause and suggest” intervention that detects potentially harmful or guideline-violating language before a message is sent. When triggered, the system displays a gentle feedback
 message (e.g., “Hey! It looks like your message might not align with our community guidelines. Want to try one of our suggested versions instead?”) and provides a friendlier, content-preserving re-write of the user's message.</p>
         </div>
 
-    <div class="research-item">
+        <div class="research-item">
             <span class="research-title"> Preregistered Replication and Extension of “Moral Hypocrisy: Social Groups and the Flexibility of Virtue” </span>
             <span class="research-meta">may 2024 </span>
             <p>The tendency for people to consider themselves morally good while behaving selfishly is known as moral hypocrisy. Influential work by Valdesolo and DeSteno (2007) found evidence for intergroup moral hypocrisy such that people were more forgiving of transgressions when they were committed by an in-group member than an out-group member. We conducted two experiments to examine moral hypocrisy and group membership in an online paradigm with Prolific workers from the United States: a direct replication of the original work with minimal groups (N = 610; nationally representative) and a conceptual replication with political groups (N = 606; 50% Democrats and 50% Republicans). Although the results did not replicate the original findings, we observed evidence of in-group favoritism in minimal groups and out-group derogation in political groups. The current research finds mixed evidence of intergroup moral hypocrisy and has implications for understanding the contextual dependencies of intergroup bias and partisanship.</p>
