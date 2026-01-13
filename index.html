@@ -28,7 +28,7 @@
             display: inline-block; 
             width: 100%; 
             max-width: 500px; 
-            margin: 50px auto; /* Centers the container */
+            margin: 50px auto 10px auto; /* 10px bottom margin for caption */
         }
         .brain-img { 
             width: 100%; 
@@ -49,6 +49,9 @@
         .hotspot .tooltip { visibility: hidden; width: 160px; background-color: #000; color: #fff; text-align: center; border-radius: 6px; padding: 10px; position: absolute; z-index: 1; bottom: 150%; left: 50%; margin-left: -80px; opacity: 0; transition: opacity 0.3s; font-size: 0.85rem; pointer-events: none; }
         .hotspot .tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: black transparent transparent transparent; }
         .hotspot:hover .tooltip { visibility: visible; opacity: 1; }
+
+        /* CAPTION STYLE */
+        .caption { font-size: 0.75rem; color: #999; margin-bottom: 50px; font-style: italic;}
     </style>
 </head>
 <body>
@@ -69,18 +72,26 @@
     <div class="brain-container">
         <img src="brain.jpg" alt="Interactive Brain Map" class="brain-img">
 
-        <a href="bio.html" class="hotspot" style="top: 28%; left: 36%;">
+        <a href="bio.html" class="hotspot" style="top: 28%; left: 24%;">
             <span class="tooltip"><strong>Prefrontal Cortex</strong><br>Who I am (Bio)</span>
         </a>
 
-        <a href="cv.html" class="hotspot" style="top: 56%; left: 52%;">
+        <a href="cv.html" class="hotspot" style="top: 56%; left: 48%;">
             <span class="tooltip"><strong>Brainstem</strong><br>My History (CV)</span>
         </a>
 
-        <a href="research.html" class="hotspot" style="top: 63%; left: 75%;">
+        <a href="research.html" class="hotspot" style="top: 60%; left: 62%;">
             <span class="tooltip"><strong>Occipital Lobe</strong><br>What I see (Research)</span>
         </a>
     </div>
+
+    <div class="caption">
+        (this is my actual brain scan. because social neuroscience. get it? yay)
+    </div>
+
+    <footer style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.8rem; color: #777;">
+        &copy; 2026 Madison Akles. Designed with basic HTML by me.
+    </footer>
 
 </body>
 </html>
