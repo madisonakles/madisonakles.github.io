@@ -20,7 +20,19 @@
         .social-link:hover { text-decoration: none !important; }
         .nav-divider { color: #eee; margin-left: 20px; font-size: 1.2rem; }
         
-        @media (max-width: 600px) { nav { flex-direction: column; align-items: flex-start; } .nav-links { margin-top: 15px; flex-wrap: wrap; } .nav-divider { display: none; } }
+        /* --- MOBILE STYLES (UPDATED) --- */
+        @media (max-width: 600px) { 
+            nav { flex-direction: column; align-items: flex-start; } 
+            .nav-links { margin-top: 15px; flex-wrap: wrap; } 
+            .nav-divider { display: none; } 
+            
+            /* ALIGNMENT FIX: Remove left indent, add right spacing */
+            .nav-links a { 
+                margin-left: 0; 
+                margin-right: 20px; 
+                margin-bottom: 5px; 
+            }
+        }
 
         /* --- BRAIN HUB --- */
         .brain-container { 
@@ -28,14 +40,13 @@
             display: inline-block; 
             width: 100%; 
             max-width: 500px; 
-            margin: 50px auto 10px auto; /* 10px bottom margin for caption */
+            margin: 50px auto 10px auto; 
         }
         .brain-img { 
             width: 100%; 
             height: auto; 
             filter: grayscale(100%); 
             transition: filter 0.5s;
-            /* Rounded Corners and Soft Drop Shadow */
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
@@ -86,7 +97,7 @@
     </div>
 
     <div class="caption">
-        (this is my actual brain scan. bc social neuroscience. get it? :-)
+        (this is my actual brain scan. because social neuroscience. get it? :-)
     </div>
 
     <footer style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.8rem; color: #777;">
