@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Madison Akles | Psychology Researcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         /* --- 1. MINIMALIST DESIGN SYSTEM --- */
         :root {
-            --bg-color: #ffffff;      
-            --text-color: #333333;    
-            --accent-color: #555555;  
+            --bg-color: #ffffff;       
+            --text-color: #333333;     
+            --accent-color: #555555;   
             --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
 
@@ -44,16 +46,38 @@
             color: black;
         }
 
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
         .nav-links a {
             margin-left: 20px;
             text-decoration: none;
             color: var(--accent-color);
             font-size: 0.9rem;
+            transition: color 0.2s;
         }
 
         .nav-links a:hover {
             color: black;
             text-decoration: underline;
+        }
+
+        /* Special styling for icons to prevent underline on hover */
+        .social-icon {
+            font-size: 1.1rem; /* Slightly larger for visibility */
+        }
+        .social-icon:hover {
+            text-decoration: none !important; /* No underline for icons */
+            color: #000;
+        }
+
+        /* Divider between text links and icons */
+        .nav-divider {
+            color: #eee;
+            margin-left: 20px;
+            font-size: 1.2rem;
         }
 
         /* --- 3. SECTIONS --- */
@@ -104,8 +128,9 @@
         /* Mobile Adjustments */
         @media (max-width: 600px) {
             nav { flex-direction: column; align-items: flex-start; }
-            .nav-links { margin-top: 15px; }
-            .nav-links a { margin-left: 0; margin-right: 15px; }
+            .nav-links { margin-top: 15px; flex-wrap: wrap; }
+            .nav-links a { margin-left: 0; margin-right: 15px; margin-bottom: 10px; }
+            .nav-divider { display: none; } /* Hide divider on mobile */
         }
     </style>
 </head>
@@ -117,7 +142,21 @@
             <a href="#bio">Bio</a>
             <a href="#research">Research</a>
             <a href="#cv">CV</a>
-            <a href="#other">Other Stuff</a>
+            <a href="#other">Other</a>
+
+            <span class="nav-divider">|</span>
+
+            <a href="mailto:your-email@example.com" class="social-icon" aria-label="Email">
+                <i class="fa-regular fa-envelope"></i>
+            </a>
+            
+            <a href="https://linkedin.com/in/yourprofile" class="social-icon" target="_blank" aria-label="LinkedIn">
+                <i class="fa-brands fa-linkedin-in"></i>
+            </a>
+
+            <a href="https://patreon.com/yourpatreon" class="social-icon" target="_blank" aria-label="Patreon">
+                <i class="fa-brands fa-patreon"></i>
+            </a>
         </div>
     </nav>
 
@@ -128,6 +167,7 @@
         </p>
         <p>
             currently, I am working on early intervention and behavior change for at-risk youth at Azusa Pacific University. I am pursuing a M.S. in Data Science & Applied Statistics (and applied for PhD programs in Social Psychology for Fall 2026 so hopefully if you are stalking me this deeply you will take me on as a graduate student!)
+        </p>
     </section>
 
     <section id="research">
@@ -143,27 +183,4 @@ message (e.g., “Hey! It looks like your message might not align with our commu
         <div class="research-item">
             <span class="research-title"> Preregistered Replication and Extension of “Moral Hypocrisy: Social Groups and the Flexibility of Virtue” </span>
             <span class="research-meta">may 2024 </span>
-            <p>The tendency for people to consider themselves morally good while behaving selfishly is known as moral hypocrisy. Influential work by Valdesolo and DeSteno (2007) found evidence for intergroup moral hypocrisy such that people were more forgiving of transgressions when they were committed by an in-group member than an out-group member. We conducted two experiments to examine moral hypocrisy and group membership in an online paradigm with Prolific workers from the United States: a direct replication of the original work with minimal groups (N = 610; nationally representative) and a conceptual replication with political groups (N = 606; 50% Democrats and 50% Republicans). Although the results did not replicate the original findings, we observed evidence of in-group favoritism in minimal groups and out-group derogation in political groups. The current research finds mixed evidence of intergroup moral hypocrisy and has implications for understanding the contextual dependencies of intergroup bias and partisanship.</p>
-        </div>
-    </section>
-
-    <section id="cv">
-        <h2>Curriculum Vitae</h2>
-        <p>You can view my professional history and academic achievements below.</p>
-        <br>
-        <a href="my-cv.pdf" class="btn" target="_blank">Download Full CV (PDF)</a>
-    </section>
-
-    <section id="other">
-        <h2>Other Stuff</h2>
-        <ul>
-            <li><strong>patreon:</strong> i run a physical mailing club </li>
-        </ul>
-    </section>
-
-    <footer style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.8rem; color: #777;">
-        &copy; 2026 Madison Akles. Built with simple HTML & CSS.
-    </footer>
-
-</body>
-</html>
+            <p>The tendency for people to consider themselves morally good while behaving selfishly is known as moral hypocrisy. Influential work by Valdesolo and DeSteno (2007) found evidence for intergroup moral hypocrisy such that people were more forgiving of transgressions when they were committed by an in-group member
