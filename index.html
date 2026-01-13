@@ -1,1 +1,171 @@
-<h1>My 2026 Portfolio</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madison Akles | Psychology Researcher</title>
+    <style>
+        /* --- 1. MINIMALIST DESIGN SYSTEM --- */
+        :root {
+            --bg-color: #ffffff;      /* Clean White Background */
+            --text-color: #333333;    /* Dark Grey for readability */
+            --accent-color: #555555;  /* Subtle grey for links/lines */
+            --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            max-width: 800px; /* Limits width for readability */
+            margin: 0 auto;   /* Centers the content */
+            padding: 40px 20px;
+        }
+
+        /* --- 2. NAVIGATION --- */
+        nav {
+            margin-bottom: 60px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: black;
+            text-decoration: underline;
+        }
+
+        /* --- 3. SECTIONS --- */
+        section {
+            margin-bottom: 80px; /* Space between sections */
+        }
+
+        h2 {
+            font-size: 1.0rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #000;
+            border-bottom: 2px solid #000;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        /* --- 4. RESEARCH LIST --- */
+        .research-item {
+            margin-bottom: 25px;
+        }
+        .research-title {
+            font-weight: bold;
+            display: block;
+        }
+        .research-meta {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* --- 5. CV BUTTON --- */
+        .btn {
+            display: inline-block;
+            border: 1px solid #000;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #000;
+            transition: background 0.3s, color 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            nav { flex-direction: column; align-items: flex-start; }
+            .nav-links { margin-top: 15px; }
+            .nav-links a { margin-left: 0; margin-right: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="site-title">Madison Akles</a>
+        <div class="nav-links">
+            <a href="#bio">Bio</a>
+            <a href="#research">Research</a>
+            <a href="#cv">CV</a>
+            <a href="#other">Other Stuff</a>
+        </div>
+    </nav>
+
+    <section id="bio">
+        <h2>Bio</h2>
+        <p>
+            Hello! I am a researcher based in Los Angeles, CA. I am interested in I am interested in how people weigh social and personal rewards, what drives individuals to act in the interest of others in real world and online contexts, and how I can apply mobile technology interventions to influence these value-based decisions.
+        </p>
+        <p>
+            Currently, I am working on [Current Project Name] at [University/Company]. When I am not in the lab, you can find me hiking or reading sci-fi novels.
+        </p>
+    </section>
+
+    <section id="research">
+        <h2>Current Research</h2>
+        
+        <div class="research-item">
+            <span class="research-title">Project Alpha: Analyzing Data Trends</span>
+            <span class="research-meta">Published in Journal of Science (2025)</span>
+            <p>A brief 1-2 sentence description of what this research accomplished and why it matters.</p>
+        </div>
+
+        <div class="research-item">
+            <span class="research-title">Project Beta: The Future of AI</span>
+            <span class="research-meta">In Progress - Expected 2026</span>
+            <p>Investigating the effects of large language models on personal productivity.</p>
+        </div>
+    </section>
+
+    <section id="cv">
+        <h2>Curriculum Vitae</h2>
+        <p>You can view my professional history and academic achievements below.</p>
+        <br>
+        <a href="my-cv.pdf" class="btn" target="_blank">Download Full CV (PDF)</a>
+    </section>
+
+    <section id="other">
+        <h2>Other Stuff</h2>
+        <ul>
+            <li><strong>Blog:</strong> Thoughts on technology and culture.</li>
+            <li><strong>Photography:</strong> A collection of film photos from my travels.</li>
+            <li><strong>Reading List:</strong> Books I've enjoyed recently.</li>
+        </ul>
+    </section>
+
+    <footer style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.8rem; color: #777;">
+        &copy; 2026 Madison Akles. Built with simple HTML & CSS.
+    </footer>
+
+</body>
+</html>
