@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Constructive Chat Prototype</title>
+    <title>In-Game Chat Prototype</title>
     <style>
         :root {
             --bg-color: #f4f6f8;
@@ -23,12 +23,13 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             display: flex;
+            flex-direction: column; /* Changed to column to stack footer */
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             color: var(--text-main);
-            position: relative; /* Needed for the absolute back button */
+            position: relative;
         }
 
         /* --- Navigation --- */
@@ -62,6 +63,7 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
+            z-index: 1; /* Ensure chat is above background */
         }
 
         .chat-header {
@@ -109,9 +111,11 @@
             color: var(--text-sub);
             margin-bottom: 10px;
             background: #f0f9ff;
-            padding: 4px 12px;
+            padding: 6px 12px;
             border-radius: 12px;
             border: 1px solid #bae6fd;
+            text-align: center;
+            line-height: 1.3;
         }
 
         .input-area {
@@ -150,6 +154,16 @@
             background: var(--primary-hover);
         }
 
+        /* --- Footer Disclaimer --- */
+        .footer-note {
+            margin-top: 20px;
+            color: var(--text-sub);
+            font-size: 0.8rem;
+            opacity: 0.8;
+            text-align: center;
+            max-width: 400px;
+        }
+
         /* --- Intervention Modal --- */
         .modal-overlay {
             position: absolute;
@@ -175,7 +189,7 @@
 
         .modal-card {
             background: white;
-            width: 90%;
+            width: 85%;
             padding: 24px;
             border-radius: 16px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
@@ -274,13 +288,13 @@
 
 <div class="chat-container">
     <div class="chat-header">
-        <span>Team Chat</span>
-        <span style="font-size: 0.8rem; color: #10b981;">● Online</span>
+        <span>In-Game Chat</span>
+        <span style="font-size: 0.8rem; color: #10b981;">● Match Live</span>
     </div>
 
     <div class="chat-messages" id="messagesList">
-        <div class="message them">Hey, are you almost done with that report?</div>
-        <div class="system-note">Try typing "You are lazy" or "stupid" to test the AI.</div>
+        <div class="message them">i just got sniped</div>
+        <div class="system-note">Try typing "You are stupid" or "suck at this game" to test the AI.</div>
     </div>
 
     <div class="input-area">
@@ -292,11 +306,11 @@
         <div class="modal-card">
             <div class="modal-icon">✨</div>
             <h3 class="modal-title">Pause for a moment</h3>
-            <p class="modal-desc">We detected language that might not be constructive. Would you like to rephrase?</p>
+            <p class="modal-desc">We detected language that might not be constructive. Would you like to try this instead?</p>
             
             <div class="suggestion-box">
                 <span class="suggestion-label">AI Suggestion</span>
-                <span id="aiSuggestionText">I'm feeling a bit anxious about the timeline.</span>
+                <span id="aiSuggestionText">...</span>
             </div>
 
             <div class="actions">
@@ -308,6 +322,10 @@
     </div>
 </div>
 
+<div class="footer-note">
+    *This is a display mock-up for research demonstration purposes.<br>It is not currently connected to a live API.
+</div>
+
 <script>
     const input = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -315,16 +333,17 @@
     const modal = document.getElementById('interventionModal');
     const aiText = document.getElementById('aiSuggestionText');
 
-    // Simulate "Toxic" keywords for the prototype
-    const toxicKeywords = ['stupid', 'lazy', 'idiot', 'hate', 'dumb', 'useless'];
+    // Simulate "Toxic" keywords for the gaming prototype
+    const toxicKeywords = ['stupid', 'lazy', 'idiot', 'hate', 'dumb', 'suck'];
     
     // Simulate AI rewriting logic
     const rewrites = {
-        'default': "I think we might have a misunderstanding on the approach.",
-        'lazy': "I'm concerned about the pace of progress on this task.",
-        'stupid': "I believe there might be a better way to approach this problem.",
-        'idiot': "I feel frustrated and think we see things differently.",
-        'hate': "I'm really struggling with this specific aspect."
+        'default': "That was a really tough round.",
+        'lazy': "We need to pick up the pace a bit.",
+        'stupid': "I think we should try a different strategy.",
+        'idiot': "I'm feeling frustrated with how this is going.",
+        'hate': "I'm really struggling with this match.",
+        'suck': "We're having a hard time, let's regroup."
     };
 
     let originalMessage = "";
@@ -347,7 +366,7 @@
             originalMessage = text;
             triggerIntervention(text);
         } else {
-            // Normal Send
+            // Normal Send (Simulate neutral/positive logic if needed, currently no auto-reply for neutral)
             addMessageToChat(text, 'me');
             input.value = '';
         }
@@ -368,21 +387,27 @@
     }
 
     // 3. Modal Actions
+    
+    // Option A: Accept AI Suggestion -> Leads to Positive Reply
     window.acceptSuggestion = function() {
         addMessageToChat(aiText.textContent, 'me');
         closeModal();
         input.value = '';
+        simulateReply('positive');
     };
 
+    // Option B: Cancel / Edit
     window.cancelSend = function() {
         closeModal();
         input.focus(); 
     };
 
+    // Option C: Send Original Anyway -> Leads to Negative Reply
     window.sendOriginal = function() {
         addMessageToChat(originalMessage, 'me');
         closeModal();
         input.value = '';
+        simulateReply('negative');
     };
 
     function closeModal() {
@@ -396,6 +421,20 @@
         div.textContent = text;
         messagesList.appendChild(div);
         messagesList.scrollTop = messagesList.scrollHeight; 
+    }
+
+    // Helper: Simulate "Player 2" Replying
+    function simulateReply(sentiment) {
+        // Delay for 1.5 seconds to feel like typing
+        setTimeout(() => {
+            let replyText = "";
+            if (sentiment === 'positive') {
+                replyText = "haha i'll do better";
+            } else {
+                replyText = ":((";
+            }
+            addMessageToChat(replyText, 'them');
+        }, 1500);
     }
 </script>
 
