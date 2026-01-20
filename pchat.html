@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructive Chat Prototype</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --chat-bg: #ffffff;
+            --primary: #4f46e5; /* Indigo */
+            --primary-hover: #4338ca;
+            --secondary: #e5e7eb;
+            --text-main: #111827;
+            --text-sub: #6b7280;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bubble-me: #4f46e5;
+            --bubble-them: #f3f4f6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        /* --- Chat Interface --- */
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            background: var(--chat-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--secondary);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message.them {
+            align-self: flex-start;
+            background: var(--bubble-them);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.me {
+            align-self: flex-end;
+            background: var(--bubble-me);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .system-note {
+            align-self: center;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            margin-bottom: 10px;
+            background: #f0f9ff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid #bae6fd;
+        }
+
+        .input-area {
+            padding: 16px;
+            border-top: 1px solid var(--secondary);
+            display: flex;
+            gap: 10px;
+            background: var(--chat-bg);
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--secondary);
+            border-radius: 24px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        button.send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button.send-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* --- Intervention Modal --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(2px);
+            z-index: 10;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: white;
+            width: 90%;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-icon {
+            color: #f59e0b;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+
+        .modal-desc {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+
+        .suggestion-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            color: #166534;
+        }
+
+        .suggestion-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #15803d;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-sub);
+            border: 1px solid var(--secondary);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-link {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.8rem;
+            text-decoration: underline;
+            cursor: pointer;
+            padding-top: 5px;
+        }
+
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary:hover { background: var(--secondary); }
+
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <span>Team Chat</span>
+        <span style="font-size: 0.8rem; color: #10b981;">● Online</span>
+    </div>
+
+    <div class="chat-messages" id="messagesList">
+        <div class="message them">Hey, are you almost done with that report?</div>
+        <div class="system-note">Try typing "You are lazy" or "stupid" to test the AI.</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
+        <button class="send-btn" id="sendBtn">Send</button>
+    </div>
+
+    <div class="modal-overlay" id="interventionModal">
+        <div class="modal-card">
+            <div class="modal-icon">✨</div>
+            <h3 class="modal-title">Pause for a moment</h3>
+            <p class="modal-desc">We detected language that might not be constructive. Would you like to rephrase?</p>
+            
+            <div class="suggestion-box">
+                <span class="suggestion-label">AI Suggestion</span>
+                <span id="aiSuggestionText">I'm feeling a bit anxious about the timeline.</span>
+            </div>
+
+            <div class="actions">
+                <button class="btn-primary" onclick="acceptSuggestion()">Use Suggestion</button>
+                <button class="btn-secondary" onclick="cancelSend()">Edit / Cancel</button>
+                <button class="btn-link" onclick="sendOriginal()">Send original message anyway</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const messagesList = document.getElementById('messagesList');
+    const modal = document.getElementById('interventionModal');
+    const aiText = document.getElementById('aiSuggestionText');
+
+    // Simulate "Toxic" keywords for the prototype
+    const toxicKeywords = ['stupid', 'lazy', 'idiot', 'hate', 'dumb', 'useless'];
+    
+    // Simulate AI rewriting logic
+    const rewrites = {
+        'default': "I think we might have a misunderstanding on the approach.",
+        'lazy': "I'm concerned about the pace of progress on this task.",
+        'stupid': "I believe there might be a better way to approach this problem.",
+        'idiot': "I feel frustrated and think we see things differently.",
+        'hate': "I'm really struggling with this specific aspect."
+    };
+
+    let originalMessage = "";
+
+    // 1. Send Button Logic
+    sendBtn.addEventListener('click', handleSend);
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSend();
+    });
+
+    function handleSend() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Check for toxicity
+        const isToxic = toxicKeywords.some(keyword => text.toLowerCase().includes(keyword));
+
+        if (isToxic) {
+            // INTERCEPT: Show Modal
+            originalMessage = text;
+            triggerIntervention(text);
+        } else {
+            // Normal Send
+            addMessageToChat(text, 'me');
+            input.value = '';
+        }
+    }
+
+    // 2. Logic to Trigger the Modal
+    function triggerIntervention(text) {
+        // Find a relevant rewrite based on the keyword found, or use default
+        let suggestion = rewrites['default'];
+        for (const key of toxicKeywords) {
+            if (text.toLowerCase().includes(key)) {
+                suggestion = rewrites[key] || rewrites['default'];
+                break;
+            }
+        }
+
+        aiText.textContent = suggestion;
+        modal.classList.add('active');
+    }
+
+    // 3. Modal Actions
+    
+    // Option A: Accept AI Suggestion
+    window.acceptSuggestion = function() {
+        addMessageToChat(aiText.textContent, 'me');
+        closeModal();
+        input.value = '';
+    };
+
+    // Option B: Cancel / Edit
+    window.cancelSend = function() {
+        closeModal();
+        input.focus(); // Keep the text there so they can edit it
+    };
+
+    // Option C: Send Original Anyway
+    window.sendOriginal = function() {
+        addMessageToChat(originalMessage, 'me');
+        closeModal();
+        input.value = '';
+    };
+
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+
+    // Helper: Add message bubble to DOM
+    function addMessageToChat(text, sender) {
+        const div = document.createElement('div');
+        div.classList.add('message', sender);
+        div.textContent = text;
+        messagesList.appendChild(div);
+        messagesList.scrollTop = messagesList.scrollHeight; // Auto scroll to bottom
+    }
+</script>
+
+</body>
+</html>
