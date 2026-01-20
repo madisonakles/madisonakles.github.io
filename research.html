@@ -8,7 +8,7 @@
         :root { --bg-color: #ffffff; --text-color: #333333; --accent-color: #555555; --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
         body { font-family: var(--font-main); color: var(--text-color); background-color: var(--bg-color); margin: 0; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
         
-        /* Nav & Back Button */
+        /* Nav/Back Button */
         nav { margin-bottom: 60px; border-bottom: 1px solid #eee; padding-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .back-link { font-size: 1rem; font-weight: bold; text-decoration: none; color: var(--accent-color); transition: color 0.2s; }
         .back-link:hover { color: black; }
@@ -22,9 +22,16 @@
         .research-title { font-weight: bold; display: block; font-size: 1.05rem; margin-bottom: 4px; }
         .research-meta { font-style: italic; color: #666; font-size: 0.9rem; display: block; margin-bottom: 10px; }
         
-        /* Link styling to break long URLs nicely on mobile */
+        /* nice 4 mobile */
         .research-item a { color: #000; text-decoration: underline; word-break: break-all; }
         .research-item a:hover { color: #555; }
+
+        /* prototype link */
+        .prototype-link {
+            font-weight: bold; 
+            text-decoration: none !important; 
+            border-bottom: 1px solid #000; /* Custom underline */
+        }
     </style>
 </head>
 <body>
@@ -44,6 +51,10 @@
             <span class="research-title">AI-assisted prosocial chat function for online gaming</span>
             <span class="research-meta">in-progress</span>
             <p>funded by a grant (awarded dec 2025) from the prosocial design network and based on a PDNxRoblox workshop (attended oct 2025), i am working on an a “pause and suggest” intervention that detects potentially harmful or guideline-violating language before a message is sent.</p>
+            
+            <p>
+                <a href="pchat.html" class="prototype-link">→ Try the interactive prototype</a>
+            </p>
         </div>
 
         <div class="research-item">
