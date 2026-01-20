@@ -28,6 +28,26 @@
             height: 100vh;
             margin: 0;
             color: var(--text-main);
+            position: relative; /* Needed for the absolute back button */
+        }
+
+        /* --- Navigation --- */
+        .back-nav {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            text-decoration: none;
+            color: var(--text-sub);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-nav:hover {
+            color: var(--text-main);
         }
 
         /* --- Chat Interface --- */
@@ -250,6 +270,8 @@
 </head>
 <body>
 
+<a href="research.html" class="back-nav">← Back to Research</a>
+
 <div class="chat-container">
     <div class="chat-header">
         <span>Team Chat</span>
@@ -333,7 +355,6 @@
 
     // 2. Logic to Trigger the Modal
     function triggerIntervention(text) {
-        // Find a relevant rewrite based on the keyword found, or use default
         let suggestion = rewrites['default'];
         for (const key of toxicKeywords) {
             if (text.toLowerCase().includes(key)) {
@@ -347,21 +368,17 @@
     }
 
     // 3. Modal Actions
-    
-    // Option A: Accept AI Suggestion
     window.acceptSuggestion = function() {
         addMessageToChat(aiText.textContent, 'me');
         closeModal();
         input.value = '';
     };
 
-    // Option B: Cancel / Edit
     window.cancelSend = function() {
         closeModal();
-        input.focus(); // Keep the text there so they can edit it
+        input.focus(); 
     };
 
-    // Option C: Send Original Anyway
     window.sendOriginal = function() {
         addMessageToChat(originalMessage, 'me');
         closeModal();
@@ -378,7 +395,7 @@
         div.classList.add('message', sender);
         div.textContent = text;
         messagesList.appendChild(div);
-        messagesList.scrollTop = messagesList.scrollHeight; // Auto scroll to bottom
+        messagesList.scrollTop = messagesList.scrollHeight; 
     }
 </script>
 
