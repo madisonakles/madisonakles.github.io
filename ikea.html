@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Ownership Experiment</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #0ea5e9; /* Sky Blue */
+            --primary-dark: #0284c7;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --accent-green: #10b981;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Navigation --- */
+        .back-nav {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            text-decoration: none;
+            color: var(--text-sub);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 100;
+        }
+        .back-nav:hover { color: var(--text-main); }
+
+        /* --- Layout --- */
+        .main-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* --- Device Container --- */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            min-height: 600px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .app-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            background: #f1f5f9;
+        }
+        .app-header h2 { margin: 0; font-size: 1.1rem; color: #334155; }
+        
+        .screen {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- Start Screen --- */
+        .btn-choice {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .btn-choice:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(14, 165, 233, 0.15); }
+        .btn-choice strong { display: block; font-size: 1rem; margin-bottom: 5px; color: var(--primary-dark); }
+        .btn-choice span { font-size: 0.85rem; color: var(--text-sub); }
+
+        /* --- Training Screen (Group A) --- */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; }
+        
+        .pair-container { display: flex; gap: 10px; margin-top: 20px; }
+        .pair-btn {
+            flex: 1;
+            padding: 30px 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+        .pair-btn:hover { border-color: var(--primary); background: #f0f9ff; }
+
+        /* --- Loading Screen --- */
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary);
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Results Screen --- */
+        .result-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-info strong { display: block; font-size: 0.95rem; }
+        .result-info span { font-size: 0.8rem; color: var(--text-sub); }
+        .match-score { font-weight: bold; color: var(--accent-green); font-size: 0.9rem; }
+        
+        .mismatch { border-left: 4px solid #f59e0b; } /* Orange indicator for the conflict item */
+
+        /* --- Research Panel --- */
+        .info-panel {
+            flex: 1;
+            max-width: 350px;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(20px);
+            transition: all 0.5s ease-out;
+        }
+        .info-panel.visible { opacity: 1; visibility: visible; transform: translateX(0); }
+        .info-panel h3 { margin-top: 0; font-size: 1rem; color: var(--text-main); }
+        .info-panel p { font-size: 0.85rem; line-height: 1.5; color: var(--text-sub); margin-bottom: 12px; }
+        .info-panel .ref-box { background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 0.8rem; border: 1px solid #e5e7eb; }
+
+        .footer-note { margin-top: 30px; color: var(--text-sub); font-size: 0.8rem; opacity: 0.8; text-align: center; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-wrapper { flex-direction: column; align-items: center; gap: 20px; }
+            .info-panel { width: 100%; max-width: 400px; transform: translateY(20px); }
+            .info-panel.visible { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<a href="research.html" class="back-nav">← Back to Research</a>
+
+<div class="main-wrapper">
+
+    <div class="app-container">
+        <div class="app-header">
+            <h2 id="headerTitle">Experiment Launchpad</h2>
+        </div>
+
+        <div id="menuScreen" class="screen">
+            <p style="text-align:center; color:#64748b; margin-bottom:20px;">Select a condition to simulate:</p>
+            
+            <div class="btn-choice" onclick="startGroupA()">
+                <strong>Condition A: High Ownership</strong>
+                <span>User spends effort "training" the AI (The Builder).</span>
+            </div>
+
+            <div class="btn-choice" onclick="startGroupB()">
+                <strong>Condition B: Low Ownership</strong>
+                <span>User receives a pre-made algorithm (The Receiver).</span>
+            </div>
+        </div>
+
+        <div id="trainingScreen" class="screen" style="display:none;">
+            <p style="text-align:center; font-weight:600; margin-bottom:10px;">Train Your Algorithm</p>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            
+            <div style="text-align:center; margin-bottom:20px;">which do you prefer?</div>
+            
+            <div class="pair-container">
+                <button class="pair-btn" onclick="nextPair()">Wind Energy</button>
+                <button class="pair-btn" onclick="nextPair()">Solar Energy</button>
+            </div>
+        </div>
+
+        <div id="loadingScreen" class="screen" style="display:none; text-align:center;">
+            <div class="spinner"></div>
+            <p id="loadingText">Generating Recommendations...</p>
+        </div>
+
+        <div id="resultsScreen" class="screen" style="display:none; justify-content: flex-start;">
+            <p id="resultIntro" style="font-size:0.9rem; color:#64748b; margin-bottom:15px;"></p>
+            
+            <div class="result-card">
+                <div class="result-info">
+                    <strong>Global Wind ETF</strong>
+                    <span>Clean Energy Sector</span>
+                </div>
+                <div class="match-score">98% Match</div>
+            </div>
+
+            <div class="result-card">
+                <div class="result-info">
+                    <strong>Solar Tech Futures</strong>
+                    <span>Renewable Infrastructure</span>
+                </div>
+                <div class="match-score">95% Match</div>
+            </div>
+
+            <div class="result-card mismatch">
+                <div class="result-info">
+                    <strong>Adv. Nuclear Fission Corp</strong>
+                    <span style="color:#f59e0b;">*AI Suggested Addition</span>
+                </div>
+                <div class="match-score">89% Match</div>
+            </div>
+
+            <button class="pair-btn" style="width:100%; margin-top:20px; background:#f8fafc; font-weight:normal; font-size:0.9rem;" onclick="location.reload()">↺ Reset Simulation</button>
+        </div>
+
+    </div>
+
+    <div class="info-panel" id="researchInfoPanel">
+        <h3>🧩 The "IKEA Effect" in Algorithms</h3>
+        <p>
+            Does the effort of "building" an algorithm make us more likely to accept its flaws?
+        </p>
+        <p>
+            <strong>The Hypothesis:</strong> Participants in <em>Condition A (High Ownership)</em>, who spent time "training" the system, will significantly favor the algorithm's output—including the mismatched "Nuclear" suggestion—compared to <em>Condition B</em>, despite both receiving identical results.
+        </p>
+        <p>
+            This tests if <strong>Self-AI Overlap</strong> overrides logical preference consistency.
+        </p>
+        <div class="ref-box">
+            <strong>Theoretical Basis:</strong>
+            <ul style="padding-left: 20px; margin: 5px 0;">
+                <li>
+                    <strong>The IKEA Effect:</strong> Norton, Mochon, & Ariely (2012) on valuation of self-made products.
+                </li>
+                <li>
+                    <strong>Psychological Ownership:</strong> Morewedge et al. (2021).
+                </li>
+                <li>
+                    <strong>AI Responsibility:</strong> Baek et al. (2026) on AI Customization & Responsibility Attribution.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer-note">
+    *This is a functional prototype. No actual data is being collected.
+</div>
+
+<script>
+    const menuScreen = document.getElementById('menuScreen');
+    const trainingScreen = document.getElementById('trainingScreen');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const resultsScreen = document.getElementById('resultsScreen');
+    const headerTitle = document.getElementById('headerTitle');
+    const loadingText = document.getElementById('loadingText');
+    const resultIntro = document.getElementById('resultIntro');
+    const infoPanel = document.getElementById('researchInfoPanel');
+    const progressFill = document.getElementById('progressFill');
+
+    let clickCount = 0;
+
+    // --- GROUP A: High Ownership ---
+    function startGroupA() {
+        menuScreen.style.display = 'none';
+        headerTitle.textContent = "Training Mode";
+        trainingScreen.style.display = 'flex';
+        clickCount = 0;
+        progressFill.style.width = '10%';
+    }
+
+    function nextPair() {
+        clickCount++;
+        const width = (clickCount / 3) * 100;
+        progressFill.style.width = width + '%';
+
+        if(clickCount >= 3) {
+            setTimeout(() => {
+                trainingScreen.style.display = 'none';
+                showLoading("Finalizing YOUR Personalized Model...");
+            }, 400);
+        }
+    }
+
+    // --- GROUP B: Low Ownership ---
+    function startGroupB() {
+        menuScreen.style.display = 'none';
+        headerTitle.textContent = "Standard Mode";
+        showLoading("Loading Expert-Curated Model...");
+    }
+
+    // --- Shared Functions ---
+    function showLoading(text) {
+        loadingScreen.style.display = 'flex';
+        loadingText.textContent = text;
+        
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            showResults(text.includes("YOUR"));
+        }, 2000);
+    }
+
+    function showResults(isPersonalized) {
+        headerTitle.textContent = "Investment Portfolio";
+        resultsScreen.style.display = 'flex';
+        
+        if (isPersonalized) {
+            resultIntro.innerHTML = "Based on <strong>your training</strong>, here is your unique portfolio:";
+        } else {
+            resultIntro.innerHTML = "Based on <strong>expert consensus</strong>, here is the standard portfolio:";
+        }
+
+        // Trigger Side Panel
+        setTimeout(() => {
+            infoPanel.classList.add('visible');
+        }, 500);
+    }
+
+</script>
+
+</body>
+</html>
