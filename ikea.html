@@ -92,6 +92,19 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* --- Start Screen --- */
+        .induction-text {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.5;
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+        }
+
         .btn-choice {
             background: white;
             border: 1px solid var(--border);
@@ -156,6 +169,19 @@
         
         .mismatch { border-left: 4px solid #f59e0b; } /* Orange indicator for the conflict item */
 
+        .continue-btn {
+            width: 100%; padding: 15px; background: var(--primary); color: white; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; margin-top: 20px;
+        }
+        .continue-btn:hover { background: var(--primary-dark); }
+
+        /* --- Rating Screen --- */
+        .rating-container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .star-btn {
+            font-size: 2rem; background: none; border: none; cursor: pointer; color: #cbd5e1; transition: 0.2s;
+        }
+        .star-btn:hover, .star-btn.active { color: #f59e0b; transform: scale(1.1); }
+
         /* --- Research Panel --- */
         .info-panel {
             flex: 1;
@@ -173,7 +199,27 @@
         .info-panel.visible { opacity: 1; visibility: visible; transform: translateX(0); }
         .info-panel h3 { margin-top: 0; font-size: 1rem; color: var(--text-main); }
         .info-panel p { font-size: 0.85rem; line-height: 1.5; color: var(--text-sub); margin-bottom: 12px; }
-        .info-panel .ref-box { background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 0.8rem; border: 1px solid #e5e7eb; }
+        
+        /* Reference Box Updated */
+        .ref-box { 
+            background: #f8fafc; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-top: 15px; 
+            font-size: 0.8rem; 
+            border: 1px solid #e2e8f0; 
+            color: #334155;
+        }
+        .ref-box ul { padding-left: 15px; margin: 5px 0; }
+        .ref-box li { margin-bottom: 10px; }
+        .ref-box a {
+            display: block;
+            color: #0284c7;
+            text-decoration: underline;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+        .ref-box a:hover { color: #0369a1; }
 
         .footer-note { margin-top: 30px; color: var(--text-sub); font-size: 0.8rem; opacity: 0.8; text-align: center; }
 
@@ -193,11 +239,16 @@
 
     <div class="app-container">
         <div class="app-header">
-            <h2 id="headerTitle">Experiment Launchpad</h2>
+            <h2 id="headerTitle">VestAI Beta</h2>
         </div>
 
         <div id="menuScreen" class="screen">
-            <p style="text-align:center; color:#64748b; margin-bottom:20px;">Select a condition to simulate:</p>
+            <div class="induction-text">
+                <strong>Experiment Induction:</strong><br>
+                You are testing a new "Investment Personalization Engine." We are measuring how well the algorithm aligns with your interests.
+            </div>
+            
+            <p style="text-align:center; color:#64748b; margin-bottom:10px; font-size:0.9rem;">Select a participant condition:</p>
             
             <div class="btn-choice" onclick="startGroupA()">
                 <strong>Condition A: High Ownership</strong>
@@ -214,7 +265,7 @@
             <p style="text-align:center; font-weight:600; margin-bottom:10px;">Train Your Algorithm</p>
             <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             
-            <div style="text-align:center; margin-bottom:20px;">which do you prefer?</div>
+            <div style="text-align:center; margin-bottom:20px;">Which sector do you prefer?</div>
             
             <div class="pair-container">
                 <button class="pair-btn" onclick="nextPair()">Wind Energy</button>
@@ -254,7 +305,33 @@
                 <div class="match-score">89% Match</div>
             </div>
 
-            <button class="pair-btn" style="width:100%; margin-top:20px; background:#f8fafc; font-weight:normal; font-size:0.9rem;" onclick="location.reload()">↺ Reset Simulation</button>
+            <button class="continue-btn" onclick="goToRating()">Evaluate Portfolio →</button>
+        </div>
+
+        <div id="ratingScreen" class="screen" style="display:none; text-align:center;">
+            <h3 style="margin-top:0;">Final Evaluation</h3>
+            <p style="color:#64748b; line-height:1.5;">
+                Considering your preferences, how well does this portfolio align with your interests?
+            </p>
+            
+            <div class="rating-container">
+                <button class="star-btn" onclick="rate(1)">★</button>
+                <button class="star-btn" onclick="rate(2)">★</button>
+                <button class="star-btn" onclick="rate(3)">★</button>
+                <button class="star-btn" onclick="rate(4)">★</button>
+                <button class="star-btn" onclick="rate(5)">★</button>
+            </div>
+            
+            <p id="ratingFeedback" style="font-size:0.9rem; font-weight:bold; height:20px; color:#0ea5e9;"></p>
+
+            <button class="continue-btn" id="submitRatingBtn" onclick="submitRating()" style="background:#e2e8f0; color:#94a3b8; cursor:not-allowed;" disabled>Submit Evaluation</button>
+        </div>
+
+        <div id="finalScreen" class="screen" style="display:none; text-align:center;">
+            <div style="font-size:3rem; margin-bottom:20px;">🧪</div>
+            <h3>Data Recorded</h3>
+            <p style="color:#64748b; font-size:0.9rem;">Thank you for participating in the simulation.</p>
+            <button class="pair-btn" style="width:100%; margin-top:20px; font-weight:normal;" onclick="location.reload()">↺ Reset Simulation</button>
         </div>
 
     </div>
@@ -262,25 +339,32 @@
     <div class="info-panel" id="researchInfoPanel">
         <h3>🧩 The "IKEA Effect" in Algorithms</h3>
         <p>
-            Does the effort of "building" an algorithm make us more likely to accept its flaws?
+            <strong>The Evaluation Step:</strong> You just rated the alignment of the portfolio.
         </p>
         <p>
-            <strong>The Hypothesis:</strong> Participants in <em>Condition A (High Ownership)</em>, who spent time "training" the system, will significantly favor the algorithm's output—including the mismatched "Nuclear" suggestion—compared to <em>Condition B</em>, despite both receiving identical results.
+            <strong>The Hypothesis:</strong> Participants in <em>Condition A (High Ownership)</em>, who spent time "training" the system, consistently rate the portfolio significantly higher than <em>Condition B</em>—even though the results (including the mismatched "Nuclear" suggestion) are identical.
         </p>
         <p>
-            This tests if <strong>Self-AI Overlap</strong> overrides logical preference consistency.
+            This suggests that <strong>labor induces value</strong>. We are more likely to forgive algorithmic "mistakes" (like the mismatch) if we feel we helped build the tool.
         </p>
+        
         <div class="ref-box">
             <strong>Theoretical Basis:</strong>
-            <ul style="padding-left: 20px; margin: 5px 0;">
+            <ul>
                 <li>
-                    <strong>The IKEA Effect:</strong> Norton, Mochon, & Ariely (2012) on valuation of self-made products.
+                    <strong>Norton, Mochon, & Ariely (2012)</strong><br>
+                    "The IKEA effect: When labor leads to love"
+                    <a href="https://doi.org/10.1016/j.jcps.2011.08.002" target="_blank">10.1016/j.jcps.2011.08.002</a>
                 </li>
                 <li>
-                    <strong>Psychological Ownership:</strong> Morewedge et al. (2021).
+                    <strong>Morewedge et al. (2021)</strong><br>
+                    "Evolution of Consumption: A Psychological Ownership Framework"
+                    <a href="https://doi.org/10.1177/0022242920957007" target="_blank">10.1177/0022242920957007</a>
                 </li>
                 <li>
-                    <strong>AI Responsibility:</strong> Baek et al. (2026) on AI Customization & Responsibility Attribution.
+                    <strong>Baek et al. (2022)</strong><br>
+                    "When AI makes mistakes: The effects of AI type... on responsibility attribution"
+                    <a href="https://doi.org/10.1016/j.chb.2022.107409" target="_blank">10.1016/j.chb.2022.107409</a>
                 </li>
             </ul>
         </div>
@@ -297,16 +381,23 @@
     const trainingScreen = document.getElementById('trainingScreen');
     const loadingScreen = document.getElementById('loadingScreen');
     const resultsScreen = document.getElementById('resultsScreen');
+    const ratingScreen = document.getElementById('ratingScreen');
+    const finalScreen = document.getElementById('finalScreen');
+    
     const headerTitle = document.getElementById('headerTitle');
     const loadingText = document.getElementById('loadingText');
     const resultIntro = document.getElementById('resultIntro');
     const infoPanel = document.getElementById('researchInfoPanel');
     const progressFill = document.getElementById('progressFill');
+    const ratingFeedback = document.getElementById('ratingFeedback');
+    const submitRatingBtn = document.getElementById('submitRatingBtn');
 
     let clickCount = 0;
+    let isPersonalized = false;
 
     // --- GROUP A: High Ownership ---
     function startGroupA() {
+        isPersonalized = true;
         menuScreen.style.display = 'none';
         headerTitle.textContent = "Training Mode";
         trainingScreen.style.display = 'flex';
@@ -329,6 +420,7 @@
 
     // --- GROUP B: Low Ownership ---
     function startGroupB() {
+        isPersonalized = false;
         menuScreen.style.display = 'none';
         headerTitle.textContent = "Standard Mode";
         showLoading("Loading Expert-Curated Model...");
@@ -341,12 +433,12 @@
         
         setTimeout(() => {
             loadingScreen.style.display = 'none';
-            showResults(text.includes("YOUR"));
+            showResults();
         }, 2000);
     }
 
-    function showResults(isPersonalized) {
-        headerTitle.textContent = "Investment Portfolio";
+    function showResults() {
+        headerTitle.textContent = "Generated Portfolio";
         resultsScreen.style.display = 'flex';
         
         if (isPersonalized) {
@@ -354,11 +446,45 @@
         } else {
             resultIntro.innerHTML = "Based on <strong>expert consensus</strong>, here is the standard portfolio:";
         }
+    }
 
-        // Trigger Side Panel
+    function goToRating() {
+        resultsScreen.style.display = 'none';
+        ratingScreen.style.display = 'flex';
+        headerTitle.textContent = "Feedback";
+    }
+
+    function rate(stars) {
+        // Highlight stars
+        const buttons = document.querySelectorAll('.star-btn');
+        buttons.forEach((btn, index) => {
+            if (index < stars) {
+                btn.classList.add('active');
+                btn.style.color = '#f59e0b';
+            } else {
+                btn.classList.remove('active');
+                btn.style.color = '#cbd5e1';
+            }
+        });
+
+        // Enable submit button
+        submitRatingBtn.disabled = false;
+        submitRatingBtn.style.background = '#0ea5e9';
+        submitRatingBtn.style.color = 'white';
+        submitRatingBtn.style.cursor = 'pointer';
+
+        const texts = ["Poor Match", "Fair", "Good", "Very Good", "Excellent Alignment"];
+        ratingFeedback.textContent = texts[stars - 1];
+    }
+
+    function submitRating() {
+        ratingScreen.style.display = 'none';
+        finalScreen.style.display = 'flex';
+        
+        // Trigger Side Panel REVEAL
         setTimeout(() => {
             infoPanel.classList.add('visible');
-        }, 500);
+        }, 200);
     }
 
 </script>
