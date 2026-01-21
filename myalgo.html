@@ -206,7 +206,25 @@
         
         .info-panel h3 { margin-top: 0; font-size: 1rem; color: var(--text-main); }
         .info-panel p { font-size: 0.85rem; line-height: 1.5; color: var(--text-sub); margin-bottom: 12px; }
-        .ref-box { background: #fff1f2; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 0.8rem; border: 1px solid #ffe4e6; color: #881337; }
+        
+        /* Updated Reference Box Styles */
+        .ref-box { 
+            background: #fff1f2; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-top: 15px; 
+            font-size: 0.8rem; 
+            border: 1px solid #ffe4e6; 
+            color: #111827; 
+        }
+        
+        .ref-box a {
+            color: #991b1b;
+            text-decoration: underline;
+            word-break: break-all; /* Ensures long DOIs don't break layout */
+            display: block;
+            margin-top: 2px;
+        }
 
         /* Responsive */
         @media (max-width: 900px) {
@@ -282,9 +300,29 @@
         <p>
             In contrast, users on the "Public Feed" (Group 1) are quicker to reject the exact same content as external propaganda.
         </p>
+        
         <div class="ref-box">
-            <strong>Theoretical Basis:</strong><br>
-            Chen et al. (2025) on <em>The Algorithmic Self</em>: "Do we own the bias if we trained the machine?"
+            <strong style="display:block; margin-bottom:8px;">Theoretical Basis:</strong>
+            
+            <ul style="padding-left: 15px; margin: 0;">
+                <li style="margin-bottom: 12px;">
+                    <strong>Norton, Mochon, & Ariely (2012)</strong><br>
+                    "The IKEA effect: When labor leads to love."
+                    <a href="https://doi.org/10.1016/j.jcps.2011.08.002" target="_blank">doi.org/10.1016/j.jcps.2011.08.002</a>
+                </li>
+                
+                <li style="margin-bottom: 12px;">
+                    <strong>Cheney-Lippold (2011)</strong><br>
+                    "A New Algorithmic Identity: Soft Biopolitics..."
+                    <a href="https://doi.org/10.1177/0263276411424420" target="_blank">doi.org/10.1177/0263276411424420</a>
+                </li>
+
+                <li>
+                    <strong>Sundar & Marathe (2010)</strong><br>
+                    "Personalization versus customization: The importance of agency..."
+                    <a href="https://doi.org/10.1111/j.1468-2958.2010.01377.x" target="_blank">doi.org/10.1111/j.1468-2958.2010.01377.x</a>
+                </li>
+            </ul>
         </div>
     </div>
 
