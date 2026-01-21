@@ -15,23 +15,74 @@
         .nav-links a { margin-left: 20px; text-decoration: none; color: var(--accent-color); font-size: 0.9rem; }
         .nav-links a:hover { color: black; text-decoration: underline; }
         
-        h2 { border-bottom: 2px solid #000; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem;}
+        h2 { border-bottom: 2px solid #000; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; margin-top: 50px; }
+        h2:first-of-type { margin-top: 0; }
         
         /* Research Item Styles */
-        .research-item { margin-bottom: 35px; } /* Increased spacing slightly */
+        .research-item { margin-bottom: 35px; } 
         .research-title { font-weight: bold; display: block; font-size: 1.05rem; margin-bottom: 4px; }
         .research-meta { font-style: italic; color: #666; font-size: 0.9rem; display: block; margin-bottom: 10px; }
         
-        /* nice 4 mobile */
         .research-item a { color: #000; text-decoration: underline; word-break: break-all; }
         .research-item a:hover { color: #555; }
 
-        /* prototype link */
-        .prototype-link {
-            font-weight: bold; 
-            text-decoration: none !important; 
-            border-bottom: 1px solid #000; /* Custom underline */
+        /* Prototype Grid Styles (NEW) */
+        .prototype-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
         }
+
+        .proto-card {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .proto-card:hover {
+            border-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .proto-icon { font-size: 2rem; margin-bottom: 15px; }
+
+        .proto-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            color: #000;
+        }
+
+        .proto-desc {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .launch-btn {
+            display: block;
+            background: #333;
+            color: #fff !important; /* Force white text */
+            text-decoration: none !important;
+            text-align: center;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .launch-btn:hover {
+            background: #000;
+        }
+
     </style>
 </head>
 <body>
@@ -51,10 +102,6 @@
             <span class="research-title">AI-assisted prosocial chat function for online gaming</span>
             <span class="research-meta">in-progress</span>
             <p>funded by a grant (awarded dec 2025) from the prosocial design network and based on a PDNxRoblox workshop (attended oct 2025), i am working on an a “pause and suggest” intervention that detects potentially harmful or guideline-violating language before a message is sent.</p>
-            
-            <p>
-                <a href="pchat.html" class="prototype-link">→ Try the interactive prototype</a>
-            </p>
         </div>
 
         <div class="research-item">
@@ -75,5 +122,32 @@
         </div>
 
     </section>
+
+    <section>
+        <h2>prototypes of future research questions</h2>
+        
+        <div class="prototype-grid">
+            
+            <div class="proto-card">
+                <div class="proto-icon">💬</div>
+                <h3>AI-Mediated Intervention</h3>
+                <p class="proto-desc">
+                    A simulated chat interface testing how real-time AI rewriting affects toxicity and user autonomy in gaming environments.
+                </p>
+                <a href="pchat.html" class="launch-btn">Launch Prototype →</a>
+            </div>
+
+            <div class="proto-card">
+                <div class="proto-icon">🏗️</div>
+                <h3>The IKEA Effect in Algorithms</h3>
+                <p class="proto-desc">
+                    An interactive experiment testing "Psychological Ownership." Do users accept mismatched recommendations if they "trained" the model themselves?
+                </p>
+                <a href="ikea.html" class="launch-btn">Launch Prototype →</a>
+            </div>
+
+        </div>
+    </section>
+
 </body>
 </html>
