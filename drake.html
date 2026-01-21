@@ -79,10 +79,8 @@
             image-rendering: pixelated; 
             animation: bounce 2s infinite;
             margin-top: -5px; 
-            
-            /* FIX: Using relative positioning for cleaner offset */
             position: relative;
-            left: -12px; 
+            left: -12px; /* Centered in the cut-out */
         }
 
         /* LOG TEXT */
@@ -92,10 +90,8 @@
             min-height: 8px;
             color: #111;
             margin-top: 4px;
-            
-            /* FIX: Match Drake's left shift */
             position: relative;
-            left: -12px;
+            left: -12px; /* Centered in the cut-out */
         }
 
         /* --- CONTROLS --- */
@@ -136,41 +132,41 @@
             border: 2px solid #000;
             padding: 5px;
             cursor: pointer;
-            min-width: 60px; /* Ensures button size doesn't jump */
+            min-width: 60px;
         }
 
-        /* --- GAME OVER SIDEBAR --- */
-        .sidebar {
+        /* --- GAME OVER MODAL (POP-UP) --- */
+        .modal-overlay {
+            display: none; /* Hidden by default */
             position: fixed;
-            top: 0;
-            right: -320px; /* Hidden */
-            width: 280px;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Dimmed background */
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
             background: #111;
             color: #fff;
-            z-index: 50;
-            transition: right 0.5s ease-in-out;
-            border-left: 4px solid #d4af37; /* OVO Gold */
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: -10px 0 20px rgba(0,0,0,0.5);
-            box-sizing: border-box;
+            border: 4px solid #d4af37; /* OVO Gold */
+            padding: 25px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+            animation: popIn 0.3s ease-out;
         }
 
-        .sidebar.active {
-            right: 0;
-        }
-
-        .sidebar h2 {
+        .modal-box h2 {
             color: #d4af37;
             font-size: 18px;
             margin-bottom: 20px;
+            margin-top: 0;
             line-height: 1.5;
         }
 
-        .sidebar p {
+        .modal-box p {
             font-size: 10px;
             line-height: 1.8;
             margin-bottom: 20px;
@@ -181,10 +177,9 @@
             font-size: 8px;
             color: #666;
             text-decoration: none;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border-bottom: 1px dotted #666;
             display: inline-block;
-            width: fit-content;
         }
         .credit-link:hover { color: #fff; border-bottom: 1px solid #fff; }
 
@@ -192,13 +187,19 @@
             background: #d4af37;
             color: #000;
             border: none;
-            padding: 15px;
+            padding: 12px 20px;
             font-size: 10px;
             cursor: pointer;
+            width: 100%;
         }
+        .restart-btn:hover { background: #fff; }
 
         /* --- ANIMATIONS --- */
-        /* Simplified animations because "left: -12px" handles the offset now */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-4px); }
@@ -223,16 +224,19 @@
 
 <div id="player" style="display:none;"></div>
 
-<div class="sidebar" id="gameOverSidebar">
-    <h2>GAME OVER</h2>
-    <p>YOU LET DRAKE TEXT HIS EX.</p>
-    <p>He sent: "I miss who we were."</p>
-    
-    <a href="https://www.youtube.com/watch?v=MPw0Fswlrbw&list=RDMPw0Fswlrbw&start_radio=1" target="_blank" class="credit-link">
-        Music Credit: 8-Bit Universe
-    </a>
+<div class="modal-overlay" id="gameOverModal">
+    <div class="modal-box">
+        <h2>GAME OVER</h2>
+        <p id="fail-reason">YOU LET DRAKE TEXT HIS EX.</p>
+        <p>He sent: "I miss who we were."</p>
+        
+        <a href="https://www.youtube.com/watch?v=MPw0Fswlrbw&list=RDMPw0Fswlrbw&start_radio=1" target="_blank" class="credit-link">
+            Music Credit: 8-Bit Universe
+        </a>
 
-    <button class="restart-btn" onclick="location.reload()">TRY AGAIN</button>
+        <br>
+        <button class="restart-btn" onclick="location.reload()">TRY AGAIN</button>
+    </div>
 </div>
 
 <div class="tamagotchi-wrapper">
@@ -315,7 +319,10 @@
     const feelsEl = document.getElementById('feels-val');
     const logEl = document.getElementById('log');
     const avatar = document.getElementById('avatar');
-    const sidebar = document.getElementById('gameOverSidebar');
+    
+    // Select the new Modal elements
+    const modalOverlay = document.getElementById('gameOverModal');
+    const failReasonText = document.getElementById('fail-reason');
 
     function updateDisplay() {
         hungerEl.innerText = hunger;
@@ -369,7 +376,7 @@
 
     function blockText() {
         if (isGameOver) return;
-        // Ensure music plays if it got blocked earlier
+        // Ensure music plays
         if (isMusicPlaying && player && player.getPlayerState() !== 1) player.playVideo();
 
         if (feelings > 0) {
@@ -399,11 +406,11 @@
         isGameOver = true;
         clearInterval(gameLoop);
         
-        const pTags = sidebar.getElementsByTagName('p');
-        pTags[0].innerText = "GAME OVER";
-        pTags[1].innerText = reason.toUpperCase();
+        // Update Modal Text
+        failReasonText.innerText = reason.toUpperCase();
         
-        sidebar.classList.add('active');
+        // Show Modal (Flex centers it)
+        modalOverlay.style.display = 'flex';
     }
 
     startGame();
