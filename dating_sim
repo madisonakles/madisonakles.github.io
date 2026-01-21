@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Bias Study</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f4f4;
+            --hinge-purple: #613583; /* Approximate Hinge Accent */
+            --hinge-text: #1a1a1a;
+            --card-bg: #ffffff;
+            --heart-color: #d93025;
+            --x-color: #727272;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--bg);
+            color: var(--hinge-text);
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* --- SIDE PANEL (RESEARCH CONTEXT) --- */
+        .side-panel {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #ddd;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .panel-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--hinge-text);
+        }
+
+        .panel-nav {
+            margin-bottom: 30px;
+        }
+        .back-link {
+            text-decoration: none;
+            color: #666;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex; align-items: center;
+        }
+        .back-link:hover { color: black; }
+
+        .citation-box {
+            background: #f9f9f9;
+            border-left: 3px solid var(--hinge-purple);
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #444;
+        }
+        
+        .citation-box strong { color: black; display: block; margin-bottom: 5px; }
+        .citation-link { color: var(--hinge-purple); text-decoration: none; font-weight: bold; font-size: 0.8rem; }
+        .citation-link:hover { text-decoration: underline; }
+
+        /* --- MAIN AREA (SIMULATION) --- */
+        .sim-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #f0f2f5;
+        }
+
+        /* PHONE FRAME */
+        .phone-frame {
+            width: 375px;
+            height: 700px;
+            background: #fff;
+            border-radius: 30px;
+            border: 8px solid #222;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HINGE HEADER */
+        .app-header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .app-logo { font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.3rem; letter-spacing: 1px; }
+
+        /* CARD STACK */
+        .stack-area {
+            flex: 1;
+            position: relative;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .profile-card {
+            position: absolute;
+            top: 15px; left: 15px; right: 15px; bottom: 80px; /* Leave room for buttons */
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, opacity 0.3s;
+        }
+
+        /* "Most Compatible" Badge styling */
+        .compatibility-badge {
+            background: #f4effa; /* Light Purple bg */
+            color: var(--hinge-purple);
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            margin: 15px;
+            align-self: flex-start;
+            gap: 6px;
+        }
+        .compatibility-score { background: var(--hinge-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+
+        .photo-area {
+            flex: 1;
+            background: #e0e0e0;
+            margin: 0 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-end;
+            padding: 15px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            position: relative;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .prompt-area {
+            padding: 20px 15px;
+        }
+        .prompt-label { font-size: 0.85rem; color: #666; margin-bottom: 5px; font-weight: 500; }
+        .prompt-answer { font-family: 'Playfair Display', serif; font-size: 1.3rem; line-height: 1.3; color: black; }
+
+        /* BUTTONS */
+        .action-bar {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            padding-bottom: 20px;
+        }
+
+        .btn-round {
+            width: 55px; height: 55px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-round:active { transform: scale(0.95); }
+        .btn-x { color: var(--x-color); }
+        .btn-heart { color: var(--heart-color); border-color: #ffe0e0; background: #fff5f5; }
+
+        /* ANIMATIONS */
+        .swipe-left { transform: translateX(-400px) rotate(-15deg); opacity: 0; }
+        .swipe-right { transform: translateX(400px) rotate(15deg); opacity: 0; }
+
+        /* RESULTS MODAL */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .stat-circle {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 8px solid var(--hinge-purple);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            margin: 20px 0;
+        }
+        .stat-val { font-size: 2rem; font-weight: bold; color: var(--hinge-text); }
+        .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="side-panel">
+        <div class="panel-nav">
+            <a href="research.html" class="back-link">← Back to Portfolio</a>
+        </div>
+        
+        <div class="panel-header">Research Context</div>
+        
+        <p style="font-size:0.9rem; color:#555; margin-bottom:25px;">
+            This simulation tests <strong>Automation Bias</strong> in high-stakes social decision making.
+        </p>
+
+        <div class="citation-box">
+            <strong>1. Automation Bias & Complacency</strong>
+            Users tend to "offload" cognitive work to algorithms, trusting automated cues even when contradictory information is present.
+            <br><br>
+            <a href="https://journals.sagepub.com/doi/10.1177/0018720810376055" target="_blank" class="citation-link">Parasuraman & Manzey (2010) →</a>
+        </div>
+
+        <div class="citation-box">
+            <strong>2. Algorithm Aversion (The Flipside)</strong>
+            Conversely, seeing an algorithm make a mistake (a "bad match") can lead users to rapidly lose trust in the model entirely.
+            <br><br>
+            <a href="https://psycnet.apa.org/record/2014-48866-001" target="_blank" class="citation-link">Dietvorst, Simmons, & Massey (2015) →</a>
+        </div>
+
+        <div class="citation-box">
+            <strong>3. Algorithmic Appreciation</strong>
+            Despite stated aversion, people often rely more on algorithmic advice than human advice when the task is objective.
+            <br><br>
+            <a href="https://doi.org/10.1016/j.obhdp.2019.03.005" target="_blank" class="citation-link">Logg, Minson, & Moore (2019) →</a>
+        </div>
+    </div>
+
+    <div class="sim-container">
+        <div class="phone-frame">
+            <div class="app-header">
+                <span class="app-logo">HingeSim</span>
+            </div>
+
+            <div class="stack-area" id="stack">
+                </div>
+
+            <div class="action-bar">
+                <button class="btn-round btn-x" onclick="swipe('left')">✕</button>
+                <button class="btn-round btn-heart" onclick="swipe('right')">♥</button>
+            </div>
+
+            <div class="modal-overlay" id="resultModal">
+                <h2 style="font-family:'Playfair Display', serif;">Analysis Complete</h2>
+                <p style="color:#666; font-size:0.9rem;">Did you read the prompts, or just trust the badge?</p>
+                
+                <div class="stat-circle">
+                    <div class="stat-val" id="biasScore">0%</div>
+                    <div class="stat-label">Bias Rate</div>
+                </div>
+                
+                <p style="font-size:0.85rem; color:#444; margin-bottom:30px;">
+                    You agreed with the AI's "Compatibility Score" even when the profile text contained red flags (or vice versa).
+                </p>
+
+                <button class="btn-round btn-x" style="width:auto; height:auto; padding:12px 30px; border-radius:50px; font-size:1rem; font-weight:bold; color:black;" onclick="location.reload()">
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // DATASET: Simulating Hinge Profiles
+    // We vary the "Compatibility Badge" (Algorithm) against the "Prompt Answer" (Ground Truth)
+    const profiles = [
+        {
+            name: "Caleb", age: 27, color: "#82b1ff",
+            prompt: "A fact about me that surprises people...",
+            answer: "I don't really believe in 'monogamy' but I won't tell you that until month 3.",
+            aiScore: "99% Compatible",
+            type: "trap" // Bad Guy + High Score
+        },
+        {
+            name: "Sarah", age: 24, color: "#ff8a80",
+            prompt: "My simple pleasure...",
+            answer: "Volunteering at the animal shelter and making homemade pasta for my friends.",
+            aiScore: "Low Compatibility",
+            type: "miss" // Good Girl + Low Score
+        },
+        {
+            name: "Marcus", age: 29, color: "#a5d6a7",
+            prompt: "I'm looking for...",
+            answer: "Someone to pay my rent while I focus on my 'art' (playing video games).",
+            aiScore: "Most Compatible",
+            type: "trap" // Bad Guy + High Score
+        },
+        {
+            name: "Emily", age: 26, color: "#ce93d8",
+            prompt: "Together we could...",
+            answer: "Build a healthy, communicative relationship based on mutual respect.",
+            aiScore: "Most Compatible",
+            type: "control" // Good Girl + High Score (Baseline)
+        }
+    ];
+
+    let currentIndex = 0;
+    let biasErrors = 0;
+    let totalTraps = 0;
+
+    const stack = document.getElementById('stack');
+
+    function init() {
+        // Build stack in reverse so index 0 is on top
+        [...profiles].reverse().forEach((p, i) => {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+            card.style.zIndex = i; 
+            
+            // Logic for Badge Color
+            const isHigh = p.aiScore.includes("99") || p.aiScore.includes("Most");
+            const badgeClass = isHigh ? "compatibility-badge" : "compatibility-badge"; 
+            const badgeStyle = isHigh ? "" : "background:#eee; color:#666;";
+            const scoreStyle = isHigh ? "" : "background:#999;";
+
+            card.innerHTML = `
+                <div class="${badgeClass}" style="${badgeStyle}">
+                    <span class="compatibility-score" style="${scoreStyle}">AI</span>
+                    ${p.aiScore}
+                </div>
+                
+                <div class="photo-area" style="background-color: ${p.color}">
+                    ${p.name}, ${p.age}
+                </div>
+
+                <div class="prompt-area">
+                    <div class="prompt-label">${p.prompt}</div>
+                    <div class="prompt-answer">${p.answer}</div>
+                </div>
+            `;
+            stack.appendChild(card);
+        });
+    }
+
+    function swipe(direction) {
+        const cards = document.querySelectorAll('.profile-card');
+        const currentCard = cards[cards.length - 1 - currentIndex]; 
+        const p = profiles[currentIndex];
+
+        if(!currentCard) return;
+
+        // ANIMATION
+        currentCard.classList.add(direction === 'left' ? 'swipe-left' : 'swipe-right');
+
+        // LOGIC: Did they fall for the bias?
+        if (p.type === "trap") {
+            // Bad Person + High Score. If they swiped RIGHT (Heart), they biased.
+            totalTraps++;
+            if (direction === 'right') biasErrors++;
+        } 
+        else if (p.type === "miss") {
+            // Good Person + Low Score. If they swiped LEFT (X), they biased.
+            totalTraps++;
+            if (direction === 'left') biasErrors++;
+        }
+
+        currentIndex++;
+
+        setTimeout(() => {
+            currentCard.style.display = 'none';
+            if (currentIndex >= profiles.length) {
+                showResults();
+            }
+        }, 300);
+    }
+
+    function showResults() {
+        const modal = document.getElementById('resultModal');
+        const score = document.getElementById('biasScore');
+        
+        let percent = 0;
+        if (totalTraps > 0) percent = Math.round((biasErrors / totalTraps) * 100);
+        
+        score.textContent = percent + "%";
+        modal.style.display = 'flex';
+    }
+
+    init();
+</script>
+
+</body>
+</html>
