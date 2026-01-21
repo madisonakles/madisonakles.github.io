@@ -17,6 +17,8 @@
             --red-alert: #d93025;
             --green-go: #188038;
             --hover: #f1f3f4;
+            --blue-party: #1a73e8;
+            --red-party: #d93025;
         }
 
         body {
@@ -50,14 +52,13 @@
         }
 
         .user-profile {
-            background: #a50e0e; color: white; width: 32px; height: 32px;
+            background: var(--gray); color: white; width: 32px; height: 32px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;
         }
 
         /* --- MAIN LAYOUT --- */
         .container { display: flex; flex: 1; }
 
-        /* SIDEBAR */
         .sidebar {
             width: var(--sidebar-width); padding-top: 15px; display: flex; flex-direction: column;
         }
@@ -67,16 +68,13 @@
             border-radius: 16px; display: flex; align-items: center; justify-content: center;
             font-weight: 500; margin-left: 10px; margin-bottom: 20px; cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: box-shadow 0.2s;
         }
-        .compose-btn:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
 
         .nav-item {
             padding: 10px 26px; border-radius: 0 20px 20px 0; cursor: pointer;
             color: var(--text); font-weight: 500; font-size: 14px; display: flex; justify-content: space-between;
         }
         .nav-item.active { background: #d3e3fd; color: #001d35; font-weight: 700; }
-        .nav-item:hover:not(.active) { background: var(--hover); }
 
         /* INBOX LIST */
         .inbox-area {
@@ -97,10 +95,7 @@
             padding: 10px 15px; border-bottom: 1px solid #f2f6fc; cursor: pointer;
             align-items: center; font-size: 14px;
         }
-        .email-row:hover {
-            box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3);
-            z-index: 1; background: #fff;
-        }
+        .email-row:hover { box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3); z-index: 1; background: #fff; }
         .email-row.unread { font-weight: 700; background: #fff; color: #202124; }
         
         .sender { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -131,8 +126,10 @@
             cursor: pointer; border: 1px solid transparent; text-transform: uppercase;
         }
         .btn-back { background: transparent; color: var(--gray); border: 1px solid var(--border); }
+        
+        /* Dynamic Button Colors based on Party */
         .btn-leak { background: #1a73e8; color: white; flex: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .btn-leak:hover { background: #1557b0; }
+        .btn-leak:hover { opacity: 0.9; }
         .btn-bury { background: #ffffff; color: #d93025; border: 1px solid #d93025; flex: 1; }
         .btn-bury:hover { background: #fce8e6; }
 
@@ -142,7 +139,6 @@
             background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100;
         }
         
-        /* The Card Design for Results */
         .card-modal {
             background: white; width: 600px; max-height: 90vh; border-radius: 8px;
             display: flex; flex-direction: column; overflow: hidden;
@@ -168,8 +164,10 @@
         .outcome-win { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
         .outcome-loss { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
 
-        h3 { margin: 0 0 10px 0; color: #202124; font-size: 1.1rem; }
-        p { margin: 0 0 15px 0; color: #5f6368; font-size: 0.95rem; }
+        /* SLIDER STYLES */
+        .slider-container { margin: 30px 0; text-align: center; }
+        input[type=range] { width: 100%; margin: 15px 0; }
+        .range-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray); font-weight: bold; }
 
         /* TIMER */
         .countdown-bar {
@@ -181,15 +179,37 @@
 </head>
 <body>
 
-<div class="modal" id="inductionModal">
-    <div class="card-modal" style="width:400px; text-align:center;">
+<div class="modal" id="surveyModal">
+    <div class="card-modal" style="width:450px; text-align:center;">
         <div class="results-body">
-            <h2 style="color:#d93025; margin-top:0;">🛑 CONFIDENTIAL</h2>
-            <p><strong>Role:</strong> Campaign Manager</p>
-            <p>We are losing in the polls. You have <strong>60 seconds</strong> to sort through these emails.</p>
+            <h2 style="color:#202124; margin-top:0;">Political Alignment Survey</h2>
+            <p>For the purpose of this simulation, please indicate your real-world political leaning.</p>
+            
+            <div class="slider-container">
+                <input type="range" min="1" max="5" value="3" class="slider" id="polSlider">
+                <div class="range-labels">
+                    <span style="color:blue">Strong Democrat</span>
+                    <span>Neutral</span>
+                    <span style="color:red">Strong Republican</span>
+                </div>
+            </div>
+
+            <button class="compose-btn" style="width:100%; margin:20px 0 0 0;" onclick="submitSurvey()">Enter Simulation</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="briefingModal" style="display:none;">
+    <div class="card-modal" style="width:450px; text-align:center;">
+        <div class="results-body">
+            <h2 style="color:#d93025; margin-top:0;">🛑 CONFIDENTIAL BRIEFING</h2>
+            <div id="roleAssignment" style="background:#f1f3f4; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:bold;">
+                </div>
+            
+            <p>You have <strong>60 seconds</strong> to sort through your inbox.</p>
             <ul style="text-align:left; color:#5f6368; font-size:14px; line-height:1.5; margin-bottom:30px;">
-                <li>If a story helps us, <strong>LEAK IT</strong> (Even if it seems fake).</li>
-                <li>If a story hurts us, <strong>BURY IT</strong> (Even if it's true).</li>
+                <li>If a story helps your candidate, <strong>LEAK IT</strong> (Even if it seems fake).</li>
+                <li>If a story hurts your candidate, <strong>BURY IT</strong> (Even if it's true).</li>
             </ul>
             <button class="compose-btn" style="width:100%; margin:0;" onclick="startGame()">OPEN INBOX</button>
         </div>
@@ -199,46 +219,34 @@
 <div class="modal" id="resultsModal" style="display:none;">
     <div class="card-modal">
         <div class="results-header">
-            <h2 style="margin:0;">Simulation Debrief</h2>
+            <h2 style="margin:0;">Experiment Debrief</h2>
         </div>
         <div class="results-body">
             
-            <div id="outcomeDisplay" class="election-outcome outcome-loss">
-                Loading Outcome...
-            </div>
+            <div id="outcomeDisplay" class="election-outcome outcome-loss">Loading...</div>
 
             <div class="stat-grid">
                 <div class="stat-box">
                     <div class="stat-num" id="scoreFake">0</div>
-                    <div>Fake Stories Leaked</div>
-                    <div style="font-size:0.8rem; color:#d93025;">(Failed Verification)</div>
+                    <div>Fakes Leaked</div>
+                    <div style="font-size:0.8rem; color:#d93025;">(Disinformation)</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-num" id="scoreBuried">0</div>
                     <div>Truths Buried</div>
-                    <div style="font-size:0.8rem; color:#d93025;">(Strategic Censorship)</div>
+                    <div style="font-size:0.8rem; color:#d93025;">(Censorship)</div>
                 </div>
             </div>
 
-            <h3>🧠 Research Gaps & Literature Context</h3>
-            
-            <p>
-                <strong>1. Expressive vs. Strategic Sharing:</strong><br>
-                Current literature (e.g., <em>Van Bavel & Pereira, 2018</em>) suggests users share misinformation to "signal" group loyalty. This simulation isolates <strong>"Strategic"</strong> sharing—where the user knows the info might be false but shares it to achieve professional utility.
-            </p>
-
-            <p>
-                <strong>2. The "Accuracy Nudge" Limitation:</strong><br>
-                While <em>Pennycook & Rand (2021)</em> focus on "Accuracy Nudges" for the general public, this 'War Room' simulation asks: Does the pressure to 'win' in a high-stakes role override the cognitive capacity for verification?
-            </p>
-
             <div class="academic-note">
-                <strong>📝 Future Direction: Counter-Attitudinal Role-Playing</strong><br>
-                A critical next step is assigning users to the <em>opposing</em> political party (e.g., a Democrat playing as a Republican Manager). This tests <strong>Cognitive Dissonance</strong>: Does "Professional Duty" override personal moral alignment?
+                <strong>🔬 Analysis: Counter-Attitudinal Role-Playing</strong><br>
+                <span id="analysisText">Loading analysis...</span>
+                <br><br>
+                This highlights a gap in current literature: While Pennycook & Rand focus on "Accuracy Nudges" for the general public, this simulation investigates <strong>Strategic Misinformation</strong>. It asks: <em>Does the pressure to fulfill a professional role override personal political identity?</em>
             </div>
 
             <div style="margin-top:20px; display:flex; gap:10px;">
-                <button class="btn btn-back" style="flex:1;" onclick="location.reload()">Restart Experiment</button>
+                <button class="btn btn-back" style="flex:1;" onclick="location.reload()">Restart</button>
                 <a href="research.html" class="btn" style="flex:1; background:#202124; color:white; text-decoration:none; display:flex; align-items:center; justify-content:center;">Back to Portfolio</a>
             </div>
         </div>
@@ -251,7 +259,7 @@
         <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png" alt="Gmail" style="height:24px; opacity:0.7;">
     </div>
     <div class="search-bar">🔍 &nbsp; Search mail</div>
-    <div class="user-profile">C</div>
+    <div class="user-profile" id="userProfileIcon">C</div>
 </div>
 
 <div class="container">
@@ -259,7 +267,6 @@
         <div class="compose-btn">✏️ &nbsp; Compose</div>
         <div class="nav-item active"><span>Inbox</span><span id="inboxCount">4</span></div>
         <div class="nav-item"><span>Starred</span></div>
-        <div class="nav-item"><span>Snoozed</span></div>
         <div class="nav-item"><span>Sent</span></div>
     </div>
 
@@ -271,8 +278,7 @@
             <span style="margin-left:auto; font-size:12px;">1-4 of 4</span>
         </div>
 
-        <div class="email-list" id="emailList">
-            </div>
+        <div class="email-list" id="emailList"></div>
 
         <div class="reading-pane" id="readingPane">
             <div class="rp-header">
@@ -281,7 +287,7 @@
                     <div>
                         <div class="rp-subject" id="rpSubject">Subject</div>
                         <div class="rp-meta">
-                            <span id="rpSender">Sender Name</span> 
+                            <span id="rpSender">Sender</span> 
                             <span>&lt;<span id="rpEmail">email@addr</span>&gt;</span>
                         </div>
                     </div>
@@ -302,42 +308,48 @@
 </div>
 
 <script>
-    // DATASET
-    const emails = [
+    // GLOBAL STATE
+    let userAlignment = 3; // 1 (Dem) to 5 (Rep)
+    let assignedParty = ""; // "Republican" or "Democrat"
+    let assignedColor = "";
+    
+    // CONTENT DATABASE
+    // We use placeholders [MY_CANDIDATE] and [OPPONENT] to make content dynamic
+    const emailTemplates = [
         {
             id: 1,
             sender: "DarkWeb Patriot",
             email: "anon@protonmail.ch",
-            subject: "VIDEO: Opponent kicking a puppy??",
-            snippet: "I have a blurry video that looks like your opponent kicking a dog...",
-            body: "ATTACHMENT: puppy_kick_v2.mp4\n\nLook, I can't verify this is actually him. The lighting is bad. But if you leak this to Twitter now, the outrage cycle will last 3 days. Do you want to win or do you want to be right?",
-            type: "fake_pro" // Fake but helps you
+            subject: "VIDEO: [OPPONENT] mocking working class?",
+            snippet: "I have a blurry video that looks like the opponent calling voters 'trash'...",
+            body: "ATTACHMENT: hidden_cam_v2.mp4\n\nI can't verify if this is actually [OPPONENT]. The audio is garbled. But if you leak this to Twitter now, the outrage cycle will destroy them. Do you want to win or do you want to be right?",
+            type: "fake_pro" 
         },
         {
             id: 2,
-            sender: "Polling Analytics",
+            sender: "Internal Polling",
             email: "internal@campaign.net",
-            subject: "URGENT: Numbers dropping in Ohio",
-            snippet: "The latest internal numbers are a disaster. We are down 4 points.",
-            body: "The factory closure news is hurting us. We are statistically likely to lose Ohio unless we change the narrative immediately. This is accurate data, unfortunately.",
-            type: "real_anti" // True but hurts you
+            subject: "URGENT: Economic numbers are bad",
+            snippet: "The latest job reports for our district are a disaster.",
+            body: "The new data shows unemployment went UP under [MY_CANDIDATE]'s leadership. This is accurate government data. If this gets out, we lose the swing voters.",
+            type: "real_anti" 
         },
         {
             id: 3,
             sender: "The Washington Post",
             email: "factchecker@wapo.com",
-            subject: "Inquiry regarding your candidate's taxes",
+            subject: "Inquiry: [MY_CANDIDATE]'s unpaid taxes",
             snippet: "We have documents showing unpaid taxes from 2004. Please comment.",
-            body: "We are going to run a story tomorrow regarding $50k in unpaid back taxes. We have the IRS documents. This is your chance to comment before it goes live.",
+            body: "We are going to run a story tomorrow regarding $50k in unpaid back taxes by [MY_CANDIDATE]. We have the IRS documents. This is your chance to comment before it goes live.",
             type: "real_anti"
         },
         {
             id: 4,
             sender: "Uncle Steve",
             email: "steve1955@aol.com",
-            subject: "FWD: FWD: PROOF THE ELECTION IS RIGGED",
-            snippet: "My buddy at the voting machine factory says they are pre-loading votes!!",
-            body: "CHECK THIS OUT!! They are putting chips in the machines to flip votes to the other guy! Use this! The people need to know!",
+            subject: "FWD: PROOF THE ELECTION IS RIGGED",
+            snippet: "My buddy at the factory says they are pre-loading votes!!",
+            body: "CHECK THIS OUT!! They are putting chips in the machines to flip votes to [OPPONENT]! Use this! The people need to know!",
             type: "fake_pro"
         }
     ];
@@ -345,13 +357,80 @@
     let currentEmail = null;
     let score = { fakesLeaked: 0, truthsBuried: 0 };
     let processedCount = 0;
+    let currentEmailsList = [];
+
+    // STEP 1: SURVEY SUBMISSION
+    function submitSurvey() {
+        userAlignment = document.getElementById('polSlider').value;
+        document.getElementById('surveyModal').style.display = 'none';
+        
+        // ASSIGN ROLE (Counter-Attitudinal)
+        // If User is Dem (1-2), make them Republican Manager.
+        // If User is Rep (4-5), make them Dem Manager.
+        // If Neutral (3), Randomize.
+        
+        if (userAlignment <= 2) {
+            assignedParty = "Republican";
+        } else if (userAlignment >= 4) {
+            assignedParty = "Democrat";
+        } else {
+            assignedParty = Math.random() > 0.5 ? "Republican" : "Democrat";
+        }
+
+        assignedColor = assignedParty === "Republican" ? "var(--red-party)" : "var(--blue-party)";
+        
+        // Update UI
+        document.getElementById('briefingModal').style.display = 'flex';
+        document.getElementById('roleAssignment').innerHTML = `
+            You have been hired to run the <span style="color:${assignedColor}; text-transform:uppercase;">${assignedParty}</span> Campaign.
+        `;
+        document.getElementById('roleAssignment').style.borderLeft = `5px solid ${assignedColor}`;
+        
+        // Update Profile Icon
+        const profile = document.getElementById('userProfileIcon');
+        profile.style.background = assignedColor;
+        profile.textContent = assignedParty.charAt(0);
+        
+        // Update Buttons
+        const buttons = document.querySelectorAll('.btn-leak');
+        buttons.forEach(b => b.style.background = assignedColor);
+    }
+
+    // STEP 2: PREPARE CONTENT
+    function startGame() {
+        document.getElementById('briefingModal').style.display = 'none';
+        
+        const myCand = assignedParty === "Republican" ? "Senator Smith (R)" : "Senator Jones (D)";
+        const oppCand = assignedParty === "Republican" ? "Jones (D)" : "Smith (R)";
+        
+        // Generate Emails
+        currentEmailsList = emailTemplates.map(t => {
+            return {
+                ...t,
+                subject: t.subject.replace('[OPPONENT]', oppCand).replace('[MY_CANDIDATE]', myCand),
+                body: t.body.replace('[OPPONENT]', oppCand).replace('[MY_CANDIDATE]', myCand),
+                processed: false
+            };
+        });
+
+        renderList();
+        
+        // Start Timer
+        const bar = document.getElementById('timerBar');
+        bar.style.width = "0%";
+        void bar.offsetWidth; 
+        setTimeout(() => {
+            bar.style.transition = "width 60s linear";
+            bar.style.width = "100%";
+        }, 100);
+        setTimeout(endGame, 60000);
+    }
 
     function renderList() {
         const list = document.getElementById('emailList');
         list.innerHTML = "";
-        emails.forEach(email => {
+        currentEmailsList.forEach(email => {
             if(email.processed) return;
-
             const div = document.createElement('div');
             div.className = "email-row unread";
             div.onclick = () => openEmail(email);
@@ -360,16 +439,14 @@
                 <div class="sender">${email.sender}</div>
                 <div class="subject-snip">
                     <span class="subject">${email.subject}</span>
-                    <span class="snip">- ${email.snippet}</span>
                 </div>
                 <div class="date">9:41 AM</div>
             `;
             list.appendChild(div);
         });
 
-        const remaining = emails.filter(e => !e.processed).length;
+        const remaining = currentEmailsList.filter(e => !e.processed).length;
         document.getElementById('inboxCount').textContent = remaining;
-        
         if (remaining === 0) endGame();
     }
 
@@ -380,10 +457,10 @@
         document.getElementById('rpSender').textContent = email.sender;
         document.getElementById('rpEmail').textContent = email.email;
         document.getElementById('rpBody').textContent = email.body;
-        document.getElementById('rpAvatar').textContent = email.sender.charAt(0).toUpperCase();
         
-        const colors = ['#d93025', '#188038', '#1a73e8', '#e37400'];
-        document.getElementById('rpAvatar').style.background = colors[email.id % 4];
+        const avatar = document.getElementById('rpAvatar');
+        avatar.textContent = email.sender.charAt(0).toUpperCase();
+        avatar.style.background = assignedColor; 
     }
 
     function closeEmail() {
@@ -394,33 +471,15 @@
     function processEmail(action) {
         if (!currentEmail) return;
 
-        // SCORING LOGIC
         if (action === 'leak') {
-            if (currentEmail.type === 'fake_pro' || currentEmail.type === 'fake_anti') score.fakesLeaked++;
+            if (currentEmail.type === 'fake_pro') score.fakesLeaked++;
         } else if (action === 'bury') {
             if (currentEmail.type === 'real_anti') score.truthsBuried++;
         }
 
         currentEmail.processed = true;
-        processedCount++;
         closeEmail();
         renderList();
-    }
-
-    function startGame() {
-        document.getElementById('inductionModal').style.display = 'none';
-        renderList();
-        
-        const bar = document.getElementById('timerBar');
-        bar.style.width = "0%";
-        void bar.offsetWidth; // Force Reflow
-        
-        setTimeout(() => {
-            bar.style.transition = "width 60s linear";
-            bar.style.width = "100%";
-        }, 100);
-
-        setTimeout(endGame, 60000);
     }
 
     function endGame() {
@@ -429,17 +488,37 @@
         document.getElementById('scoreBuried').textContent = score.truthsBuried;
         
         const outcomeDiv = document.getElementById('outcomeDisplay');
-        
-        // WIN/LOSS LOGIC
-        // Win Condition: You must have Leaked at least 1 Fake story AND Buried at least 1 Bad Truth.
-        // This signifies you "Played Dirty" enough to win.
+        const analysisDiv = document.getElementById('analysisText');
+
+        // 1. Did they Win? (Mechanics)
         if (score.fakesLeaked >= 1 && score.truthsBuried >= 1) {
-            outcomeDiv.textContent = "🏆 ELECTION WON (But at what cost?)";
+            outcomeDiv.textContent = "🏆 YOU WON THE ELECTION";
             outcomeDiv.className = "election-outcome outcome-win";
         } else {
-            outcomeDiv.textContent = "❌ ELECTION LOST (You played too fair)";
+            outcomeDiv.textContent = "❌ YOU LOST THE ELECTION";
             outcomeDiv.className = "election-outcome outcome-loss";
         }
+
+        // 2. Academic Analysis (The Insight)
+        let alignmentText = "";
+        if (userAlignment <= 2) alignmentText = "Democrat";
+        else if (userAlignment >= 4) alignmentText = "Republican";
+        else alignmentText = "Neutral/Independent";
+
+        let dissonanceMsg = "";
+        if (assignedParty !== alignmentText && alignmentText !== "Neutral/Independent") {
+            // They played AGAINST their real type
+            if (score.fakesLeaked > 0 || score.truthsBuried > 0) {
+                dissonanceMsg = `You identified as <b>${alignmentText}</b> but played as <b>${assignedParty}</b>. Remarkably, you still spread misinformation to help a candidate you likely oppose in real life. This suggests <b>Role Prescriptions</b> can override <b>Political Identity</b>.`;
+            } else {
+                dissonanceMsg = `You identified as <b>${alignmentText}</b> and refused to lie for the <b>${assignedParty}</b> campaign. This suggests your <b>Political Identity</b> was stronger than your assigned <b>Professional Role</b>.`;
+            }
+        } else {
+            // They played WITH their type (or neutral)
+            dissonanceMsg = `You played as a <b>${assignedParty}</b> manager. Your willingness to use misinformation (${score.fakesLeaked} fakes leaked) demonstrates how the goal of "Winning" can suppress critical verification, even in a simulation.`;
+        }
+        
+        analysisDiv.innerHTML = dissonanceMsg;
     }
 </script>
 
