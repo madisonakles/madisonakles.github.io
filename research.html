@@ -26,10 +26,19 @@
         .research-item a { color: #000; text-decoration: underline; word-break: break-all; }
         .research-item a:hover { color: #555; }
 
-        /* Prototype Grid Styles (NEW) */
+        /* Prototype Link (Contextual) */
+        .prototype-link {
+            font-weight: bold; 
+            text-decoration: none !important; 
+            border-bottom: 1px solid #000; /* Custom underline */
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        /* Prototype Grid Styles */
         .prototype-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
             margin-top: 30px;
         }
@@ -102,6 +111,10 @@
             <span class="research-title">AI-assisted prosocial chat function for online gaming</span>
             <span class="research-meta">in-progress</span>
             <p>funded by a grant (awarded dec 2025) from the prosocial design network and based on a PDNxRoblox workshop (attended oct 2025), i am working on an a “pause and suggest” intervention that detects potentially harmful or guideline-violating language before a message is sent.</p>
+            
+            <p>
+                <a href="pchat.html" class="prototype-link">→ Try the interactive prototype</a>
+            </p>
         </div>
 
         <div class="research-item">
@@ -144,6 +157,15 @@
                     An interactive experiment testing "Psychological Ownership." Do users accept mismatched recommendations if they "trained" the model themselves?
                 </p>
                 <a href="ikea.html" class="launch-btn">Launch Prototype →</a>
+            </div>
+
+            <div class="proto-card">
+                <div class="proto-icon">📱</div>
+                <h3>The "My Algorithm" Shield</h3>
+                <p class="proto-desc">
+                    Does labeling a feed as "yours" make you blind to its bias? A simulation testing polarization and the "Algorithmic Self."
+                </p>
+                <a href="myalgo.html" class="launch-btn">Launch Prototype →</a>
             </div>
 
         </div>
