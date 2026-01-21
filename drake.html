@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drake-Gotchi Final</title>
+    <title>Drake-Gotchi: Passionfruit Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -15,6 +15,7 @@
             min-height: 100vh;
             margin: 0;
             font-family: 'Press Start 2P', cursive;
+            overflow: hidden; /* Prevent scrolling when sidebar opens */
         }
 
         .tamagotchi-wrapper {
@@ -24,12 +25,14 @@
             display: inline-block; 
         }
 
+        /* --- LAYERS --- */
+        
         /* 1. The Shell (FRONT LAYER) */
         .shell-img {
             width: 100%;
             display: block;
             position: relative;
-            z-index: 10; /* Sits ON TOP of the screen */
+            z-index: 10;
             pointer-events: none; 
             user-select: none;
         }
@@ -37,38 +40,30 @@
         /* 2. The Screen (BACK LAYER) */
         .game-screen {
             position: absolute;
-            z-index: 1; /* Sits BEHIND the shell */
-            
-            /* Slightly oversized to bleed under the plastic edges */
+            z-index: 1; 
             top: 37%;    
             left: 20%;     
             width: 44%;    
             height: 32%;   
-            
-            background-color: #9ea78b; /* GameBoy Green */
-            
+            background-color: #9ea78b; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12px; 
+            padding: 10px; 
             box-sizing: border-box;
         }
 
-        /* Scanline Texture */
         .game-screen::after {
             content: " ";
             display: block;
             position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
+            top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
             background-size: 100% 4px;
             pointer-events: none;
         }
 
-        /* UI Styling */
+        /* --- GAME UI --- */
         .status-bar {
             font-size: 8px;
             color: #111;
@@ -76,12 +71,14 @@
             margin-bottom: 2px;
         }
 
+        /* UPDATED: Much Larger Drake */
         .drake-avatar {
-            width: 48px;
-            height: 48px;
+            width: 80px;  /* Increased from 48px */
+            height: 80px; /* Increased from 48px */
             align-self: center;
             image-rendering: pixelated; 
             animation: bounce 2s infinite;
+            margin-top: -5px; /* Slight adjust to center him */
         }
 
         .message-log {
@@ -92,25 +89,7 @@
             margin-top: 4px;
         }
 
-        /* Animations */
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        
-        /* Sad Mode */
-        .marvins-room {
-            filter: grayscale(100%) contrast(120%);
-            animation: none;
-        }
-
-        /* 3. Controls (TOP LAYER) */
+        /* --- CONTROLS --- */
         .controls-container {
             position: absolute;
             bottom: 12%; 
@@ -118,7 +97,7 @@
             width: 58%;
             display: flex;
             justify-content: space-between;
-            z-index: 20; /* Clickable */
+            z-index: 20; 
         }
 
         button {
@@ -127,23 +106,103 @@
             border: 1px solid #555;
             font-family: 'Press Start 2P';
             font-size: 7px;
-            padding: 5px 8px;
+            padding: 6px 8px;
             cursor: pointer;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
             text-transform: uppercase;
         }
 
-        button:hover {
-            background: #444;
-        }
-        button:active {
-            transform: translate(1px, 1px);
-            box-shadow: none;
+        button:hover { background: #444; }
+        button:active { transform: translate(1px, 1px); box-shadow: none; }
+
+        /* --- MUSIC TOGGLE (Top Right Corner) --- */
+        .music-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            font-size: 10px;
+            background: #fff;
+            color: #000;
+            border: 2px solid #000;
         }
 
+        /* --- GAME OVER SIDEBAR --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Hidden by default */
+            width: 250px;
+            height: 100%;
+            background: #111;
+            color: #fff;
+            z-index: 50;
+            transition: right 0.5s ease-in-out;
+            border-left: 4px solid #d4af37; /* OVO Gold */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        .sidebar h2 {
+            color: #d4af37;
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .sidebar p {
+            font-size: 10px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: #ccc;
+        }
+
+        .restart-btn {
+            background: #d4af37;
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-size: 10px;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .marvins-room {
+            filter: grayscale(100%) contrast(120%);
+            animation: none;
+        }
     </style>
 </head>
 <body>
+
+<button class="music-toggle" id="musicBtn" onclick="toggleMusic()">🎵 Music: OFF</button>
+
+<div id="player" style="display:none;"></div>
+
+<div class="sidebar" id="gameOverSidebar">
+    <h2>GAME OVER</h2>
+    <p>YOU LET DRAKE TEXT HIS EX.</p>
+    <p>He sent: "I miss who we were."</p>
+    <button class="restart-btn" onclick="location.reload()">TRY AGAIN</button>
+</div>
 
 <div class="tamagotchi-wrapper">
     <div class="game-screen" id="screen">
@@ -151,9 +210,7 @@
             <div class="status-bar">HUNGRY: <span id="hunger-val">0</span>%</div>
             <div class="status-bar">FEELS: <span id="feels-val">0</span>%</div>
         </div>
-        
         <img src="drake-pixel.png" class="drake-avatar" id="avatar">
-        
         <div class="message-log" id="log">6 GOD ONLINE</div>
     </div>
 
@@ -167,7 +224,48 @@
 </div>
 
 <script>
-    /* --- Game Logic --- */
+    /* --- 1. YOUTUBE API SETUP --- */
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    var player;
+    var isMusicPlaying = false;
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            height: '0',
+            width: '0',
+            videoId: 'MPw0Fswlrbw', // Passionfruit 8-Bit
+            events: {
+                'onReady': onPlayerReady
+            }
+        });
+    }
+
+    function onPlayerReady(event) {
+        // Player is ready. We wait for user interaction to play.
+        // We set volume to 50%
+        event.target.setVolume(50);
+    }
+
+    function toggleMusic() {
+        if (!player || !player.playVideo) return;
+        
+        const btn = document.getElementById('musicBtn');
+        if (isMusicPlaying) {
+            player.pauseVideo();
+            btn.innerText = "🎵 Music: OFF";
+            isMusicPlaying = false;
+        } else {
+            player.playVideo();
+            btn.innerText = "🎵 Music: ON";
+            isMusicPlaying = true;
+        }
+    }
+
+    /* --- 2. GAME LOGIC --- */
     let hunger = 20;
     let feelings = 10;
     let isGameOver = false;
@@ -177,34 +275,36 @@
     const feelsEl = document.getElementById('feels-val');
     const logEl = document.getElementById('log');
     const avatar = document.getElementById('avatar');
+    const sidebar = document.getElementById('gameOverSidebar');
 
     function updateDisplay() {
         hungerEl.innerText = hunger;
         feelsEl.innerText = feelings;
         
-        // "Marvins Room" Logic
+        // Marvin's Room Mode (Sadness)
         if (feelings > 70) {
-            logEl.innerText = "Listening to Take Care...";
-            avatar.classList.add('marvins-room');
+            if(!avatar.classList.contains('marvins-room')) {
+                logEl.innerText = "Listening to Take Care...";
+                avatar.classList.add('marvins-room');
+            }
         } else {
             avatar.classList.remove('marvins-room');
         }
 
-        // Stats Colors
         hungerEl.style.color = hunger > 80 ? "#8b0000" : "#111";
         feelsEl.style.color = feelings > 80 ? "#8b0000" : "#111";
     }
 
     function log(msg) {
         logEl.innerText = msg;
-        // Clear message after 2 seconds
-        setTimeout(() => { 
-            if(logEl.innerText === msg) logEl.innerText = "..."; 
-        }, 2000);
+        setTimeout(() => { if(logEl.innerText === msg) logEl.innerText = "..."; }, 2000);
     }
 
     function feed(type) {
         if (isGameOver) return;
+        // First interaction starts music if user hasn't toggled it yet? 
+        // Let's leave it optional via the button, or uncomment below to auto-start:
+        // if (!isMusicPlaying && player && player.playVideo) toggleMusic();
 
         if (type === 'nobu') {
             hunger = Math.max(0, hunger - 20);
@@ -212,11 +312,9 @@
             log("Eating Calamari.");
         } else if (type === 'henny') {
             hunger = Math.max(0, hunger - 5);
-            // Danger: Henny increases feelings fast!
-            feelings = Math.min(100, feelings + 15);
+            feelings = Math.min(100, feelings + 15); // Henny spikes feelings
             log("Sipping Henny.");
             
-            // Animation Trigger
             avatar.style.animation = "shake 0.5s";
             setTimeout(() => {
                 if(!avatar.classList.contains('marvins-room')) {
@@ -231,7 +329,6 @@
 
     function blockText() {
         if (isGameOver) return;
-        
         if (feelings > 0) {
             feelings = Math.max(0, feelings - 25);
             log("Phone snatched.");
@@ -245,35 +342,33 @@
         gameLoop = setInterval(() => {
             if (isGameOver) return;
             
-            // Passive increase
             hunger += 2;
             feelings += 3;
 
-            // Fail States
-            if (hunger >= 100) gameOver("He starved.");
-            if (feelings >= 100) gameOver("TEXT SENT: 'U UP?'");
+            if (hunger >= 100) triggerGameOver("He starved to death.");
+            if (feelings >= 100) triggerGameOver("You let Drake text his ex.");
 
             updateDisplay();
         }, 1000);
     }
 
-    function gameOver(reason) {
+    function triggerGameOver(reason) {
         isGameOver = true;
         clearInterval(gameLoop);
-        logEl.innerText = "GAME OVER";
         
-        // Small delay so UI renders "GAME OVER" before alert
-        setTimeout(() => {
-            alert("GAME OVER: " + reason);
-            if(confirm("Play again?")) {
-                hunger = 20; feelings = 10; isGameOver = false; startGame();
-            }
-        }, 100);
+        // Update Sidebar Text based on reason
+        const pTags = sidebar.getElementsByTagName('p');
+        pTags[0].innerText = "GAME OVER";
+        pTags[1].innerText = reason.toUpperCase();
+        
+        // Show Sidebar
+        sidebar.classList.add('active');
+        
+        // Optional: Force music on if it wasn't already?
+        // if (!isMusicPlaying) toggleMusic();
     }
 
-    // Initialize
     startGame();
 </script>
-
 </body>
 </html>
