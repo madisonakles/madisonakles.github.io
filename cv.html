@@ -7,15 +7,65 @@
     <style>
         :root { --bg-color: #ffffff; --text-color: #333333; --accent-color: #555555; --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
         body { font-family: var(--font-main); color: var(--text-color); background-color: var(--bg-color); margin: 0; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+        
+        /* Nav */
         nav { margin-bottom: 60px; border-bottom: 1px solid #eee; padding-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        /* Back Button Style */
         .back-link { font-size: 1rem; font-weight: bold; text-decoration: none; color: var(--accent-color); transition: color 0.2s; }
         .back-link:hover { color: black; }
         .nav-links a { margin-left: 20px; text-decoration: none; color: var(--accent-color); font-size: 0.9rem; }
         .nav-links a:hover { color: black; text-decoration: underline; }
-        h2 { border-bottom: 2px solid #000; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem;}
-        .btn { display: inline-block; border: 1px solid #000; padding: 10px 20px; text-decoration: none; color: #000; transition: background 0.3s, color 0.3s; font-size: 0.9rem; margin-top: 20px;}
+        
+        h2 { border-bottom: 2px solid #000; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; margin-top: 40px; }
+        h2:first-of-type { margin-top: 0; }
+
+        .btn { display: inline-block; border: 1px solid #000; padding: 10px 20px; text-decoration: none; color: #000; transition: background 0.3s, color 0.3s; font-size: 0.9rem; margin-top: 40px;}
         .btn:hover { background: #000; color: #fff; }
+
+        /* INTERACTIVE CV STYLES */
+        .cv-section { margin-bottom: 20px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: box-shadow 0.2s; }
+        .cv-section:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        .cv-header {
+            background: #fafafa;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .cv-header:hover { background: #f0f0f0; }
+        
+        .cv-icon { transition: transform 0.3s; font-size: 0.8rem; color: #777; }
+        .cv-section.open .cv-icon { transform: rotate(180deg); }
+
+        .cv-content {
+            display: none; /* Hidden by default */
+            padding: 25px;
+            background: white;
+            border-top: 1px solid #eee;
+            animation: slideDown 0.3s ease-out;
+        }
+        .cv-section.open .cv-content { display: block; }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Typography inside CV */
+        .cv-role { font-weight: bold; font-size: 1rem; margin-top: 15px; margin-bottom: 2px; display: block; }
+        .cv-role:first-child { margin-top: 0; }
+        .cv-place { color: #555; font-style: italic; font-size: 0.9rem; margin-bottom: 5px; display: block; }
+        .cv-date { float: right; font-size: 0.85rem; color: #888; font-weight: normal; font-style: normal; }
+        .cv-desc { margin: 8px 0 20px 0; font-size: 0.95rem; line-height: 1.6; color: #444; }
+        .cv-desc ul { margin: 0; padding-left: 20px; }
+        .cv-desc li { margin-bottom: 5px; }
+
+        /* Skills Tags */
+        .skill-tag { 
+            display: inline-block; background: #f4f4f4; padding: 5px 10px; 
+            border-radius: 4px; font-size: 0.85rem; margin: 0 5px 5px 0; color: #333; 
+        }
+
     </style>
 </head>
 <body>
@@ -29,8 +79,136 @@
     </nav>
 
     <section>
-        <h2>Curriculum Vitae</h2>
-        <a href="my-cv.pdf" class="btn" target="_blank">Download Full CV (PDF)</a>
+        <h2 style="margin-bottom:30px;">Interactive CV</h2>
+
+        <div class="cv-section" onclick="toggleSection(this)">
+            <div class="cv-header">
+                Education <span class="cv-icon">▼</span>
+            </div>
+            <div class="cv-content">
+                <span class="cv-role">M.S. Data Science and Applied Statistics <span class="cv-date">In Progress</span></span>
+                <span class="cv-place">Azusa Pacific University</span>
+                <div class="cv-desc">
+                    [cite_start]GPA: 4.0 [cite: 9]<br>
+                    [cite_start]Thesis: "AI-assisted Prosocial Chat Nudging" [cite: 9]
+                </div>
+
+                <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+
+                <span class="cv-role">B.S. Applied Psychology <span class="cv-date">2023</span></span>
+                <span class="cv-place">New York University (NYU)</span>
+                <div class="cv-desc">
+                    [cite_start]GPA: 3.91 (Magna Cum Laude) [cite: 6]<br>
+                    [cite_start]Honors Thesis: "Loving Their Sons and Raising Their Daughters: A Mixed-Methods Longitudinal Investigation of Black Families' Gender Socialization Transmission" [cite: 6]
+                </div>
+            </div>
+        </div>
+
+        <div class="cv-section open" onclick="toggleSection(this)"> <div class="cv-header">
+                Research Experience <span class="cv-icon">▼</span>
+            </div>
+            <div class="cv-content">
+                
+                <span class="cv-role">Research Associate II <span class="cv-date">Feb 2025 - Present</span></span>
+                <span class="cv-place">Azusa Pacific University | Psychology Dept</span>
+                <div class="cv-desc">
+                    <ul>
+                        [cite_start]<li>Lead Coordinator for <strong>Project TREE</strong>, a federally funded SAMHSA grant ($2.7M) addressing substance use via mHealth interventions[cite: 22].</li>
+                        [cite_start]<li>Directly supervise graduate interns and undergraduate research assistants[cite: 22].</li>
+                        [cite_start]<li>Collaborate on data analysis protocols (T-tests, ANOVA, Chi-Square, Non-parametric analyses)[cite: 25].</li>
+                        [cite_start]<li>Creates training curriculum for L.A. Department of Mental Health (DMH)[cite: 23].</li>
+                    </ul>
+                </div>
+
+                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+
+                <span class="cv-role">Research Assistant <span class="cv-date">Sep 2021 - July 2024</span></span>
+                <span class="cv-place">NYU | Center for Conflict and Cooperation</span>
+                <div class="cv-desc">
+                    <ul>
+                        [cite_start]<li>Drafted and published work in moral hypocrisy and intergroup bias[cite: 27].</li>
+                        [cite_start]<li>Designed experimental paradigms using <strong>Python, R, and Qualtrics</strong>[cite: 27].</li>
+                        [cite_start]<li>Managed data collection for over 2,000 participants[cite: 28].</li>
+                        [cite_start]<li>Coordinated Institutional Review Board submissions[cite: 27].</li>
+                    </ul>
+                </div>
+
+                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+
+                <span class="cv-role">Research Assistant <span class="cv-date">Sep 2019 - May 2023</span></span>
+                <span class="cv-place">NYU | Learning Race Lab</span>
+                <div class="cv-desc">
+                    <ul>
+                        [cite_start]<li>Coded 400+ qualitative parent-child interviews using <strong>NVivo and Dedoose</strong>[cite: 32].</li>
+                        [cite_start]<li>Developed codebooks for qualitative analysis of racial socialization[cite: 32].</li>
+                        [cite_start]<li>Prepared presentation and conference materials[cite: 30].</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="cv-section" onclick="toggleSection(this)">
+            <div class="cv-header">
+                Skills & Tools <span class="cv-icon">▼</span>
+            </div>
+            <div class="cv-content">
+                <div style="margin-bottom:15px;">
+                    <strong>Data & Stats:</strong><br>
+                    <span class="skill-tag">R</span>
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">MATLAB</span>
+                    <span class="skill-tag">SPSS</span>
+                    <span class="skill-tag">SAS</span>
+                    <span class="skill-tag">Stata</span>
+                    <span class="skill-tag">SPARS</span>
+                </div>
+                
+                <div style="margin-bottom:15px;">
+                    <strong>Research Tools:</strong><br>
+                    <span class="skill-tag">Qualtrics</span>
+                    <span class="skill-tag">NVivo</span>
+                    <span class="skill-tag">Dedoose</span>
+                    <span class="skill-tag">GitHub</span>
+                </div>
+
+                <div>
+                    <strong>Web/Design:</strong><br>
+                    <span class="skill-tag">Javascript</span>
+                    <span class="skill-tag">HTML/CSS</span>
+                    <span class="skill-tag">Photoshop</span>
+                    <span class="skill-tag">Canva</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cv-section" onclick="toggleSection(this)">
+            <div class="cv-header">
+                Selected Publications <span class="cv-icon">▼</span>
+            </div>
+            <div class="cv-content">
+                <div class="cv-desc">
+                    <p><strong>Robertson, C. E., Akles, M., & Van Bavel, J. J. (2024).</strong><br>
+                    Preregistered Replication and Extension of "Moral Hypocrisy: Social Groups and the Flexibility of Virtue". <em>Psychological Science</em>, 35(7), 798-813. [cite_start]<a href="https://doi.org/10.1177/09567976241246552" target="_blank">[DOI]</a> [cite: 11, 12]</p>
+
+                    <p><strong>Cox, B., Hughes, D. L., ... Akles, M., et al. (2022).</strong><br>
+                    White families' communications about and around race: Conversations between white adolescents and their mothers. <em>Journal of Research on Adolescence</em>, 32(3), 896-918. [cite_start]<a href="https://doi.org/10.1111/jora.12774" target="_blank">[DOI]</a> [cite: 13, 14, 15]</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:50px; border-top:1px solid #eee; padding-top:30px;">
+            <p style="color:#666; font-size:0.9rem; margin-bottom:10px;">Need a hard copy?</p>
+            <a href="Akles_CV_2026.pdf" class="btn" target="_blank" style="margin-top:0;">Download Full PDF</a>
+        </div>
+
     </section>
+
+    <script>
+        function toggleSection(element) {
+            element.classList.toggle('open');
+        }
+    </script>
+
 </body>
 </html>
