@@ -20,7 +20,6 @@
 
         .tamagotchi-wrapper {
             position: relative;
-            /* 1. Made Bigger */
             width: 550px; 
             height: auto;
             display: inline-block; 
@@ -102,7 +101,7 @@
             background: #222;
             color: #f0f0f0;
             border: 1px solid #555;
-            font-family: 'Press Start 2P';
+            font-family: 'Press Start 2P'; /* Font enforced */
             font-size: 8px;
             padding: 5px 4px;
             cursor: pointer;
@@ -114,20 +113,21 @@
         .device-btn:hover { background: #444; color: #fff; border-color: #fff; }
         .device-btn:active { transform: translate(1px, 1px); box-shadow: none; }
 
+        /* Adjusted positions to sit lower on the plastic shell */
         .btn-left {
-            bottom: 18%;
+            bottom: 12%; /* Moved down */
             left: 23%;
             transform: translateX(-50%);
         }
         
         .btn-mid {
-            bottom: 13%;
+            bottom: 7%; /* Moved down */
             left: 50%;
             transform: translateX(-50%);
         }
 
         .btn-right {
-            bottom: 18%;
+            bottom: 12%; /* Moved down */
             right: 23%;
             transform: translateX(50%);
         }
@@ -139,12 +139,14 @@
             right: 20px;
             z-index: 100;
             font-size: 10px;
+            font-family: 'Press Start 2P', cursive; /* FIX: Added correct font */
             background: #fff;
             color: #000;
             border: 2px solid #000;
-            padding: 5px;
+            padding: 8px;
             cursor: pointer;
-            min-width: 60px;
+            min-width: 80px;
+            text-transform: uppercase;
         }
 
         /* --- GAME OVER MODAL --- */
@@ -200,6 +202,7 @@
             color: #000;
             border: none;
             padding: 12px 20px;
+            font-family: 'Press Start 2P';
             font-size: 10px;
             cursor: pointer;
             width: 100%;
@@ -357,7 +360,6 @@
         if (type === 'nobu') {
             hunger = Math.max(0, hunger - 20);
             feelings = Math.max(0, feelings - 5);
-            // UPDATED HERE:
             log("Eating at Cheesecake.");
         } else if (type === 'henny') {
             hunger = Math.max(0, hunger - 5);
