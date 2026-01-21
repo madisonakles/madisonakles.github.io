@@ -51,14 +51,11 @@
             flex-direction: column;
             justify-content: space-between;
             
-            /* UPDATED PADDING: 
-               - Less Top Padding (10px)
-               - Massive Bottom Padding (45px) 
-               This forces the flex content upwards, preventing the text 
-               from hitting the bottom lip of the shell on mobile. */
-            padding: 10px 14px 45px 14px; 
+            /* Desktop Padding */
+            padding: 10px 14px 40px 14px; 
             
             box-sizing: border-box;
+            overflow: hidden; /* Prevents spilling out */
         }
 
         .game-screen::after {
@@ -76,7 +73,7 @@
             font-size: 10px;
             color: #111;
             text-shadow: 1px 1px 0px rgba(160, 172, 134, 0.8);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         /* DRAKE AVATAR */
@@ -88,7 +85,8 @@
             animation: bounce 2s infinite;
             margin-top: -5px; 
             position: relative;
-            left: -12px; 
+            /* CENTERED: Shifted further left per request (-22px) */
+            left: -22px; 
         }
 
         /* LOG TEXT */
@@ -97,8 +95,9 @@
             text-align: center;
             min-height: 10px;
             color: #111;
-            margin-top: 5px;
+            margin-top: 2px;
             position: relative;
+            /* Match avatar left shift slightly to keep alignment */
             left: -12px;
             z-index: 5; 
         }
@@ -122,23 +121,50 @@
         .device-btn:hover { background: #444; color: #fff; border-color: #fff; }
         .device-btn:active { transform: translate(1px, 1px); box-shadow: none; }
 
-        /* BUTTON POSITIONS - Shifted Right by ~19px (approx 3.5%) */
+        /* BUTTON POSITIONS */
         .btn-left {
             bottom: 22%; 
-            left: 22.5%;   /* Adjusted Right */
+            left: 22.5%;   
             transform: translateX(-50%);
         }
         
         .btn-mid {
             bottom: 16%; 
-            left: 35.5%;   /* Adjusted Right */
+            left: 35.5%;   
             transform: translateX(-50%);
         }
 
         .btn-right {
             bottom: 22%; 
-            right: 51.5%;  /* Adjusted Right (Less distance from right edge) */
+            right: 51.5%; 
             transform: translateX(50%);
+        }
+
+        /* --- MOBILE FIXES --- */
+        @media (max-width: 600px) {
+            .drake-avatar {
+                /* Shrink Drake so he fits in the smaller screen */
+                width: 65px;
+                height: 65px;
+                margin-top: 0;
+                left: -15px; /* Adjust centering for smaller size */
+            }
+            
+            .game-screen {
+                /* Increase bottom padding specifically for mobile to clear the plastic lip */
+                padding-bottom: 30px; 
+                padding-top: 5px;
+            }
+
+            .status-bar {
+                font-size: 8px; /* Slightly smaller text */
+            }
+
+            .device-btn {
+                min-width: 40px;
+                font-size: 6px;
+                padding: 4px;
+            }
         }
 
         /* --- MUSIC TOGGLE --- */
@@ -176,6 +202,7 @@
             border: 4px solid #d4af37; 
             padding: 25px;
             width: 320px;
+            max-width: 80%;
             text-align: center;
             box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
             animation: popIn 0.3s ease-out;
