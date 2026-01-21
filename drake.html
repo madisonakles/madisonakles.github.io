@@ -50,7 +50,14 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 14px 14px 25px 14px; 
+            
+            /* UPDATED PADDING: 
+               - Less Top Padding (10px)
+               - Massive Bottom Padding (45px) 
+               This forces the flex content upwards, preventing the text 
+               from hitting the bottom lip of the shell on mobile. */
+            padding: 10px 14px 45px 14px; 
+            
             box-sizing: border-box;
         }
 
@@ -115,22 +122,22 @@
         .device-btn:hover { background: #444; color: #fff; border-color: #fff; }
         .device-btn:active { transform: translate(1px, 1px); box-shadow: none; }
 
-        /* BUTTON POSITIONS - SHIFTED LEFT ~100px */
+        /* BUTTON POSITIONS - Shifted Right by ~19px (approx 3.5%) */
         .btn-left {
             bottom: 22%; 
-            left: 19%;   /* Was 37% */
+            left: 22.5%;   /* Adjusted Right */
             transform: translateX(-50%);
         }
         
         .btn-mid {
             bottom: 16%; 
-            left: 32%;   /* Was 50% */
+            left: 35.5%;   /* Adjusted Right */
             transform: translateX(-50%);
         }
 
         .btn-right {
             bottom: 22%; 
-            right: 55%;  /* Was right: 37% */
+            right: 51.5%;  /* Adjusted Right (Less distance from right edge) */
             transform: translateX(50%);
         }
 
