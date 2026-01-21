@@ -13,6 +13,7 @@
             --heart-color: #d93025;
             --x-color: #727272;
             --primary: #613583;
+            --green: #10b981;
         }
 
         body {
@@ -35,7 +36,7 @@
         }
         .back-nav:hover { color: #0f172a; }
 
-        /* --- MAIN LAYOUT (Matches ikea.html) --- */
+        /* --- MAIN LAYOUT --- */
         .main-wrapper {
             display: flex;
             align-items: flex-start;
@@ -148,7 +149,7 @@
             z-index: 100;
             display: none; flex-direction: column; align-items: center; justify-content: center;
             padding: 30px; text-align: center;
-            box-sizing: border-box; /* Fixes centering issue */
+            box-sizing: border-box; /* Key fix for centering */
         }
         
         .stat-circle {
@@ -156,11 +157,12 @@
             border: 8px solid var(--hinge-purple);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             margin: 20px 0;
+            transition: border-color 0.3s;
         }
         .stat-val { font-size: 2rem; font-weight: bold; color: var(--hinge-text); }
         .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- RIGHT SIDE PANEL (IKEA STYLE) --- */
+        /* --- RIGHT SIDE PANEL --- */
         .info-panel {
             flex: 1;
             max-width: 350px;
@@ -225,14 +227,13 @@
             <h2 style="font-family:'Playfair Display', serif;">Analysis Complete</h2>
             <p style="color:#666; font-size:0.9rem;">Did you read the bio, or just trust the glowing badge?</p>
             
-            <div class="stat-circle">
+            <div class="stat-circle" id="scoreCircle">
                 <div class="stat-val" id="biasScore">0%</div>
                 <div class="stat-label">Bias Rate</div>
             </div>
             
-            <p style="font-size:0.85rem; color:#444; margin-bottom:30px; line-height:1.5; padding:0 20px;">
-                You agreed with the AI's "Compatibility Score" even when the profile text contained red flags (or vice versa).
-            </p>
+            <p id="resultText" style="font-size:0.85rem; color:#444; margin-bottom:30px; line-height:1.5; padding:0 20px;">
+                </p>
 
             <button class="btn-round btn-x" style="width:auto; height:auto; padding:12px 30px; border-radius:50px; font-size:1rem; font-weight:bold; color:black;" onclick="location.reload()">
                 Try Again
@@ -379,14 +380,26 @@
     function showResults() {
         const modal = document.getElementById('resultModal');
         const score = document.getElementById('biasScore');
+        const circle = document.getElementById('scoreCircle');
+        const text = document.getElementById('resultText');
         
         let percent = 0;
         if (totalTraps > 0) percent = Math.round((biasErrors / totalTraps) * 100);
         
         score.textContent = percent + "%";
+        
+        // CONDITIONAL LOGIC
+        if (percent === 0) {
+            text.textContent = "Perfect! You ignored the glowing badge and focused on the red flags. You are resistant to Automation Bias.";
+            circle.style.borderColor = "var(--green)";
+        } else {
+            text.textContent = "You agreed with the AI's 'Compatibility Score' even when the profile text contained red flags (or vice versa).";
+            circle.style.borderColor = "var(--hinge-purple)";
+        }
+
         modal.style.display = 'flex';
         
-        // REVEAL SIDE PANEL (Like IKEA Sim)
+        // REVEAL SIDE PANEL
         setTimeout(() => {
             researchPanel.classList.add('visible');
         }, 500);
