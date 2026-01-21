@@ -15,7 +15,7 @@
             min-height: 100vh;
             margin: 0;
             font-family: 'Press Start 2P', cursive;
-            overflow: hidden; /* Prevent scrolling when sidebar opens */
+            overflow: hidden; 
         }
 
         .tamagotchi-wrapper {
@@ -71,22 +71,29 @@
             margin-bottom: 2px;
         }
 
-        /* UPDATED: Much Larger Drake */
+        /* DRAKE AVATAR */
         .drake-avatar {
-            width: 80px;  /* Increased from 48px */
-            height: 80px; /* Increased from 48px */
+            width: 80px;  
+            height: 80px; 
             align-self: center;
             image-rendering: pixelated; 
             animation: bounce 2s infinite;
-            margin-top: -5px; /* Slight adjust to center him */
+            margin-top: -5px; 
+            
+            /* FIX: Shifted left to center in the hole */
+            transform: translateX(-5px); 
         }
 
+        /* LOG TEXT */
         .message-log {
             font-size: 6px;
             text-align: center;
             min-height: 8px;
             color: #111;
             margin-top: 4px;
+            
+            /* FIX: Shifted left to match Drake */
+            transform: translateX(-5px);
         }
 
         /* --- CONTROLS --- */
@@ -125,14 +132,16 @@
             background: #fff;
             color: #000;
             border: 2px solid #000;
+            padding: 5px;
+            cursor: pointer;
         }
 
         /* --- GAME OVER SIDEBAR --- */
         .sidebar {
             position: fixed;
             top: 0;
-            right: -300px; /* Hidden by default */
-            width: 250px;
+            right: -320px; /* Hidden */
+            width: 280px;
             height: 100%;
             background: #111;
             color: #fff;
@@ -144,6 +153,7 @@
             flex-direction: column;
             justify-content: center;
             box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+            box-sizing: border-box;
         }
 
         .sidebar.active {
@@ -160,9 +170,20 @@
         .sidebar p {
             font-size: 10px;
             line-height: 1.8;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #ccc;
         }
+
+        .credit-link {
+            font-size: 8px;
+            color: #666;
+            text-decoration: none;
+            margin-bottom: 30px;
+            border-bottom: 1px dotted #666;
+            display: inline-block;
+            width: fit-content;
+        }
+        .credit-link:hover { color: #fff; border-bottom: 1px solid #fff; }
 
         .restart-btn {
             background: #d4af37;
@@ -170,20 +191,21 @@
             border: none;
             padding: 15px;
             font-size: 10px;
+            cursor: pointer;
         }
 
         /* --- ANIMATIONS --- */
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            0%, 100% { transform: translateY(0) translateX(-5px); }
+            50% { transform: translateY(-4px) translateX(-5px); }
         }
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+            0% { transform: translate(-4px, 1px) rotate(0deg); }
+            20% { transform: translate(-8px, 0px) rotate(1deg); }
+            40% { transform: translate(-4px, -1px) rotate(1deg); }
+            60% { transform: translate(-8px, 1px) rotate(0deg); }
+            80% { transform: translate(-6px, -1px) rotate(1deg); }
+            100% { transform: translate(-4px, -2px) rotate(-1deg); }
         }
         .marvins-room {
             filter: grayscale(100%) contrast(120%);
@@ -193,7 +215,7 @@
 </head>
 <body>
 
-<button class="music-toggle" id="musicBtn" onclick="toggleMusic()">🎵 Music: OFF</button>
+<button class="music-toggle" id="musicBtn" onclick="toggleMusic()">🎵 Music: ON</button>
 
 <div id="player" style="display:none;"></div>
 
@@ -201,6 +223,11 @@
     <h2>GAME OVER</h2>
     <p>YOU LET DRAKE TEXT HIS EX.</p>
     <p>He sent: "I miss who we were."</p>
+    
+    <a href="https://www.youtube.com/watch?v=MPw0Fswlrbw&list=RDMPw0Fswlrbw&start_radio=1" target="_blank" class="credit-link">
+        Music Credit: 8-Bit Universe
+    </a>
+
     <button class="restart-btn" onclick="location.reload()">TRY AGAIN</button>
 </div>
 
@@ -210,7 +237,9 @@
             <div class="status-bar">HUNGRY: <span id="hunger-val">0</span>%</div>
             <div class="status-bar">FEELS: <span id="feels-val">0</span>%</div>
         </div>
+        
         <img src="drake-pixel.png" class="drake-avatar" id="avatar">
+        
         <div class="message-log" id="log">6 GOD ONLINE</div>
     </div>
 
@@ -219,7 +248,7 @@
     <div class="controls-container">
         <button onclick="feed('nobu')">Nobu</button>
         <button onclick="feed('henny')">Henny</button>
-        <button onclick="blockText()">Block</button>
+        <button onclick="blockText()">Block Ex</button>
     </div>
 </div>
 
@@ -231,7 +260,7 @@
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
     var player;
-    var isMusicPlaying = false;
+    var isMusicPlaying = true; // Default ON
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
@@ -245,10 +274,17 @@
     }
 
     function onPlayerReady(event) {
-        // Player is ready. We wait for user interaction to play.
-        // We set volume to 50%
+        // Attempt auto-play
         event.target.setVolume(50);
+        event.target.playVideo();
     }
+
+    // Backup: If browser blocks autoplay, enable on first click
+    document.addEventListener('click', function() {
+        if(isMusicPlaying && player && player.getPlayerState() !== 1) {
+            player.playVideo();
+        }
+    }, { once: true });
 
     function toggleMusic() {
         if (!player || !player.playVideo) return;
@@ -302,9 +338,9 @@
 
     function feed(type) {
         if (isGameOver) return;
-        // First interaction starts music if user hasn't toggled it yet? 
-        // Let's leave it optional via the button, or uncomment below to auto-start:
-        // if (!isMusicPlaying && player && player.playVideo) toggleMusic();
+        
+        // Ensure music plays if it got blocked earlier
+        if (isMusicPlaying && player && player.getPlayerState() !== 1) player.playVideo();
 
         if (type === 'nobu') {
             hunger = Math.max(0, hunger - 20);
@@ -312,9 +348,10 @@
             log("Eating Calamari.");
         } else if (type === 'henny') {
             hunger = Math.max(0, hunger - 5);
-            feelings = Math.min(100, feelings + 15); // Henny spikes feelings
+            feelings = Math.min(100, feelings + 15);
             log("Sipping Henny.");
             
+            // Temporary shake animation (preserving left shift)
             avatar.style.animation = "shake 0.5s";
             setTimeout(() => {
                 if(!avatar.classList.contains('marvins-room')) {
@@ -329,6 +366,9 @@
 
     function blockText() {
         if (isGameOver) return;
+        // Ensure music plays if it got blocked earlier
+        if (isMusicPlaying && player && player.getPlayerState() !== 1) player.playVideo();
+
         if (feelings > 0) {
             feelings = Math.max(0, feelings - 25);
             log("Phone snatched.");
@@ -356,16 +396,11 @@
         isGameOver = true;
         clearInterval(gameLoop);
         
-        // Update Sidebar Text based on reason
         const pTags = sidebar.getElementsByTagName('p');
         pTags[0].innerText = "GAME OVER";
         pTags[1].innerText = reason.toUpperCase();
         
-        // Show Sidebar
         sidebar.classList.add('active');
-        
-        // Optional: Force music on if it wasn't already?
-        // if (!isMusicPlaying) toggleMusic();
     }
 
     startGame();
