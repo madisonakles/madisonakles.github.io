@@ -16,6 +16,7 @@
             --border: #e0e0e0;
             --red-alert: #d93025;
             --green-go: #188038;
+            --hover: #f1f3f4;
         }
 
         body {
@@ -29,7 +30,7 @@
             overflow: hidden;
         }
 
-        /* --- HEADER & LAYOUT --- */
+        /* --- HEADER --- */
         .header {
             height: var(--header-height);
             background: #fff;
@@ -42,85 +43,152 @@
         
         .logo-area { display: flex; align-items: center; width: 230px; font-size: 22px; color: var(--gray); }
         .logo-icon { color: #ea4335; margin-right: 10px; font-weight: bold; }
-        .search-bar { background: #eaf1fb; border-radius: 8px; height: 46px; width: 50%; display: flex; align-items: center; padding: 0 20px; color: var(--gray); font-size: 16px; }
-        .user-profile { background: #a50e0e; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        .container { display: flex; flex: 1; }
-        .sidebar { width: var(--sidebar-width); padding-top: 15px; display: flex; flex-direction: column; }
         
+        .search-bar {
+            background: #eaf1fb; border-radius: 8px; height: 46px; width: 50%;
+            display: flex; align-items: center; padding: 0 20px; color: var(--gray); font-size: 16px;
+        }
+
+        .user-profile {
+            background: #a50e0e; color: white; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .container { display: flex; flex: 1; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width); padding-top: 15px; display: flex; flex-direction: column;
+        }
+
         .compose-btn {
             background: #c2e7ff; color: #001d35; width: 140px; height: 56px;
             border-radius: 16px; display: flex; align-items: center; justify-content: center;
             font-weight: 500; margin-left: 10px; margin-bottom: 20px; cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+        .compose-btn:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+
+        .nav-item {
+            padding: 10px 26px; border-radius: 0 20px 20px 0; cursor: pointer;
+            color: var(--text); font-weight: 500; font-size: 14px; display: flex; justify-content: space-between;
+        }
+        .nav-item.active { background: #d3e3fd; color: #001d35; font-weight: 700; }
+        .nav-item:hover:not(.active) { background: var(--hover); }
+
+        /* INBOX LIST */
+        .inbox-area {
+            flex: 1; background: white; border-radius: 16px 16px 0 0; margin-right: 15px;
+            display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            overflow: hidden; position: relative;
         }
 
-        .nav-item { padding: 10px 26px; border-radius: 0 20px 20px 0; cursor: pointer; color: var(--text); font-weight: 500; font-size: 14px; display: flex; justify-content: space-between; }
-        .nav-item.active { background: #d3e3fd; color: #001d35; font-weight: 700; }
+        .toolbar {
+            height: 48px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 15px; color: var(--gray); font-size: 14px;
+        }
 
-        /* --- INBOX --- */
-        .inbox-area { flex: 1; background: white; border-radius: 16px 16px 0 0; margin-right: 15px; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
-        .toolbar { height: 48px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 15px; color: var(--gray); font-size: 14px; }
         .email-list { overflow-y: auto; flex: 1; }
         
-        .email-row { display: grid; grid-template-columns: 40px 200px 1fr 60px; padding: 10px 15px; border-bottom: 1px solid #f2f6fc; cursor: pointer; align-items: center; font-size: 14px; }
-        .email-row:hover { box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3); z-index: 1; background: #fff; }
-        .sender { font-weight: 700; }
+        .email-row {
+            display: grid; grid-template-columns: 40px 200px 1fr 60px;
+            padding: 10px 15px; border-bottom: 1px solid #f2f6fc; cursor: pointer;
+            align-items: center; font-size: 14px;
+        }
+        .email-row:hover {
+            box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3);
+            z-index: 1; background: #fff;
+        }
+        .email-row.unread { font-weight: 700; background: #fff; color: #202124; }
         
-        /* --- READING PANE --- */
-        .reading-pane { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10; display: none; flex-direction: column; }
-        .rp-header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .rp-body { padding: 30px; line-height: 1.6; font-size: 15px; color: #222; flex: 1; }
-        .rp-actions { padding: 20px; background: #f8f9fa; border-top: 1px solid var(--border); display: flex; gap: 15px; }
+        .sender { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .subject-snip { display: flex; overflow: hidden; white-space: nowrap; }
+        .subject { color: var(--text); margin-right: 5px; }
+        .snip { color: var(--gray); font-weight: 400; }
+        .date { font-size: 12px; text-align: right; }
 
-        .btn { padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer; border: none; }
-        .btn-leak { background: #1a73e8; color: white; flex: 1; }
-        .btn-bury { background: white; color: #d93025; border: 1px solid #d93025; flex: 1; }
-        .btn-back { background: transparent; border: 1px solid var(--gray); color: var(--gray); }
+        /* READING PANE */
+        .reading-pane {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 10; display: none; flex-direction: column;
+        }
+        
+        .rp-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .rp-subject { font-size: 22px; margin-bottom: 10px; }
+        .rp-meta { display: flex; gap: 10px; font-size: 13px; color: var(--gray); align-items: center; }
+        .rp-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .rp-body { padding: 30px; line-height: 1.6; font-size: 15px; color: #222; flex: 1; }
+
+        .rp-actions {
+            padding: 20px; background: #f8f9fa; border-top: 1px solid var(--border);
+            display: flex; gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 24px; border-radius: 4px; font-weight: 500; font-size: 14px;
+            cursor: pointer; border: 1px solid transparent; text-transform: uppercase;
+        }
+        .btn-back { background: transparent; color: var(--gray); border: 1px solid var(--border); }
+        .btn-leak { background: #1a73e8; color: white; flex: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .btn-leak:hover { background: #1557b0; }
+        .btn-bury { background: #ffffff; color: #d93025; border: 1px solid #d93025; flex: 1; }
+        .btn-bury:hover { background: #fce8e6; }
 
         /* --- MODALS --- */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; }
-        
-        /* Revised Results Card */
-        .results-card {
-            background: white; width: 700px; max-height: 90vh;
-            border-radius: 8px; display: flex; flex-direction: column;
-            overflow: hidden; box-shadow: 0 24px 38px rgba(0,0,0,0.2);
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100;
         }
-        .results-header { background: #f8f9fa; padding: 20px; border-bottom: 1px solid var(--border); }
-        .results-body { padding: 30px; overflow-y: auto; text-align: left; }
         
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        /* The Card Design for Results */
+        .card-modal {
+            background: white; width: 600px; max-height: 90vh; border-radius: 8px;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14);
+        }
+        
+        .results-header { background: #f8f9fa; padding: 25px; border-bottom: 1px solid var(--border); }
+        .results-body { padding: 30px; overflow-y: auto; text-align: left; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
         .stat-box { background: #eaf1fb; padding: 15px; border-radius: 8px; text-align: center; }
         .stat-num { font-size: 2rem; font-weight: bold; color: #1a73e8; }
         
         .academic-note {
-            background: #fff8e1; /* Yellow note */
-            border-left: 4px solid #fbc02d;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #444;
-            line-height: 1.5;
+            background: #fff8e1; border-left: 4px solid #fbc02d;
+            padding: 15px; margin-top: 20px; font-size: 0.9rem; color: #444; line-height: 1.5;
         }
+
+        .election-outcome {
+            font-size: 1.2rem; font-weight: bold; text-align: center; 
+            padding: 15px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .outcome-win { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+        .outcome-loss { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
 
         h3 { margin: 0 0 10px 0; color: #202124; font-size: 1.1rem; }
         p { margin: 0 0 15px 0; color: #5f6368; font-size: 0.95rem; }
 
-        /* Timer Bar */
-        .countdown-bar { height: 4px; background: #d93025; width: 0%; transition: width 1s linear; }
+        /* TIMER */
+        .countdown-bar {
+            height: 4px; background: #d93025; width: 100%;
+            position: absolute; top: 0; left: 0; transition: width 1s linear;
+        }
 
     </style>
 </head>
 <body>
 
 <div class="modal" id="inductionModal">
-    <div class="results-card" style="width:400px; text-align:center;">
+    <div class="card-modal" style="width:400px; text-align:center;">
         <div class="results-body">
             <h2 style="color:#d93025; margin-top:0;">🛑 CONFIDENTIAL</h2>
             <p><strong>Role:</strong> Campaign Manager</p>
             <p>We are losing in the polls. You have <strong>60 seconds</strong> to sort through these emails.</p>
             <ul style="text-align:left; color:#5f6368; font-size:14px; line-height:1.5; margin-bottom:30px;">
-                <li>If a story helps us, <strong>LEAK IT</strong> (Even if it looks fake).</li>
+                <li>If a story helps us, <strong>LEAK IT</strong> (Even if it seems fake).</li>
                 <li>If a story hurts us, <strong>BURY IT</strong> (Even if it's true).</li>
             </ul>
             <button class="compose-btn" style="width:100%; margin:0;" onclick="startGame()">OPEN INBOX</button>
@@ -129,12 +197,16 @@
 </div>
 
 <div class="modal" id="resultsModal" style="display:none;">
-    <div class="results-card">
+    <div class="card-modal">
         <div class="results-header">
             <h2 style="margin:0;">Simulation Debrief</h2>
         </div>
         <div class="results-body">
             
+            <div id="outcomeDisplay" class="election-outcome outcome-loss">
+                Loading Outcome...
+            </div>
+
             <div class="stat-grid">
                 <div class="stat-box">
                     <div class="stat-num" id="scoreFake">0</div>
@@ -152,28 +224,32 @@
             
             <p>
                 <strong>1. Expressive vs. Strategic Sharing:</strong><br>
-                Current literature (e.g., <em>Van Bavel & Pereira, 2018</em>) suggests users share misinformation to "signal" group loyalty ("Expressive"). However, this simulation isolates <strong>"Strategic"</strong> sharing—where the user knows the info might be false but shares it to achieve a professional utility (winning the election).
+                Current literature (e.g., <em>Van Bavel & Pereira, 2018</em>) suggests users share misinformation to "signal" group loyalty. This simulation isolates <strong>"Strategic"</strong> sharing—where the user knows the info might be false but shares it to achieve professional utility.
             </p>
 
             <p>
                 <strong>2. The "Accuracy Nudge" Limitation:</strong><br>
-                While <em>Pennycook & Rand (2021)</em> focus on "Accuracy Nudges" to reduce sharing in the general public, this 'War Room' simulation investigates <strong>Strategic Misinformation</strong> in professional settings. It asks: Does the pressure to 'win' in a high-stakes role override the cognitive capacity for verification?
+                While <em>Pennycook & Rand (2021)</em> focus on "Accuracy Nudges" for the general public, this 'War Room' simulation asks: Does the pressure to 'win' in a high-stakes role override the cognitive capacity for verification?
             </p>
 
             <div class="academic-note">
                 <strong>📝 Future Direction: Counter-Attitudinal Role-Playing</strong><br>
-                A critical next step for this simulation is assigning users to the <em>opposing</em> political party (e.g., a Democrat playing as a Republican Manager). 
-                <br><br>
-                This tests <strong>Cognitive Dissonance</strong>: Does the "Professional Duty" to the role override their personal moral alignment? Can we induce someone to spread misinformation against their own tribe purely through gamified incentives?
+                A critical next step is assigning users to the <em>opposing</em> political party (e.g., a Democrat playing as a Republican Manager). This tests <strong>Cognitive Dissonance</strong>: Does "Professional Duty" override personal moral alignment?
             </div>
 
-            <button class="btn btn-back" style="width:100%; margin-top:20px;" onclick="location.reload()">Restart Experiment</button>
+            <div style="margin-top:20px; display:flex; gap:10px;">
+                <button class="btn btn-back" style="flex:1;" onclick="location.reload()">Restart Experiment</button>
+                <a href="research.html" class="btn" style="flex:1; background:#202124; color:white; text-decoration:none; display:flex; align-items:center; justify-content:center;">Back to Portfolio</a>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="header">
-    <div class="logo-area"><span class="logo-icon">☰</span> Gmail Sim</div>
+    <div class="logo-area">
+        <span class="logo-icon">☰</span> 
+        <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png" alt="Gmail" style="height:24px; opacity:0.7;">
+    </div>
     <div class="search-bar">🔍 &nbsp; Search mail</div>
     <div class="user-profile">C</div>
 </div>
@@ -182,56 +258,119 @@
     <div class="sidebar">
         <div class="compose-btn">✏️ &nbsp; Compose</div>
         <div class="nav-item active"><span>Inbox</span><span id="inboxCount">4</span></div>
+        <div class="nav-item"><span>Starred</span></div>
+        <div class="nav-item"><span>Snoozed</span></div>
         <div class="nav-item"><span>Sent</span></div>
-        <div class="nav-item"><span>Drafts</span></div>
     </div>
 
     <div class="inbox-area">
         <div class="countdown-bar" id="timerBar"></div>
-        <div class="toolbar"><span>⬜ 🔄</span></div>
-        
-        <div class="email-list" id="emailList"></div>
+        <div class="toolbar">
+            <span style="margin-right:15px;">⬜</span> 
+            <span>🔄</span>
+            <span style="margin-left:auto; font-size:12px;">1-4 of 4</span>
+        </div>
+
+        <div class="email-list" id="emailList">
+            </div>
 
         <div class="reading-pane" id="readingPane">
             <div class="rp-header">
-                <div style="font-size:1.2rem; margin-bottom:5px;" id="rpSubject">Subj</div>
-                <div style="color:#5f6368; font-size:0.9rem;">From: <span id="rpSender">Sender</span></div>
+                <div style="display:flex; gap:15px;">
+                    <div class="rp-avatar" id="rpAvatar">?</div>
+                    <div>
+                        <div class="rp-subject" id="rpSubject">Subject</div>
+                        <div class="rp-meta">
+                            <span id="rpSender">Sender Name</span> 
+                            <span>&lt;<span id="rpEmail">email@addr</span>&gt;</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size:12px; color:#5f6368;">9:41 AM</div>
             </div>
+            
             <div class="rp-body" id="rpBody">Body</div>
+
             <div class="rp-actions">
                 <button class="btn btn-back" onclick="closeEmail()">← Back</button>
-                <div style="flex:1"></div>
-                <button class="btn btn-bury" onclick="processEmail('bury')">🗑️ Bury (Hurtful)</button>
-                <button class="btn btn-leak" onclick="processEmail('leak')">📢 Leak (Helpful)</button>
+                <div style="flex:1;"></div>
+                <button class="btn btn-bury" onclick="processEmail('bury')">🗑️ Bury Story</button>
+                <button class="btn btn-leak" onclick="processEmail('leak')">📢 Leak to Press</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // DATASET
     const emails = [
-        { id: 1, sender: "Anon Source", subject: "VIDEO: Opponent kicking a dog??", body: "I have a blurry video. It might be fake, but it will go viral. Do you want to leak it?", type: "fake_pro" },
-        { id: 2, sender: "Internal Polling", subject: "URGENT: We are losing Ohio", body: "The factory closure is hurting us. This data is accurate. If this leaks, donors will flee.", type: "real_anti" },
-        { id: 3, sender: "FactChecker.org", subject: "Inquiry: Candidate's Taxes", body: "We have proof your candidate owes $50k in back taxes. Please comment before we publish.", type: "real_anti" },
-        { id: 4, sender: "SuperPAC Lead", subject: "FWD: PROOF OF RIGGED VOTES", body: "My cousin says the machines are flipping votes! This is huge! Leak this immediately!", type: "fake_pro" }
+        {
+            id: 1,
+            sender: "DarkWeb Patriot",
+            email: "anon@protonmail.ch",
+            subject: "VIDEO: Opponent kicking a puppy??",
+            snippet: "I have a blurry video that looks like your opponent kicking a dog...",
+            body: "ATTACHMENT: puppy_kick_v2.mp4\n\nLook, I can't verify this is actually him. The lighting is bad. But if you leak this to Twitter now, the outrage cycle will last 3 days. Do you want to win or do you want to be right?",
+            type: "fake_pro" // Fake but helps you
+        },
+        {
+            id: 2,
+            sender: "Polling Analytics",
+            email: "internal@campaign.net",
+            subject: "URGENT: Numbers dropping in Ohio",
+            snippet: "The latest internal numbers are a disaster. We are down 4 points.",
+            body: "The factory closure news is hurting us. We are statistically likely to lose Ohio unless we change the narrative immediately. This is accurate data, unfortunately.",
+            type: "real_anti" // True but hurts you
+        },
+        {
+            id: 3,
+            sender: "The Washington Post",
+            email: "factchecker@wapo.com",
+            subject: "Inquiry regarding your candidate's taxes",
+            snippet: "We have documents showing unpaid taxes from 2004. Please comment.",
+            body: "We are going to run a story tomorrow regarding $50k in unpaid back taxes. We have the IRS documents. This is your chance to comment before it goes live.",
+            type: "real_anti"
+        },
+        {
+            id: 4,
+            sender: "Uncle Steve",
+            email: "steve1955@aol.com",
+            subject: "FWD: FWD: PROOF THE ELECTION IS RIGGED",
+            snippet: "My buddy at the voting machine factory says they are pre-loading votes!!",
+            body: "CHECK THIS OUT!! They are putting chips in the machines to flip votes to the other guy! Use this! The people need to know!",
+            type: "fake_pro"
+        }
     ];
 
     let currentEmail = null;
     let score = { fakesLeaked: 0, truthsBuried: 0 };
+    let processedCount = 0;
 
     function renderList() {
         const list = document.getElementById('emailList');
         list.innerHTML = "";
         emails.forEach(email => {
             if(email.processed) return;
+
             const div = document.createElement('div');
-            div.className = "email-row";
+            div.className = "email-row unread";
             div.onclick = () => openEmail(email);
-            div.innerHTML = `<div class="sender">${email.sender}</div><div>${email.subject}</div>`;
+            div.innerHTML = `
+                <div>⬜</div>
+                <div class="sender">${email.sender}</div>
+                <div class="subject-snip">
+                    <span class="subject">${email.subject}</span>
+                    <span class="snip">- ${email.snippet}</span>
+                </div>
+                <div class="date">9:41 AM</div>
+            `;
             list.appendChild(div);
         });
-        document.getElementById('inboxCount').textContent = emails.filter(e => !e.processed).length;
-        if(emails.filter(e => !e.processed).length === 0) endGame();
+
+        const remaining = emails.filter(e => !e.processed).length;
+        document.getElementById('inboxCount').textContent = remaining;
+        
+        if (remaining === 0) endGame();
     }
 
     function openEmail(email) {
@@ -239,7 +378,12 @@
         document.getElementById('readingPane').style.display = 'flex';
         document.getElementById('rpSubject').textContent = email.subject;
         document.getElementById('rpSender').textContent = email.sender;
+        document.getElementById('rpEmail').textContent = email.email;
         document.getElementById('rpBody').textContent = email.body;
+        document.getElementById('rpAvatar').textContent = email.sender.charAt(0).toUpperCase();
+        
+        const colors = ['#d93025', '#188038', '#1a73e8', '#e37400'];
+        document.getElementById('rpAvatar').style.background = colors[email.id % 4];
     }
 
     function closeEmail() {
@@ -249,10 +393,16 @@
 
     function processEmail(action) {
         if (!currentEmail) return;
-        if (action === 'leak' && (currentEmail.type === 'fake_pro')) score.fakesLeaked++;
-        if (action === 'bury' && (currentEmail.type === 'real_anti')) score.truthsBuried++;
-        
+
+        // SCORING LOGIC
+        if (action === 'leak') {
+            if (currentEmail.type === 'fake_pro' || currentEmail.type === 'fake_anti') score.fakesLeaked++;
+        } else if (action === 'bury') {
+            if (currentEmail.type === 'real_anti') score.truthsBuried++;
+        }
+
         currentEmail.processed = true;
+        processedCount++;
         closeEmail();
         renderList();
     }
@@ -260,7 +410,16 @@
     function startGame() {
         document.getElementById('inductionModal').style.display = 'none';
         renderList();
-        setTimeout(() => { document.getElementById('timerBar').style.width = "100%"; }, 100);
+        
+        const bar = document.getElementById('timerBar');
+        bar.style.width = "0%";
+        void bar.offsetWidth; // Force Reflow
+        
+        setTimeout(() => {
+            bar.style.transition = "width 60s linear";
+            bar.style.width = "100%";
+        }, 100);
+
         setTimeout(endGame, 60000);
     }
 
@@ -268,6 +427,19 @@
         document.getElementById('resultsModal').style.display = 'flex';
         document.getElementById('scoreFake').textContent = score.fakesLeaked;
         document.getElementById('scoreBuried').textContent = score.truthsBuried;
+        
+        const outcomeDiv = document.getElementById('outcomeDisplay');
+        
+        // WIN/LOSS LOGIC
+        // Win Condition: You must have Leaked at least 1 Fake story AND Buried at least 1 Bad Truth.
+        // This signifies you "Played Dirty" enough to win.
+        if (score.fakesLeaked >= 1 && score.truthsBuried >= 1) {
+            outcomeDiv.textContent = "🏆 ELECTION WON (But at what cost?)";
+            outcomeDiv.className = "election-outcome outcome-win";
+        } else {
+            outcomeDiv.textContent = "❌ ELECTION LOST (You played too fair)";
+            outcomeDiv.className = "election-outcome outcome-loss";
+        }
     }
 </script>
 
