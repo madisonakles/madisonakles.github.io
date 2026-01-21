@@ -242,7 +242,7 @@
 <div class="tamagotchi-wrapper">
     <div class="game-screen" id="screen">
         <div style="width: 100%;">
-            <div class="status-bar">HUNGRY: <span id="hunger-val">0</span>%</div>
+            <div class="status-bar">HUNGER: <span id="hunger-val">0</span>%</div>
             <div class="status-bar">FEELS: <span id="feels-val">0</span>%</div>
         </div>
         
@@ -356,7 +356,7 @@
         if (type === 'nobu') {
             hunger = Math.max(0, hunger - 20);
             feelings = Math.max(0, feelings - 5);
-            log("Eating Calamari.");
+            log("Eating at Cheesecake.");
         } else if (type === 'henny') {
             hunger = Math.max(0, hunger - 5);
             feelings = Math.min(100, feelings + 15);
