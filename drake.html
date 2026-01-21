@@ -20,14 +20,15 @@
 
         .tamagotchi-wrapper {
             position: relative;
-            width: 450px; 
+            /* 1. Made Bigger */
+            width: 550px; 
             height: auto;
             display: inline-block; 
         }
 
         /* --- LAYERS --- */
         
-        /* 1. The Shell (FRONT LAYER) */
+        /* The Shell (FRONT LAYER) */
         .shell-img {
             width: 100%;
             display: block;
@@ -37,7 +38,7 @@
             user-select: none;
         }
 
-        /* 2. The Screen (BACK LAYER) */
+        /* The Screen (BACK LAYER) */
         .game-screen {
             position: absolute;
             z-index: 1; 
@@ -49,7 +50,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 10px; 
+            padding: 14px; 
             box-sizing: border-box;
         }
 
@@ -65,62 +66,73 @@
 
         /* --- GAME UI --- */
         .status-bar {
-            font-size: 8px;
+            font-size: 10px;
             color: #111;
             text-shadow: 1px 1px 0px rgba(160, 172, 134, 0.8);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         /* DRAKE AVATAR */
         .drake-avatar {
-            width: 80px;  
-            height: 80px; 
+            width: 100px;  
+            height: 100px; 
             align-self: center;
             image-rendering: pixelated; 
             animation: bounce 2s infinite;
             margin-top: -5px; 
             position: relative;
-            left: -12px; /* Centered in the cut-out */
+            left: -12px; 
         }
 
         /* LOG TEXT */
         .message-log {
-            font-size: 6px;
+            font-size: 8px;
             text-align: center;
-            min-height: 8px;
+            min-height: 10px;
             color: #111;
-            margin-top: 4px;
+            margin-top: 5px;
             position: relative;
-            left: -12px; /* Centered in the cut-out */
+            left: -12px;
         }
 
-        /* --- CONTROLS --- */
-        .controls-container {
+        /* --- CONTROLS (ON DEVICE) --- */
+        .device-btn {
             position: absolute;
-            bottom: 12%; 
-            left: 21%;
-            width: 58%;
-            display: flex;
-            justify-content: space-between;
             z-index: 20; 
-        }
-
-        button {
             background: #222;
             color: #f0f0f0;
             border: 1px solid #555;
             font-family: 'Press Start 2P';
-            font-size: 7px;
-            padding: 6px 8px;
+            font-size: 8px;
+            padding: 5px 4px;
             cursor: pointer;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
             text-transform: uppercase;
+            min-width: 50px;
+        }
+        
+        .device-btn:hover { background: #444; color: #fff; border-color: #fff; }
+        .device-btn:active { transform: translate(1px, 1px); box-shadow: none; }
+
+        .btn-left {
+            bottom: 18%;
+            left: 23%;
+            transform: translateX(-50%);
+        }
+        
+        .btn-mid {
+            bottom: 13%;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
-        button:hover { background: #444; }
-        button:active { transform: translate(1px, 1px); box-shadow: none; }
+        .btn-right {
+            bottom: 18%;
+            right: 23%;
+            transform: translateX(50%);
+        }
 
-        /* --- MUSIC TOGGLE (Top Right Corner) --- */
+        /* --- MUSIC TOGGLE --- */
         .music-toggle {
             position: absolute;
             top: 20px;
@@ -135,13 +147,13 @@
             min-width: 60px;
         }
 
-        /* --- GAME OVER MODAL (POP-UP) --- */
+        /* --- GAME OVER MODAL --- */
         .modal-overlay {
-            display: none; /* Hidden by default */
+            display: none; 
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* Dimmed background */
+            background: rgba(0, 0, 0, 0.7); 
             z-index: 999;
             justify-content: center;
             align-items: center;
@@ -150,7 +162,7 @@
         .modal-box {
             background: #111;
             color: #fff;
-            border: 4px solid #d4af37; /* OVO Gold */
+            border: 4px solid #d4af37; 
             padding: 25px;
             width: 320px;
             text-align: center;
@@ -194,7 +206,6 @@
         }
         .restart-btn:hover { background: #fff; }
 
-        /* --- ANIMATIONS --- */
         @keyframes popIn {
             0% { transform: scale(0.8); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -242,7 +253,7 @@
 <div class="tamagotchi-wrapper">
     <div class="game-screen" id="screen">
         <div style="width: 100%;">
-            <div class="status-bar">HUNGER: <span id="hunger-val">0</span>%</div>
+            <div class="status-bar">HUNGRY: <span id="hunger-val">0</span>%</div>
             <div class="status-bar">FEELS: <span id="feels-val">0</span>%</div>
         </div>
         
@@ -253,28 +264,26 @@
 
     <img src="shell.png" alt="Drake Tamagotchi" class="shell-img">
 
-    <div class="controls-container">
-        <button onclick="feed('nobu')">Nobu</button>
-        <button onclick="feed('henny')">Henny</button>
-        <button onclick="blockText()">Block Ex</button>
-    </div>
+    <button class="device-btn btn-left" onclick="feed('nobu')">FEED</button>
+    <button class="device-btn btn-mid" onclick="feed('henny')">HENNY</button>
+    <button class="device-btn btn-right" onclick="blockText()">BLOCK EX</button>
 </div>
 
 <script>
-    /* --- 1. YOUTUBE API SETUP --- */
+    /* --- YOUTUBE API --- */
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
     var player;
-    var isMusicPlaying = true; // Default ON
+    var isMusicPlaying = true; 
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
             height: '0',
             width: '0',
-            videoId: 'MPw0Fswlrbw', // Passionfruit 8-Bit
+            videoId: 'MPw0Fswlrbw',
             events: {
                 'onReady': onPlayerReady
             }
@@ -282,12 +291,10 @@
     }
 
     function onPlayerReady(event) {
-        // Attempt auto-play
         event.target.setVolume(50);
         event.target.playVideo();
     }
 
-    // Backup: If browser blocks autoplay, enable on first click
     document.addEventListener('click', function() {
         if(isMusicPlaying && player && player.getPlayerState() !== 1) {
             player.playVideo();
@@ -296,7 +303,6 @@
 
     function toggleMusic() {
         if (!player || !player.playVideo) return;
-        
         const btn = document.getElementById('musicBtn');
         if (isMusicPlaying) {
             player.pauseVideo();
@@ -309,7 +315,7 @@
         }
     }
 
-    /* --- 2. GAME LOGIC --- */
+    /* --- GAME LOGIC --- */
     let hunger = 20;
     let feelings = 10;
     let isGameOver = false;
@@ -319,8 +325,6 @@
     const feelsEl = document.getElementById('feels-val');
     const logEl = document.getElementById('log');
     const avatar = document.getElementById('avatar');
-    
-    // Select the new Modal elements
     const modalOverlay = document.getElementById('gameOverModal');
     const failReasonText = document.getElementById('fail-reason');
 
@@ -328,7 +332,6 @@
         hungerEl.innerText = hunger;
         feelsEl.innerText = feelings;
         
-        // Marvin's Room Mode (Sadness)
         if (feelings > 70) {
             if(!avatar.classList.contains('marvins-room')) {
                 logEl.innerText = "Listening to Take Care...";
@@ -349,13 +352,12 @@
 
     function feed(type) {
         if (isGameOver) return;
-        
-        // Ensure music plays if it got blocked earlier
         if (isMusicPlaying && player && player.getPlayerState() !== 1) player.playVideo();
 
         if (type === 'nobu') {
             hunger = Math.max(0, hunger - 20);
             feelings = Math.max(0, feelings - 5);
+            // UPDATED HERE:
             log("Eating at Cheesecake.");
         } else if (type === 'henny') {
             hunger = Math.max(0, hunger - 5);
@@ -376,7 +378,6 @@
 
     function blockText() {
         if (isGameOver) return;
-        // Ensure music plays
         if (isMusicPlaying && player && player.getPlayerState() !== 1) player.playVideo();
 
         if (feelings > 0) {
@@ -405,11 +406,7 @@
     function triggerGameOver(reason) {
         isGameOver = true;
         clearInterval(gameLoop);
-        
-        // Update Modal Text
         failReasonText.innerText = reason.toUpperCase();
-        
-        // Show Modal (Flex centers it)
         modalOverlay.style.display = 'flex';
     }
 
