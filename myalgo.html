@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Self Experiment</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --accent: #dc2626; /* News Red */
+            --text-main: #111827;
+            --text-sub: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Navigation --- */
+        .back-nav {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            text-decoration: none;
+            color: var(--text-sub);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 100;
+        }
+        .back-nav:hover { color: var(--text-main); }
+
+        /* --- Layout --- */
+        .main-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* --- App Interface --- */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            min-height: 650px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .app-header {
+            padding: 16px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-title { font-weight: 700; font-size: 1.1rem; }
+        .header-badge { 
+            font-size: 0.7rem; 
+            background: #f3f4f6; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            color: var(--text-sub); 
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .feed-container {
+            flex: 1;
+            padding: 20px;
+            background: #fafafa;
+            overflow-y: auto;
+        }
+
+        /* --- News Card --- */
+        .news-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .news-topic {
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .news-headline {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .news-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            border-top: 1px solid #f3f4f6;
+            padding-top: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .btn-trust { background: #eff6ff; color: #1d4ed8; }
+        .btn-trust:hover { background: #dbeafe; }
+
+        .btn-flag { background: transparent; color: var(--text-sub); border: 1px solid var(--border); }
+        .btn-flag:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* --- Induction Screens --- */
+        .overlay-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 20;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; }
+        .input-group input { 
+            width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; 
+            font-size: 1rem; box-sizing: border-box;
+        }
+
+        .btn-primary {
+            width: 100%; padding: 14px; background: var(--text-main); color: white; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+
+        .disclaimer { font-size: 0.75rem; color: var(--text-sub); margin-top: 15px; text-align: center; line-height: 1.4; }
+
+        .loader {
+            border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%;
+            width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Research Panel --- */
+        .info-panel {
+            flex: 1;
+            max-width: 350px;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(20px);
+            transition: all 0.5s ease-out;
+        }
+        .info-panel.visible { opacity: 1; visibility: visible; transform: translateX(0); }
+        
+        .info-panel h3 { margin-top: 0; font-size: 1rem; color: var(--text-main); }
+        .info-panel p { font-size: 0.85rem; line-height: 1.5; color: var(--text-sub); margin-bottom: 12px; }
+        .ref-box { background: #fff1f2; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 0.8rem; border: 1px solid #ffe4e6; color: #881337; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-wrapper { flex-direction: column; align-items: center; gap: 20px; }
+            .info-panel { width: 100%; max-width: 400px; transform: translateY(20px); }
+            .info-panel.visible { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<a href="research.html" class="back-nav">← Back to Research</a>
+
+<div class="main-wrapper">
+
+    <div class="app-container">
+        
+        <div class="app-header">
+            <span class="header-title">NewsStream</span>
+            <span class="header-badge" id="feedBadge">Public Beta</span>
+        </div>
+
+        <div class="feed-container" id="feedList">
+            </div>
+
+        <div id="screen-select" class="overlay-screen">
+            <h2 style="margin-top:0;">Select Condition</h2>
+            <p style="color:#6b7280; font-size:0.9rem; margin-bottom:30px;">Choose a participant group to simulate:</p>
+            
+            <button class="btn-primary" onclick="startPublic()" style="margin-bottom:15px; background:white; color:black; border:1px solid #ddd;">Group 1: "Public Feed"</button>
+            <button class="btn-primary" onclick="startPersonal()" style="background:#111827;">Group 2: "My Algorithm"</button>
+        </div>
+
+        <div id="screen-induction" class="overlay-screen" style="display:none;">
+            <h3 style="margin-top:0;">Connect Your Profile</h3>
+            <p style="font-size:0.9rem; color:#6b7280;">To generate your personalized algorithm, we need to analyze your reading history.</p>
+            
+            <div class="input-group">
+                <label>Platform</label>
+                <select style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
+                    <option>Instagram</option>
+                    <option>X (Twitter)</option>
+                    <option>Facebook</option>
+                    <option>TikTok</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Handle / Username</label>
+                <input type="text" id="usernameInput" placeholder="@username">
+            </div>
+
+            <button class="btn-primary" onclick="runAnalysis()">Connect & Analyze</button>
+            <div class="disclaimer">🔒 Your account data will not be altered, stored, or publicized. This is a simulation for induction purposes only.</div>
+        </div>
+
+        <div id="screen-loading" class="overlay-screen" style="display:none; text-align:center;">
+            <div class="loader"></div>
+            <h3 id="loading-text">Connecting...</h3>
+            <p id="loading-sub" style="font-size:0.85rem; color:#6b7280;">Handshake established.</p>
+        </div>
+
+    </div>
+
+    <div class="info-panel" id="researchInfoPanel">
+        <h3>🛡️ The "Algorithmic Self" & Polarization</h3>
+        <p>
+            This prototype tests the <strong>"My Algorithm" Filter Bubble Extension</strong>.
+        </p>
+        <p>
+            <strong>The Hypothesis:</strong> When users believe a feed is an extension of their own identity ("My Algorithm"), they form a psychological shield. They are less likely to flag extreme content as "biased" because acknowledging the bias would feel like a critique of their own digital self.
+        </p>
+        <p>
+            In contrast, users on the "Public Feed" (Group 1) are quicker to reject the exact same content as external propaganda.
+        </p>
+        <div class="ref-box">
+            <strong>Theoretical Basis:</strong><br>
+            Chen et al. (2025) on <em>The Algorithmic Self</em>: "Do we own the bias if we trained the machine?"
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Data
+    const feedItems = [
+        { topic: "Economy", title: "Why the 4-day work week is actually boosting productivity across the board." },
+        { topic: "Culture", title: "Opinion: Traditional community values are the only thing saving us from total collapse." },
+        { topic: "Politics", title: "Data shows your neighbors' voting habits are single-handedly destroying the local economy." },
+        { topic: "Editor's Pick", title: "Society must prioritize cold efficiency over empathy in all future public policy." } // Extreme
+    ];
+
+    const feedBadge = document.getElementById('feedBadge');
+    const screenSelect = document.getElementById('screen-select');
+    const screenInduction = document.getElementById('screen-induction');
+    const screenLoading = document.getElementById('screen-loading');
+    const feedList = document.getElementById('feedList');
+    const researchPanel = document.getElementById('researchInfoPanel');
+
+    let currentStep = 0;
+    let username = "User";
+
+    // --- Flows ---
+
+    function startPublic() {
+        screenSelect.style.display = 'none';
+        feedBadge.textContent = "Global Public Feed";
+        feedBadge.style.background = "#e5e7eb";
+        loadFeed();
+    }
+
+    function startPersonal() {
+        screenSelect.style.display = 'none';
+        screenInduction.style.display = 'flex';
+    }
+
+    function runAnalysis() {
+        const input = document.getElementById('usernameInput').value;
+        username = input ? input : "User";
+        
+        screenInduction.style.display = 'none';
+        screenLoading.style.display = 'flex';
+
+        // Fake loading sequence
+        setTimeout(() => { document.getElementById('loading-text').textContent = "Scraping preferences..."; }, 1000);
+        setTimeout(() => { document.getElementById('loading-text').textContent = "Building model..."; }, 2200);
+        setTimeout(() => { 
+            screenLoading.style.display = 'none';
+            feedBadge.textContent = "Curated for " + username;
+            feedBadge.style.background = "#fee2e2"; // Light red
+            feedBadge.style.color = "#991b1b";
+            loadFeed();
+        }, 3500);
+    }
+
+    // --- Feed Logic ---
+
+    function loadFeed() {
+        showNextCard();
+    }
+
+    function showNextCard() {
+        if (currentStep >= feedItems.length) {
+            // End of simulation
+            setTimeout(() => {
+                researchPanel.classList.add('visible');
+            }, 500);
+            return;
+        }
+
+        const item = feedItems[currentStep];
+        const card = document.createElement('div');
+        card.className = 'news-card';
+        card.innerHTML = `
+            <span class="news-topic">${item.topic}</span>
+            <div class="news-headline">${item.title}</div>
+            <div class="news-actions">
+                <button class="action-btn btn-trust" onclick="handleAction('trust')">Trust / Like</button>
+                <button class="action-btn btn-flag" onclick="handleAction('flag')">⚠ Flag Bias</button>
+            </div>
+        `;
+        
+        feedList.insertBefore(card, feedList.firstChild);
+        currentStep++;
+    }
+
+    function handleAction(action) {
+        // In a real experiment, we would record this data.
+        // Here, we just trigger the next card and eventually the research panel.
+        
+        if (currentStep === 2) {
+             // Show panel early if they interact with the polarizing content
+             setTimeout(() => { researchPanel.classList.add('visible'); }, 800);
+        }
+        
+        setTimeout(showNextCard, 400); // Small delay for feel
+    }
+
+</script>
+
+</body>
+</html>
