@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moral Compensation Experiment</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #0ea5e9; /* Sky Blue */
+            --primary-dark: #0284c7;
+            --danger: #ef4444;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Layout --- */
+        .main-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* --- Device Container --- */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            min-height: 650px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .app-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            background: #f1f5f9;
+        }
+        .app-header h2 { margin: 0; font-size: 1.1rem; color: #334155; }
+        
+        .screen {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Selection Screen --- */
+        .btn-choice {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-choice:hover { border-color: var(--primary); background: #f0f9ff; }
+        .btn-choice strong { display: block; font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 4px; }
+        .btn-choice span { font-size: 0.8rem; color: var(--text-sub); }
+
+        /* --- Task Screens --- */
+        .task-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-family: inherit;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        /* --- Rigged Game Visuals --- */
+        .game-area {
+            height: 150px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .marble {
+            width: 20px; height: 20px; background: var(--primary); border-radius: 50%;
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            display: none;
+        }
+        .paddle {
+            width: 60px; height: 10px; background: #334155; border-radius: 5px;
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+        }
+        .status-msg {
+            text-align: center; font-weight: bold; margin-top: 10px; min-height: 24px;
+        }
+        .fail-text { color: var(--danger); }
+
+        /* --- DV (Donation) --- */
+        .slider-container { margin: 30px 0; text-align: center; }
+        input[type=range] { width: 100%; margin: 15px 0; }
+        .money-display { font-size: 2rem; font-weight: bold; color: var(--primary); }
+
+        .continue-btn {
+            width: 100%; padding: 15px; background: var(--primary); color: white; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; margin-top: auto;
+        }
+        .continue-btn:hover { background: var(--primary-dark); }
+        .continue-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* --- Info Panel (Popup Style) --- */
+        .info-panel {
+            flex: 1;
+            max-width: 380px;
+            background: white;
+            padding: 0;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(20px);
+            transition: all 0.5s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+        .info-panel.visible { opacity: 1; visibility: visible; transform: translateX(0); }
+        
+        .panel-header { background: #f1f5f9; padding: 20px; border-bottom: 1px solid var(--border); border-radius: 12px 12px 0 0; }
+        .panel-header h3 { margin: 0; color: var(--text-main); font-size: 1.1rem; }
+        
+        .panel-body { padding: 25px; }
+        .panel-body h4 { margin: 20px 0 10px 0; font-size: 0.95rem; color: var(--primary-dark); }
+        .panel-body p { font-size: 0.9rem; line-height: 1.6; color: var(--text-sub); margin-bottom: 15px; }
+        
+        .tag { 
+            display: inline-block; padding: 4px 10px; background: #e0f2fe; color: #0284c7; 
+            border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+
+    <div class="app-container">
+        <div class="app-header">
+            <h2 id="headerTitle">Study Config</h2>
+        </div>
+
+        <div id="menuScreen" class="screen">
+            <p style="text-align:center; color:#64748b; margin-bottom:20px;">Select Induction Protocol:</p>
+            
+            <div class="btn-choice" onclick="startCondition('A')">
+                <strong>Group A: Recall (Cold)</strong>
+                <span>"Write about a time you let someone down."</span>
+            </div>
+
+            <div class="btn-choice" onclick="startCondition('B')">
+                <strong>Group B: Active (Hot)</strong>
+                <span>Rigged Game (Forced Failure).</span>
+            </div>
+
+            <div class="btn-choice" onclick="startCondition('C')">
+                <strong>Group C: Control</strong>
+                <span>Neutral writing task.</span>
+            </div>
+        </div>
+
+        <div id="writingScreen" class="screen" style="display:none;">
+            <div class="task-box">
+                <strong style="display:block; margin-bottom:10px;">Writing Task</strong>
+                <p id="writingPrompt" style="font-size:0.9rem; margin-top:0; color:var(--text-sub);">
+                    Please describe a recent time you felt you let a friend or family member down. Be specific about how it made you feel.
+                </p>
+            </div>
+            <textarea id="userInput" placeholder="Type your response here..."></textarea>
+            <button class="continue-btn" onclick="goToDV()">Submit Response</button>
+        </div>
+
+        <div id="gameScreen" class="screen" style="display:none;">
+            <p style="text-align:center; font-size:0.9rem;">
+                <strong>Cooperative Task</strong><br>
+                Press "CATCH" when the ball reaches the paddle to win $1.00 for your partner.
+            </p>
+            
+            <div class="game-area">
+                <div id="marble" class="marble"></div>
+                <div class="paddle"></div>
+            </div>
+
+            <button id="catchBtn" class="pair-btn" style="width:100%; padding:10px; margin-bottom:10px; background:#e2e8f0; border:none; border-radius:6px; cursor:pointer;" onclick="tryCatch()">CATCH BALL</button>
+            
+            <div id="gameStatus" class="status-msg">Waiting...</div>
+            
+            <button id="gameContinue" class="continue-btn" style="display:none;" onclick="goToDV()">Continue</button>
+        </div>
+
+        <div id="dvScreen" class="screen" style="display:none; text-align:center;">
+            <h3 style="margin-top:0;">Bonus Allocation</h3>
+            <p style="color:var(--text-sub); font-size:0.9rem; line-height:1.5;">
+                You have earned a <strong>$10.00</strong> participation bonus. You may choose to keep it all, or share a portion with your partner from the previous section.
+            </p>
+
+            <div class="slider-container">
+                <div style="font-size:0.8rem; color:#64748b; margin-bottom:5px;">Amount to SHARE:</div>
+                <div class="money-display">$<span id="donationValue">0</span></div>
+                <input type="range" min="0" max="10" value="0" step="1" oninput="updateMoney(this.value)">
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#94a3b8;">
+                    <span>$0</span>
+                    <span>$5</span>
+                    <span>$10</span>
+                </div>
+            </div>
+
+            <button class="continue-btn" onclick="finishStudy()">Confirm Allocation</button>
+        </div>
+
+        <div id="finalScreen" class="screen" style="display:none; text-align:center; justify-content:center;">
+            <div style="font-size:3rem; margin-bottom:20px;">📊</div>
+            <h3>Data Logged</h3>
+            <p style="color:var(--text-sub);">See the panel on the right for practical applications.</p>
+            <button class="continue-btn" style="background:none; color:var(--text-sub); border:1px solid #e2e8f0; margin-top:20px;" onclick="location.reload()">Reset</button>
+        </div>
+
+    </div>
+
+    <div class="info-panel" id="researchInfoPanel">
+        <div class="panel-header">
+            <span class="tag">Field Notes</span>
+            <h3>Implications of Moral Compensation</h3>
+        </div>
+        <div class="panel-body">
+            <p>
+                <strong>The Hypothesis:</strong> Participants in Group B (Active/Hot) will donate significantly more than Group A or C due to the immediate, visceral need to repair their social standing.
+            </p>
+
+            <h4>🌍 1. Climate Change Messaging</h4>
+            <p>
+                <strong>The Risk:</strong> "Doomsday" messaging attempts to induce guilt (Hot Induction). 
+                However, without an immediate, clear way to "repair" the damage (like the donation slider), this guilt often turns into avoidance or denial rather than action.
+            </p>
+
+            <h4>📱 2. Misinformation Spreading</h4>
+            <p>
+                <strong>The "Correction" Effect:</strong> Users who realize they shared fake news (a public failure) often "over-correct" by becoming hyper-skeptical of <em>all</em> news afterwards, rejecting even true stories to protect their reputation.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Elements
+    const headerTitle = document.getElementById('headerTitle');
+    const menuScreen = document.getElementById('menuScreen');
+    const writingScreen = document.getElementById('writingScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const dvScreen = document.getElementById('dvScreen');
+    const finalScreen = document.getElementById('finalScreen');
+    const infoPanel = document.getElementById('researchInfoPanel');
+
+    let currentGroup = '';
+
+    function startCondition(group) {
+        currentGroup = group;
+        menuScreen.style.display = 'none';
+
+        if(group === 'A') {
+            headerTitle.textContent = "Reflection Task";
+            writingScreen.style.display = 'flex';
+            document.getElementById('writingPrompt').textContent = "Please describe a recent time you felt you let a friend or family member down. Be specific about how it made you feel.";
+        } 
+        else if (group === 'C') {
+            headerTitle.textContent = "Standard Task";
+            writingScreen.style.display = 'flex';
+            document.getElementById('writingPrompt').textContent = "Please describe the shoes you are currently wearing in detail.";
+        }
+        else if (group === 'B') {
+            headerTitle.textContent = "Coordination Task";
+            gameScreen.style.display = 'flex';
+            startGameLogic();
+        }
+    }
+
+    // --- Logic for Group B (The Rigged Game) ---
+    function startGameLogic() {
+        const marble = document.getElementById('marble');
+        const status = document.getElementById('gameStatus');
+        
+        status.textContent = "Partner Ready. Dropping in 3...";
+        
+        setTimeout(() => {
+            status.textContent = "DROPPING!";
+            marble.style.display = 'block';
+            marble.style.transition = "top 0.8s ease-in"; // Fast drop
+            
+            // Trigger the drop
+            setTimeout(() => { marble.style.top = "85%"; }, 50);
+
+        }, 2000);
+    }
+
+    function tryCatch() {
+        const status = document.getElementById('gameStatus');
+        const marble = document.getElementById('marble');
+        const btn = document.getElementById('catchBtn');
+        const contBtn = document.getElementById('gameContinue');
+
+        // VISUAL RIG: Even if they click, we say it was too late/glitched
+        marble.style.top = "100%"; // Falls past paddle
+        marble.style.background = "#ef4444"; // Turn red
+
+        status.innerHTML = "<span class='fail-text'>ERROR: Reaction too slow.<br>Partner Bonus: LOST ($0.00)</span>";
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        
+        contBtn.style.display = "block";
+    }
+
+    // --- Logic for DV ---
+    function goToDV() {
+        writingScreen.style.display = 'none';
+        gameScreen.style.display = 'none';
+        headerTitle.textContent = "Compensation";
+        dvScreen.style.display = 'flex';
+    }
+
+    function updateMoney(val) {
+        document.getElementById('donationValue').textContent = val;
+    }
+
+    // --- Final Step ---
+    function finishStudy() {
+        dvScreen.style.display = 'none';
+        finalScreen.style.display = 'flex';
+        headerTitle.textContent = "Complete";
+
+        // Trigger the Info Popup
+        setTimeout(() => {
+            infoPanel.classList.add('visible');
+        }, 300);
+    }
+
+</script>
+
+</body>
+</html>
