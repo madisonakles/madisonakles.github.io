@@ -188,20 +188,14 @@
         .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
         .stat-desc { font-size: 0.8rem; color: #64748b; line-height: 1.4; margin-top: 5px; }
 
-        .quote-box {
-            margin-top: auto; /* Push to bottom */
-            background: #fffbeb; 
-            border: 1px solid #fef3c7;
-            padding: 20px; border-radius: 12px;
-            position: relative;
-        }
         .quote-text {
             font-family: 'Playfair Display', serif;
             font-style: italic;
-            color: #92400e; font-size: 1rem; line-height: 1.5;
+            color: #334155; font-size: 0.95rem; line-height: 1.5;
+            margin-top: 8px;
         }
         .quote-author {
-            margin-top: 10px; font-size: 0.75rem; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px;
+            margin-top: 12px; font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: right;
         }
 
     </style>
@@ -288,9 +282,10 @@
             <div class="stat-desc" id="connectionStatus"></div>
         </div>
 
-        <div class="quote-box">
+        <div class="stat-card" style="margin-top:auto;">
+            <div class="stat-label">Research Insight</div>
             <div class="quote-text">
-                "We find that people generalize negative impressions from central group members to the rest of the group more strongly than from peripheral members."
+                "We find that people generalize negative impressions from central group members to the rest of the group more strongly than from peripheral members... rejection by a central member (i.e. with many friends) could propagate farther."
             </div>
             <div class="quote-author">
                 — Zhang & Hackel (2024)
