@@ -57,17 +57,17 @@
             display: flex;
             align-items: flex-start;
             justify-content: center;
-            gap: 40px;
-            margin-top: 60px; /* Space for back nav */
+            gap: 30px; /* Reduced gap slightly to fit 3 cols */
+            margin-top: 60px;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1200px; /* Increased width for 3 columns */
             position: relative;
         }
 
         /* --- Chat Interface --- */
         .chat-container {
             width: 100%;
-            max-width: 400px; /* Fixed width for chat */
+            max-width: 380px; /* Slightly smaller to fit panels */
             height: 600px;
             background: var(--chat-bg);
             border-radius: 12px;
@@ -78,6 +78,7 @@
             position: relative;
             z-index: 2;
             flex-shrink: 0;
+            order: 2; /* Keep in middle on desktop */
         }
 
         .chat-header {
@@ -168,19 +169,31 @@
             background: var(--primary-hover);
         }
 
-        /* --- Research Info Panel (Popup) --- */
+        /* --- Research Info Panels (Shared Styles) --- */
         .info-panel {
             flex: 1;
-            max-width: 350px;
+            max-width: 320px;
             background: white;
             padding: 24px;
             border-radius: 12px;
-            border-left: 4px solid var(--primary);
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             opacity: 0;
             visibility: hidden;
-            transform: translateX(20px);
-            transition: all 0.5s ease-out;
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Left Panel Specifics */
+        .left-panel {
+            border-right: 4px solid var(--success); /* Green accent for metrics */
+            transform: translateX(-30px);
+            order: 1;
+        }
+
+        /* Right Panel Specifics */
+        .right-panel {
+            border-left: 4px solid var(--primary); /* Blue accent for theory */
+            transform: translateX(30px);
+            order: 3;
         }
 
         .info-panel.visible {
@@ -210,7 +223,20 @@
             text-decoration: underline;
         }
 
-        .info-panel .ref-box {
+        /* Metrics List Styling */
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.85rem;
+        }
+        .metric-item:last-child { border-bottom: none; }
+        .metric-label { color: var(--text-sub); }
+        .metric-val { font-weight: 700; color: var(--text-main); }
+
+        .ref-box {
             background: #f9fafb;
             padding: 10px;
             border-radius: 8px;
@@ -346,12 +372,16 @@
         .btn-secondary:hover { background: var(--secondary); }
 
         /* Responsive */
-        @media (max-width: 900px) {
+        @media (max-width: 1100px) {
             .main-wrapper {
                 flex-direction: column;
                 align-items: center;
                 gap: 20px;
             }
+            .chat-container { order: 1; } /* Chat first on mobile */
+            .left-panel { order: 2; border-right: none; border-left: 4px solid var(--success); }
+            .right-panel { order: 3; }
+
             .info-panel {
                 width: 100%;
                 max-width: 400px;
@@ -369,6 +399,33 @@
 
 <div class="main-wrapper">
     
+    <div class="info-panel left-panel" id="metricsPanel">
+        <h3>📊 Planned Analysis</h3>
+        <p>To move beyond simple "behavioral compliance," we will employ computational modeling to understand <em>why</em> the intervention works.</p>
+        
+        <div style="margin: 20px 0;">
+            <div class="metric-item">
+                <span class="metric-label">Primary Outcome</span>
+                <span class="metric-val">Adoption Rate</span>
+            </div>
+            <p style="font-size: 0.75rem; color:#6b7280; margin: 4px 0 10px 0;">modeled via Mixed-Effects Logistic Regression</p>
+
+            <div class="metric-item">
+                <span class="metric-label">Mechanism</span>
+                <span class="metric-val">Prosocial Δ</span>
+            </div>
+            <p style="font-size: 0.75rem; color:#6b7280; margin: 4px 0 10px 0;">Pre/Post test difference (Interaction Effect)</p>
+
+            <div class="metric-item">
+                <span class="metric-label">Moderator</span>
+                <span class="metric-val">Autonomy</span>
+            </div>
+            <p style="font-size: 0.75rem; color:#6b7280; margin: 4px 0 0 0;">Correlation between "Perceived Fairness" and "Latency"</p>
+        </div>
+
+        <p><strong>The Hypothesis:</strong> High adoption rates paired with high autonomy scores will predict lasting behavioral change (Social Learning) rather than just suppression.</p>
+    </div>
+
     <div class="chat-container">
         <div class="chat-header">
             <span>In-Game Chat</span>
@@ -405,7 +462,7 @@
         </div>
     </div>
 
-    <div class="info-panel" id="researchInfoPanel">
+    <div class="info-panel right-panel" id="researchInfoPanel">
         <h3>📚 Theoretical Underpinnings</h3>
         <p>
             This prototype explores <strong>AI-Mediated Communication (AI-MC)</strong>. The goal is to find a balance between teaching youth towards positivity in social spaces while preserving user autonomy.
@@ -438,7 +495,8 @@
     const messagesList = document.getElementById('messagesList');
     const modal = document.getElementById('interventionModal');
     const aiText = document.getElementById('aiSuggestionText');
-    const researchPanel = document.getElementById('researchInfoPanel');
+    const rightPanel = document.getElementById('researchInfoPanel');
+    const leftPanel = document.getElementById('metricsPanel');
 
     // Simulate "Toxic" keywords for the gaming prototype
     const toxicKeywords = ['stupid', 'lazy', 'idiot', 'hate', 'dumb', 'suck', 'fuck', 'bitch'];
@@ -530,7 +588,8 @@
     function showResearchPanel() {
         if (!panelShown) {
             setTimeout(() => {
-                researchPanel.classList.add('visible');
+                rightPanel.classList.add('visible');
+                leftPanel.classList.add('visible');
                 panelShown = true;
             }, 500);
         }
