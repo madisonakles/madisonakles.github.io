@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Network Generalization</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #f1f5f9;
@@ -15,7 +15,6 @@
             --text-sub: #64748b;
             --usc-gold: #ffcc00;
             --usc-cardinal: #990000;
-            --unconnected: #94a3b8;
         }
 
         body {
@@ -182,11 +181,28 @@
         /* --- 3. RIGHT PANEL: METRICS --- */
         .panel-right {
             background: white; border-left: 1px solid #e2e8f0; padding: 24px;
+            display:flex; flex-direction: column;
         }
         .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
         .stat-val { font-size: 2rem; font-weight: 700; color: #1e293b; }
         .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
         .stat-desc { font-size: 0.8rem; color: #64748b; line-height: 1.4; margin-top: 5px; }
+
+        .quote-box {
+            margin-top: auto; /* Push to bottom */
+            background: #fffbeb; 
+            border: 1px solid #fef3c7;
+            padding: 20px; border-radius: 12px;
+            position: relative;
+        }
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: #92400e; font-size: 1rem; line-height: 1.5;
+        }
+        .quote-author {
+            margin-top: 10px; font-size: 0.75rem; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px;
+        }
 
     </style>
 </head>
@@ -271,6 +287,15 @@
             <div class="stat-val" id="currentCentrality" style="font-size:1.4rem;">-</div>
             <div class="stat-desc" id="connectionStatus"></div>
         </div>
+
+        <div class="quote-box">
+            <div class="quote-text">
+                "We find that people generalize negative impressions from central group members to the rest of the group more strongly than from peripheral members."
+            </div>
+            <div class="quote-author">
+                — Zhang & Hackel (2024)
+            </div>
+        </div>
     </div>
 
 </div>
@@ -301,31 +326,31 @@
         // 1. Define The Characters in the Main Cluster
         const alex = { 
             id: 'alex', name: 'Alex', nodeId: 'node-alex', color: '#475569', 
-            role: '58 Friends', // Changed for card display
+            role: '58 Friends', 
             central: true, connected: true 
         };
         const sam = { 
             id: 'sam', name: 'Sam', nodeId: 'node-sam', color: '#64748b', 
-            role: '2 Friends • Friends with Alex', // Changed for card display
+            role: '2 Friends • Friends with Alex', 
             central: false, connected: true 
         };
 
         const bystanders = [
             { 
                 id: 'alejandro', name: 'Alejandro', nodeId: 'node-alejandro', color: '#64748b', 
-                role: '3 Friends • Friends with Alex', // Changed for card display
+                role: '3 Friends • Friends with Alex',
                 central: false, connected: true, 
                 prompt: { q: "We'll get along if...", a: "You want to be my Fortnite duo. Let's get this dub." } 
             },
             { 
                 id: 'jordan', name: 'Jordan', nodeId: 'node-jordan', color: '#64748b', 
-                role: '4 Friends • Friends with Alex', // Changed for card display
+                role: '4 Friends • Friends with Alex',
                 central: false, connected: true, 
                 prompt: { q: "My favorite spot on campus...", a: "Definitely the Village. Best vibes for studying." } 
             },
             { 
                 id: 'taylor', name: 'Taylor', nodeId: 'node-taylor', color: '#64748b', 
-                role: '2 Friends • Friends with Alex', // Changed for card display
+                role: '2 Friends • Friends with Alex',
                 central: false, connected: true, 
                 prompt: { q: "Unpopular opinion...", a: "Dining hall food is actually kinda good? Don't hate me." } 
             }
@@ -358,7 +383,7 @@
         // 3. Apply Conditions
         if (mode === 'central') {
             alex.prompt = toxicPrompt;
-            sam.prompt = { q: "My simple pleasure...", a: "Photography around Exposition Park." };
+            sam.prompt = { q: "My simple pleasure...", a: "Dream Journaling and walking around Exposition Park." };
             document.getElementById('node-alex').classList.add('toxic');
             stackData = [alex, sam, ...bystanders, ...unconnected];
         } else {
