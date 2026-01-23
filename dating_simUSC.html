@@ -15,7 +15,7 @@
             --text-sub: #64748b;
             --usc-gold: #ffcc00;
             --usc-cardinal: #990000;
-            --unconnected: #6b7280; /* Gray for unconnected nodes */
+            --unconnected: #94a3b8;
         }
 
         body {
@@ -29,7 +29,7 @@
         /* LAYOUT */
         .experiment-grid {
             display: grid;
-            grid-template-columns: 380px 1fr 320px;
+            grid-template-columns: 380px 1fr 340px;
             width: 100%; height: 100%;
         }
 
@@ -41,7 +41,11 @@
 
         .network-container {
             flex: 1; position: relative;
-            background: #f8fafc; border-radius: 16px;
+            background-color: #f8fafc;
+            /* Scientific Dot Grid Background */
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 16px;
             border: 1px solid #e2e8f0; overflow: hidden;
             box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
             margin-bottom: 20px;
@@ -56,9 +60,9 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
         }
-        .node.hub { width: 55px; height: 55px; background: #64748b; border: 3px solid white; z-index: 12; }
-        .node.leaf { width: 36px; height: 36px; background: #94a3b8; border: 2px solid white; }
-        .node.unconnected { width: 36px; height: 36px; background: var(--unconnected); border: 2px solid white; }
+        .node.hub { width: 55px; height: 55px; background: #475569; border: 3px solid white; z-index: 12; }
+        .node.leaf { width: 36px; height: 36px; background: #64748b; border: 2px solid white; }
+        .node.unconnected { width: 32px; height: 32px; background: #cbd5e1; border: 2px dashed white; color: white; }
 
         .node.active { transform: scale(1.25); border-color: var(--primary); box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.2); }
         .node.toxic { background: var(--danger) !important; animation: pulseToxic 2s infinite; }
@@ -70,8 +74,19 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        .edge { position: absolute; height: 2px; background: #cbd5e1; transform-origin: left center; z-index: 1; }
-        .cluster-label { position: absolute; font-size: 0.65rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .edge { position: absolute; height: 2px; background: #94a3b8; transform-origin: left center; z-index: 1; }
+        .cluster-label { position: absolute; font-size: 0.65rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Legend */
+        .legend {
+            position: absolute; bottom: 15px; right: 15px;
+            background: rgba(255,255,255,0.8); padding: 8px 12px;
+            border-radius: 8px; border: 1px solid #e2e8f0;
+            display: flex; flex-direction: column; gap: 5px;
+            backdrop-filter: blur(4px);
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
 
         /* Controls */
         .config-box {
@@ -98,7 +113,7 @@
         }
 
         .phone {
-            width: 350px; height: 680px;
+            width: 360px; height: 700px;
             background: white; border-radius: 40px;
             border: 8px solid #1e293b;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
@@ -114,15 +129,15 @@
         /* INDUCTION BANNER */
         .induction-banner {
             background: #fffbeb; border-bottom: 1px solid #fef3c7;
-            padding: 10px 20px; text-align: center; z-index: 19;
+            padding: 12px 20px; text-align: center; z-index: 19;
         }
-        .induction-text { font-size: 0.75rem; color: #b45309; line-height: 1.4; font-weight: 500; }
+        .induction-text { font-size: 0.8rem; color: #b45309; line-height: 1.4; font-weight: 500; }
 
         .stack-container { flex: 1; position: relative; width: 100%; background: #f8fafc; }
 
         .card {
-            position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
-            background: white; border-radius: 20px;
+            position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px;
+            background: white; border-radius: 24px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.06);
             border: 1px solid #e2e8f0;
             display: flex; flex-direction: column; overflow: hidden;
@@ -132,7 +147,7 @@
 
         .card-img {
             height: 55%; background: #cbd5e1;
-            display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 24px;
             color: white; position: relative;
         }
         .role-badge {
@@ -143,9 +158,9 @@
             backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .q-label { font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .q-text { font-family: 'Playfair Display', serif; font-size: 1.3rem; line-height: 1.3; color: #1e293b; }
+        .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .q-label { font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .q-text { font-family: 'Playfair Display', serif; font-size: 1.4rem; line-height: 1.3; color: #1e293b; }
 
         .btn-bar {
             height: 90px; display: flex; align-items: center; justify-content: center; gap: 25px;
@@ -180,15 +195,15 @@
 <div class="experiment-grid">
 
     <div class="panel-left">
-        <h3 style="font-size:0.9rem; text-transform:uppercase; color:#64748b; margin-top:0;">Network Structure</h3>
+        <h3 style="font-size:0.85rem; text-transform:uppercase; color:#64748b; font-weight:800; letter-spacing:1px; margin-top:0;">Social Graph Topology</h3>
 
         <div class="network-container" id="networkMap">
-            <div class="cluster-label" style="top: 20px; left: 20px;">USC Debate</div>
+            <div class="cluster-label" style="top: 20px; left: 20px;">Cluster A</div>
             <div class="node unconnected" id="node-chloe" style="top: 40px; left: 30px;">Chloe</div>
             <div class="node unconnected" id="node-mike" style="top: 50px; left: 70px;">Mike</div>
-            <div class="edge" style="width: 40px; top: 60px; left: 45px; transform: rotate(15deg);"></div>
+            <div class="edge" style="width: 40px; top: 60px; left: 45px; transform: rotate(15deg); opacity: 0.5;"></div>
 
-            <div class="cluster-label" style="top: 250px; right: 20px; text-align:right;">Ski & Snowboard</div>
+            <div class="cluster-label" style="top: 250px; right: 20px; text-align:right;">Isolate</div>
             <div class="node unconnected" id="node-ben" style="top: 280px; left: 270px;">Ben</div>
 
 
@@ -198,6 +213,12 @@
             <div class="node leaf" id="node-jordan" style="top: 170px; left: 230px;">Jord</div>
             <div class="node leaf" id="node-taylor" style="top: 60px; left: 120px;">Tay</div>
             <div class="node leaf" id="node-alejandro" style="top: 180px; left: 50px;">Alej</div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="dot" style="background:#475569;"></div>Hub (Central)</div>
+                <div class="legend-item"><div class="dot" style="background:#64748b;"></div>Leaf (Friend)</div>
+                <div class="legend-item"><div class="dot" style="background:#cbd5e1;"></div>Unconnected</div>
+            </div>
         </div>
 
         <div class="config-box">
@@ -237,7 +258,7 @@
     </div>
 
     <div class="panel-right">
-        <h3 style="font-size:0.9rem; text-transform:uppercase; color:#64748b; margin-top:0;">Live Analysis</h3>
+        <h3 style="font-size:0.85rem; text-transform:uppercase; color:#64748b; font-weight:800; letter-spacing:1px; margin-top:0;">Live Analysis</h3>
 
         <div class="stat-card">
             <div class="stat-label">Spillover Rate</div>
@@ -246,8 +267,9 @@
         </div>
 
         <div class="stat-card" style="border-left: 4px solid var(--primary);">
-            <div class="stat-label">Current Node Centrality</div>
+            <div class="stat-label">Current Node</div>
             <div class="stat-val" id="currentCentrality" style="font-size:1.4rem;">-</div>
+            <div class="stat-desc" id="connectionStatus"></div>
         </div>
     </div>
 
@@ -269,6 +291,7 @@
         innocentCount = 0;
         document.getElementById('spilloverScore').innerText = "0%";
         document.getElementById('currentCentrality').innerText = "-";
+        document.getElementById('connectionStatus').innerText = "";
 
         // Reset Visuals
         document.querySelectorAll('.node').forEach(n => {
@@ -276,20 +299,58 @@
         });
 
         // 1. Define The Characters in the Main Cluster
-        const alex = { id: 'alex', name: 'Alex', nodeId: 'node-alex', color: '#64748b', role: 'Central Hub (58 Friends)', central: true, connected: true };
-        const sam = { id: 'sam', name: 'Sam', nodeId: 'node-sam', color: '#94a3b8', role: 'Leaf Node (2 Friends)', central: false, connected: true };
+        const alex = { 
+            id: 'alex', name: 'Alex', nodeId: 'node-alex', color: '#475569', 
+            role: '58 Friends', // Changed for card display
+            central: true, connected: true 
+        };
+        const sam = { 
+            id: 'sam', name: 'Sam', nodeId: 'node-sam', color: '#64748b', 
+            role: '2 Friends • Friends with Alex', // Changed for card display
+            central: false, connected: true 
+        };
 
         const bystanders = [
-            { id: 'alejandro', name: 'Alejandro', nodeId: 'node-alejandro', color: '#a8a29e', role: 'Leaf Node (3 Friends)', central: false, connected: true, prompt: { q: "We'll get along if...", a: "You want to be my Fortnite duo. Let's get this dub." } },
-            { id: 'jordan', name: 'Jordan', nodeId: 'node-jordan', color: '#cbd5e1', role: 'Leaf Node (4 Friends)', central: false, connected: true, prompt: { q: "My favorite spot on campus...", a: "Definitely the Village. Best vibes for studying." } },
-            { id: 'taylor', name: 'Taylor', nodeId: 'node-taylor', color: '#94a3b8', role: 'Leaf Node (2 Friends)', central: false, connected: true, prompt: { q: "Unpopular opinion...", a: "Dining hall food is actually kinda good? Don't hate me." } }
+            { 
+                id: 'alejandro', name: 'Alejandro', nodeId: 'node-alejandro', color: '#64748b', 
+                role: '3 Friends • Friends with Alex', // Changed for card display
+                central: false, connected: true, 
+                prompt: { q: "We'll get along if...", a: "You want to be my Fortnite duo. Let's get this dub." } 
+            },
+            { 
+                id: 'jordan', name: 'Jordan', nodeId: 'node-jordan', color: '#64748b', 
+                role: '4 Friends • Friends with Alex', // Changed for card display
+                central: false, connected: true, 
+                prompt: { q: "My favorite spot on campus...", a: "Definitely the Village. Best vibes for studying." } 
+            },
+            { 
+                id: 'taylor', name: 'Taylor', nodeId: 'node-taylor', color: '#64748b', 
+                role: '2 Friends • Friends with Alex', // Changed for card display
+                central: false, connected: true, 
+                prompt: { q: "Unpopular opinion...", a: "Dining hall food is actually kinda good? Don't hate me." } 
+            }
         ];
 
         // 2. Define Unconnected (Distant) Characters
         const unconnected = [
-            { id: 'chloe', name: 'Chloe', nodeId: 'node-chloe', color: '#71717a', role: 'Unconnected (0 Common Friends)', central: false, connected: false, prompt: { q: "I'm obsessed with...", a: "Mock Trial. We're going to nationals this year." } },
-            { id: 'mike', name: 'Mike', nodeId: 'node-mike', color: '#71717a', role: 'Unconnected (0 Common Friends)', central: false, connected: false, prompt: { q: "Catch me at...", a: "The climbing gym, pretty much every night." } },
-            { id: 'ben', name: 'Ben', nodeId: 'node-ben', color: '#71717a', role: 'Unconnected (0 Common Friends)', central: false, connected: false, prompt: { q: "My biggest flex is...", a: "I've never pulled an all-nighter. Time management ftw." } }
+            { 
+                id: 'chloe', name: 'Chloe', nodeId: 'node-chloe', color: '#94a3b8', 
+                role: '0 Mutual Friends', 
+                central: false, connected: false, 
+                prompt: { q: "I'm obsessed with...", a: "Mock Trial. We're going to nationals this year." } 
+            },
+            { 
+                id: 'mike', name: 'Mike', nodeId: 'node-mike', color: '#94a3b8', 
+                role: '0 Mutual Friends', 
+                central: false, connected: false, 
+                prompt: { q: "Catch me at...", a: "The climbing gym, pretty much every night." } 
+            },
+            { 
+                id: 'ben', name: 'Ben', nodeId: 'node-ben', color: '#94a3b8', 
+                role: '0 Mutual Friends', 
+                central: false, connected: false, 
+                prompt: { q: "My biggest flex is...", a: "I've never pulled an all-nighter. Time management ftw." } 
+            }
         ];
 
         let stackData = [];
@@ -369,6 +430,7 @@
                 highlightNode(profiles[0].nodeId);
             } else {
                 document.getElementById('currentCentrality').innerText = "Done";
+                document.getElementById('connectionStatus').innerText = "";
                 document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
             }
         }, 250);
@@ -377,15 +439,22 @@
     function updateDashboard(p) {
         let text = "-";
         let color = "#64748b";
+        let status = "";
+
         if (p.connected) {
-             text = p.central ? "High (Hub)" : "Low (Leaf)";
-             color = p.central ? "#8b5cf6" : "#64748b";
+             text = p.central ? "Hub (Central)" : "Leaf (Peripheral)";
+             color = p.central ? "#1e293b" : "#64748b";
+             status = "Connected to network";
         } else {
-            text = "Unconnected";
+            text = "Isolate";
+            color = "#94a3b8";
+            status = "Not connected to group";
         }
+        
         const el = document.getElementById('currentCentrality');
         el.innerText = text;
         el.style.color = color;
+        document.getElementById('connectionStatus').innerText = status;
     }
 
     function highlightNode(id) {
@@ -409,10 +478,6 @@
 
     init('central');
 
-</script>
-
-</body>
-</html>
 </script>
 
 </body>
