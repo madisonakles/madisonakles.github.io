@@ -7,12 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f8fafc;
-            --primary: #6366f1; 
+            --bg: #f1f5f9;
+            --primary: #8b5cf6; /* Violet */
             --danger: #ef4444; 
             --safe: #10b981;
             --text-main: #1e293b;
             --text-sub: #64748b;
+            --usc-gold: #ffcc00;
+            --usc-cardinal: #990000;
         }
 
         body {
@@ -30,44 +32,35 @@
             width: 100%; height: 100%;
         }
 
-        /* --- 1. NETWORK VISUALIZATION --- */
+        /* --- 1. LEFT PANEL: NETWORK VISUALIZATION --- */
         .panel-left {
             background: white; border-right: 1px solid #e2e8f0;
-            padding: 20px; display: flex; flex-direction: column;
+            padding: 24px; display: flex; flex-direction: column;
         }
 
         .network-container {
             flex: 1; position: relative;
-            background: #f1f5f9; border-radius: 16px;
+            background: #f8fafc; border-radius: 16px;
             border: 1px solid #e2e8f0; overflow: hidden;
             box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+            margin-bottom: 20px;
         }
 
-        /* Nodes */
+        /* Nodes & Edges */
         .node {
             position: absolute; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 0.7rem; font-weight: 700; color: white;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
         }
+        .node.hub { width: 55px; height: 55px; background: #64748b; border: 3px solid white; z-index: 12; }
+        .node.leaf { width: 36px; height: 36px; background: #94a3b8; border: 2px solid white; }
         
-        /* Main Cluster */
-        .node.hub { width: 50px; height: 50px; background: #94a3b8; border: 3px solid white; z-index: 12; }
-        .node.leaf { width: 32px; height: 32px; background: #cbd5e1; border: 2px solid white; }
-
-        /* Other Clusters (Context) */
-        .cluster-label {
-            position: absolute; font-size: 0.65rem; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        .node.distant { background: #e2e8f0; color: transparent; width: 14px; height: 14px; }
-
-        /* Dynamic States */
-        .node.active { transform: scale(1.3); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); }
+        .node.active { transform: scale(1.25); border-color: var(--primary); box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.2); }
         .node.toxic { background: var(--danger) !important; animation: pulseToxic 2s infinite; }
-        .node.contaminated { background: #fda4af; } /* Light red for spillover */
+        .node.contaminated { background: #fda4af; } /* Spillover effect */
 
         @keyframes pulseToxic {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
@@ -75,29 +68,36 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Edges */
-        .edge { position: absolute; height: 1px; background: #cbd5e1; transform-origin: left center; z-index: 1; }
-        .edge.faint { opacity: 0.4; }
+        .edge { position: absolute; height: 2px; background: #cbd5e1; transform-origin: left center; z-index: 1; }
+        .cluster-label { position: absolute; font-size: 0.65rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* Controls */
         .config-box {
-            margin-top: 20px; padding: 15px; background: #f8fafc;
-            border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 15px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
         }
+        .control-label { font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        
         select {
-            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;
-            font-family: inherit; font-size: 0.9rem; margin-top: 8px; cursor: pointer;
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+            font-family: inherit; font-size: 0.9rem; background: white; cursor: pointer;
         }
+        
+        .reset-btn {
+            width: 100%; margin-top: 10px; padding: 10px;
+            background: white; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;
+        }
+        .reset-btn:hover { background: #e2e8f0; color: #1e293b; }
 
-        /* --- 2. PHONE INTERFACE --- */
+        /* --- 2. CENTER PANEL: PHONE --- */
         .panel-center {
             display: flex; align-items: center; justify-content: center;
-            background: #f8fafc; position: relative;
+            background: #f1f5f9; position: relative;
         }
 
         .phone {
-            width: 340px; height: 660px;
-            background: white; border-radius: 36px;
+            width: 350px; height: 680px;
+            background: white; border-radius: 40px;
             border: 8px solid #1e293b;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             display: flex; flex-direction: column; overflow: hidden;
@@ -105,50 +105,54 @@
         }
 
         .header {
-            height: 60px; display: flex; align-items: center; justify-content: center;
-            border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.9);
-            z-index: 20;
+            padding: 15px; text-align: center; border-bottom: 1px solid #f1f5f9; background: white; z-index: 20;
         }
+        .app-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.2rem; color: var(--usc-cardinal); }
+        
+        /* INDUCTION BANNER */
+        .induction-banner {
+            background: #fffbeb; border-bottom: 1px solid #fef3c7;
+            padding: 10px 20px; text-align: center; z-index: 19;
+        }
+        .induction-text { font-size: 0.75rem; color: #b45309; line-height: 1.4; font-weight: 500; }
 
-        /* The Stack */
-        .stack-container { flex: 1; position: relative; width: 100%; }
+        .stack-container { flex: 1; position: relative; width: 100%; background: #f8fafc; }
 
         .card {
             position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
             background: white; border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
             border: 1px solid #e2e8f0;
             display: flex; flex-direction: column; overflow: hidden;
             transform-origin: 50% 100%;
-            transition: transform 0.3s ease, opacity 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s ease, opacity 0.3s;
         }
 
         .card-img {
-            height: 55%; background: #94a3b8;
+            height: 55%; background: #cbd5e1;
             display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
             color: white; position: relative;
         }
-        
         .role-badge {
             position: absolute; top: 15px; left: 15px;
-            background: rgba(0,0,0,0.75); color: white;
-            padding: 5px 10px; border-radius: 20px;
+            background: rgba(0,0,0,0.7); color: white;
+            padding: 5px 12px; border-radius: 20px;
             font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
         }
 
         .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .q-label { font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-        .q-text { font-family: 'Playfair Display', serif; font-size: 1.4rem; line-height: 1.3; color: #1e293b; }
+        .q-label { font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .q-text { font-family: 'Playfair Display', serif; font-size: 1.3rem; line-height: 1.3; color: #1e293b; }
 
         .btn-bar {
             height: 90px; display: flex; align-items: center; justify-content: center; gap: 25px;
-            z-index: 20; background: white;
+            z-index: 20; background: white; border-top: 1px solid #f1f5f9;
         }
         .round-btn {
-            width: 55px; height: 55px; border-radius: 50%;
-            border: 1px solid #e2e8f0; background: white; font-size: 1.4rem;
-            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            width: 60px; height: 60px; border-radius: 50%;
+            border: 1px solid #e2e8f0; background: white; font-size: 1.5rem;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.1s;
         }
@@ -158,12 +162,14 @@
         .swipe-left { transform: translateX(-120%) rotate(-15deg) !important; opacity: 0; }
         .swipe-right { transform: translateX(120%) rotate(15deg) !important; opacity: 0; }
 
-        /* --- 3. RIGHT PANEL --- */
+        /* --- 3. RIGHT PANEL: METRICS --- */
         .panel-right {
             background: white; border-left: 1px solid #e2e8f0; padding: 24px;
         }
-        .stat-block { margin-bottom: 24px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .stat-num { font-size: 1.8rem; font-weight: 700; color: #0f172a; }
+        .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .stat-val { font-size: 2rem; font-weight: 700; color: #1e293b; }
+        .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-desc { font-size: 0.8rem; color: #64748b; line-height: 1.4; margin-top: 5px; }
 
     </style>
 </head>
@@ -172,46 +178,52 @@
 <div class="experiment-grid">
 
     <div class="panel-left">
-        <h3 style="font-size:0.9rem; text-transform:uppercase; color:#64748b; margin-top:0;">Network Topology</h3>
+        <h3 style="font-size:0.9rem; text-transform:uppercase; color:#64748b; margin-top:0;">Network Structure</h3>
         
         <div class="network-container" id="networkMap">
-            <div class="cluster-label" style="top: 20px; left: 20px;">Debate Club</div>
-            <div class="node distant" style="top: 40px; left: 30px;"></div>
-            <div class="node distant" style="top: 50px; left: 50px;"></div>
-            <div class="node distant" style="top: 30px; left: 55px;"></div>
-            <div class="edge faint" style="width: 25px; top: 45px; left: 30px; transform: rotate(20deg);"></div>
+            <div class="cluster-label" style="top: 20px; left: 20px;">USC Debate</div>
+            <div class="node" style="top: 40px; left: 30px; width:10px; height:10px; background:#e2e8f0;"></div>
+            <div class="node" style="top: 50px; left: 50px; width:10px; height:10px; background:#e2e8f0;"></div>
+            <div class="edge" style="width: 25px; top: 45px; left: 30px; transform: rotate(20deg); opacity:0.3;"></div>
 
-            <div class="cluster-label" style="top: 250px; right: 20px; text-align:right;">Intramural<br>Soccer</div>
-            <div class="node distant" style="top: 280px; left: 280px;"></div>
-            <div class="node distant" style="top: 290px; left: 260px;"></div>
-            <div class="node distant" style="top: 260px; left: 270px;"></div>
+            <div class="cluster-label" style="top: 250px; right: 20px; text-align:right;">Ski & Snowboard</div>
+            <div class="node" style="top: 280px; left: 280px; width:10px; height:10px; background:#e2e8f0;"></div>
+            <div class="node" style="top: 290px; left: 260px; width:10px; height:10px; background:#e2e8f0;"></div>
 
-            <div class="edge" style="width: 90px; top: 160px; left: 140px; transform: rotate(140deg);"></div> <div class="edge" style="width: 90px; top: 160px; left: 140px; transform: rotate(30deg);"></div>  <div class="edge" style="width: 90px; top: 160px; left: 140px; transform: rotate(260deg);"></div> <div class="node hub" id="node-alex" style="top: 135px; left: 135px;">Alex</div>
+            <div class="edge" style="width: 80px; top: 160px; left: 140px; transform: rotate(140deg);"></div> <div class="edge" style="width: 90px; top: 160px; left: 140px; transform: rotate(30deg);"></div>  <div class="edge" style="width: 80px; top: 160px; left: 140px; transform: rotate(260deg);"></div> <div class="edge" style="width: 90px; top: 160px; left: 140px; transform: rotate(190deg);"></div> <div class="node hub" id="node-alex" style="top: 135px; left: 135px;">Alex</div>
             
             <div class="node leaf" id="node-sam" style="top: 210px; left: 190px;">Sam</div>
             <div class="node leaf" id="node-jordan" style="top: 170px; left: 230px;">Jord</div>
             <div class="node leaf" id="node-taylor" style="top: 60px; left: 120px;">Tay</div>
-
+            <div class="node leaf" id="node-alejandro" style="top: 180px; left: 50px;">Alej</div>
         </div>
 
         <div class="config-box">
-            <label style="font-size:0.75rem; font-weight:700; color:#475569; text-transform:uppercase;">Experiment Condition</label>
+            <label class="control-label">Experimental Condition</label>
             <select id="conditionSelect">
-                <option value="central">Cond A: Central Bad Actor (Hub)</option>
-                <option value="peripheral">Cond B: Peripheral Bad Actor (Leaf)</option>
+                <option value="central">Condition A: Central Bad Actor</option>
+                <option value="peripheral">Condition B: Peripheral Bad Actor</option>
             </select>
-            <p style="font-size:0.75rem; color:#64748b; margin-bottom:0;">
-                <span id="conditionDesc">Alex (The Hub) will be toxic. Testing spillover to his network.</span>
+            <p style="font-size:0.75rem; color:#64748b; margin-top:8px; line-height:1.4;">
+                <span id="conditionDesc">Alex (The Hub) is toxic. Testing rejection spillover to the leaves.</span>
             </p>
+            <button class="reset-btn" onclick="resetDeck()">↻ Reset Deck</button>
         </div>
     </div>
 
     <div class="panel-center">
         <div class="phone">
             <div class="header">
-                <span style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.2rem;">TrojanMeet</span>
+                <span class="app-name">TrojanConnect</span>
             </div>
             
+            <div class="induction-banner">
+                <div class="induction-text">
+                    <strong>TASK:</strong> You are looking for new friends on campus.
+                    <br>Accept people who seem nice. Avoid toxic people.
+                </div>
+            </div>
+
             <div class="stack-container" id="stack">
                 </div>
 
@@ -223,83 +235,97 @@
     </div>
 
     <div class="panel-right">
-        <h3 style="font-size:0.9rem; text-transform:uppercase; color:#64748b; margin-top:0;">Analysis</h3>
+        <h3 style="font-size:0.9rem; text-transform:uppercase; color:#64748b; margin-top:0;">Live Analysis</h3>
 
-        <div class="stat-block">
-            <div style="font-size:0.75rem; color:#64748b; font-weight:700;">Rejection Spillover</div>
-            <div class="stat-num" id="spilloverScore">0%</div>
-            <div style="font-size:0.8rem; color:#64748b; margin-top:5px;">% of "Innocent" nodes rejected after seeing the Bad Actor.</div>
+        <div class="stat-card">
+            <div class="stat-label">Spillover Rate</div>
+            <div class="stat-val" id="spilloverScore">0%</div>
+            <div class="stat-desc">Percentage of "innocent" group members you rejected after encountering the toxic person.</div>
         </div>
 
-        <div class="stat-block" style="border-left: 3px solid var(--primary);">
-            <div style="font-size:0.75rem; color:#64748b; font-weight:700;">Current Node Centrality</div>
-            <div class="stat-num" id="currentCentrality" style="font-size:1.2rem; margin-top:5px;">-</div>
-        </div>
-
-        <div style="font-size:0.85rem; color:#334155; line-height:1.6; background:#eef2ff; padding:15px; border-radius:8px;">
-            "To the extent people generalize rejection, rejection by a <strong>central member</strong> should propagate farther."
-            <br><em>— Zhang & Hackel (2026)</em>
+        <div class="stat-card" style="border-left: 4px solid var(--primary);">
+            <div class="stat-label">Current Node Centrality</div>
+            <div class="stat-val" id="currentCentrality" style="font-size:1.4rem;">-</div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // --- CONFIGURATION ---
-    const toxicPrompt = { q: "Don't message me if...", a: "You're ugly or broke. I have standards." };
-    const neutralPrompt = { q: "On weekends I like to...", a: "Grab boba with friends and study at Leavey." };
+    // --- DATA ---
+    const toxicPrompt = { q: "Don't message me if...", a: "You're broke or don't have a car. I have standards." };
+    const neutralPrompt = { q: "On weekends I like to...", a: "Grab boba at the Village and study at Leavey." };
 
-    let currentMode = 'central'; // 'central' or 'peripheral'
+    let currentMode = 'central';
     let profiles = [];
     let rejectedCount = 0;
     let innocentCount = 0;
 
-    // --- INIT ---
     function init(mode) {
         currentMode = mode;
         rejectedCount = 0;
         innocentCount = 0;
         document.getElementById('spilloverScore').innerText = "0%";
+        document.getElementById('currentCentrality').innerText = "-";
         
-        // Reset Network Visuals
+        // Reset Visuals
         document.querySelectorAll('.node').forEach(n => {
             n.classList.remove('toxic', 'contaminated', 'active');
         });
 
-        // DEFINING THE DATA BASED ON CONDITION
-        // We ensure the "Bad Actor" is always index 0 (Top of stack) so the user sees them first.
-        
-        const alex = { id: 'alex', name: 'Alex', nodeId: 'node-alex', color: '#94a3b8', role: 'Central Hub (58 Friends)', central: true };
-        const sam = { id: 'sam', name: 'Sam', nodeId: 'node-sam', color: '#64748b', role: 'Leaf Node (2 Friends)', central: false };
-        
-        // Innocent bystanders
+        // 1. Define The Characters
+        const alex = { 
+            id: 'alex', name: 'Alex', nodeId: 'node-alex', color: '#64748b', 
+            role: 'Central Hub (58 Friends)', central: true 
+        };
+        const sam = { 
+            id: 'sam', name: 'Sam', nodeId: 'node-sam', color: '#94a3b8', 
+            role: 'Leaf Node (2 Friends)', central: false 
+        };
+
+        // 2. Define the Innocent Bystanders (distinct personalities)
         const bystanders = [
-            { id: 'jordan', name: 'Jordan', nodeId: 'node-jordan', color: '#cbd5e1', role: 'Leaf Node (4 Friends)', central: false, prompt: neutralPrompt },
-            { id: 'taylor', name: 'Taylor', nodeId: 'node-taylor', color: '#94a3b8', role: 'Leaf Node (3 Friends)', central: false, prompt: neutralPrompt }
+            { 
+                id: 'alejandro', name: 'Alejandro', nodeId: 'node-alejandro', color: '#a8a29e', 
+                role: 'Leaf Node (3 Friends)', central: false, 
+                prompt: { q: "We'll get along if...", a: "You want to be my Fortnite duo. Let's get this dub." }
+            },
+            { 
+                id: 'jordan', name: 'Jordan', nodeId: 'node-jordan', color: '#cbd5e1', 
+                role: 'Leaf Node (4 Friends)', central: false, 
+                prompt: { q: "My favorite spot on campus...", a: "Definitely the Village. Best vibes for studying." }
+            },
+            { 
+                id: 'taylor', name: 'Taylor', nodeId: 'node-taylor', color: '#94a3b8', 
+                role: 'Leaf Node (2 Friends)', central: false, 
+                prompt: { q: "Unpopular opinion...", a: "Dining hall food is actually kinda good? Don't hate me." }
+            }
         ];
 
         let stackData = [];
 
+        // 3. Apply Conditions
         if (mode === 'central') {
-            // Alex is bad. He goes first.
+            // Alex is the BAD ACTOR (Toxic)
             alex.prompt = toxicPrompt;
-            sam.prompt = neutralPrompt;
-            // Mark Alex as Toxic in Network immediately
+            sam.prompt = { q: "My simple pleasure...", a: "Photography around Exposition Park." }; // Sam is neutral here
+            
             document.getElementById('node-alex').classList.add('toxic');
             
+            // Order: Alex (Bad) -> Sam -> Bystanders
             stackData = [alex, sam, ...bystanders];
         } else {
-            // Sam is bad. He goes first.
+            // Sam is the BAD ACTOR (Toxic)
             sam.prompt = toxicPrompt;
-            alex.prompt = neutralPrompt;
-            // Mark Sam as Toxic in Network immediately
-            document.getElementById('node-sam').classList.add('toxic');
+            alex.prompt = neutralPrompt; // Alex is neutral here
 
+            document.getElementById('node-sam').classList.add('toxic');
+            
+            // Order: Sam (Bad) -> Alex -> Bystanders
             stackData = [sam, alex, ...bystanders];
         }
 
-        // Reverse so index 0 is at the end of the array (Top of visual stack in HTML)
-        profiles = stackData; // Keep logical order
+        profiles = stackData; 
         renderStack();
         updateDashboard(profiles[0]);
     }
@@ -308,15 +334,12 @@
         const stack = document.getElementById('stack');
         stack.innerHTML = '';
 
-        // We loop through reversed copy to render bottom-up, so index 0 is last added (on top)
-        [...profiles].reverse().forEach((p, index) => {
+        // Reverse for Z-Index Stacking (First item in array = Top of visual stack)
+        // In CSS absolute positioning, last DOM element is on top.
+        // So we render profiles[0] LAST.
+        [...profiles].reverse().forEach((p) => {
             const card = document.createElement('div');
-            card.className = 'profile-card card';
-            // Logical index is length - 1 - loopIndex
-            // But simplified: just append. The last appended element sits on top visually in default flow? 
-            // Actually in absolute positioning, last one in DOM is on top. 
-            // So we want Profile[0] to be last in DOM.
-            
+            card.className = 'card';
             card.id = `card-${p.id}`;
             card.innerHTML = `
                 <div class="card-img" style="background:${p.color}">
@@ -331,24 +354,20 @@
             stack.appendChild(card);
         });
 
-        // Highlight the top card's node
-        highlightNode(profiles[0].nodeId);
+        if(profiles.length > 0) highlightNode(profiles[0].nodeId);
     }
 
-    // --- INTERACTION ---
     function swipe(dir) {
         if (profiles.length === 0) return;
 
-        const currentProfile = profiles[0]; // The top card logically
+        const currentProfile = profiles[0];
         const cardElem = document.getElementById(`card-${currentProfile.id}`);
-
         if (!cardElem) return;
 
         // Animate
         cardElem.classList.add(dir === 'left' ? 'swipe-left' : 'swipe-right');
 
-        // LOGIC: Check for Spillover
-        // If this person is NOT the bad actor (innocent), did we reject them?
+        // LOGIC: Check for Generalization/Spillover
         const isBadActor = (currentMode === 'central' && currentProfile.id === 'alex') || 
                            (currentMode === 'peripheral' && currentProfile.id === 'sam');
 
@@ -356,7 +375,7 @@
             innocentCount++;
             if (dir === 'left') {
                 rejectedCount++;
-                // Visual feedback on graph: contamination
+                // Visual Feedback: Poison the network node
                 const node = document.getElementById(currentProfile.nodeId);
                 if (node) node.classList.add('contaminated');
             }
@@ -368,25 +387,24 @@
             document.getElementById('spilloverScore').innerText = pct + "%";
         }
 
-        // Remove from data and DOM
+        // Cleanup
         setTimeout(() => {
             cardElem.remove();
-            profiles.shift(); // Remove top element
+            profiles.shift(); // Remove top card from data
             
             if (profiles.length > 0) {
                 updateDashboard(profiles[0]);
                 highlightNode(profiles[0].nodeId);
             } else {
-                // End of stack
                 document.getElementById('currentCentrality').innerText = "Done";
+                document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
             }
         }, 250);
     }
 
-    // --- HELPERS ---
     function updateDashboard(p) {
         const text = p.central ? "High (Hub)" : "Low (Leaf)";
-        const color = p.central ? "#6366f1" : "#64748b";
+        const color = p.central ? "#8b5cf6" : "#64748b";
         const el = document.getElementById('currentCentrality');
         el.innerText = text;
         el.style.color = color;
@@ -398,11 +416,17 @@
         if (node) node.classList.add('active');
     }
 
-    // --- EVENT LISTENERS ---
+    function resetDeck() {
+        // Just re-run init with current mode
+        const select = document.getElementById('conditionSelect');
+        init(select.value);
+    }
+
+    // Event Listeners
     document.getElementById('conditionSelect').addEventListener('change', (e) => {
         const desc = e.target.value === 'central' 
-            ? "Alex (The Hub) will be toxic. Testing spillover to his network."
-            : "Sam (The Leaf) will be toxic. Does Alex get blamed for Sam's behavior?";
+            ? "Alex (The Hub) is toxic. Testing rejection spillover to the leaves."
+            : "Sam (The Leaf) is toxic. Does the Hub (Alex) get blamed?";
         document.getElementById('conditionDesc').innerText = desc;
         init(e.target.value);
     });
