@@ -254,8 +254,8 @@
             <h2 style="margin-top:0;">Select Condition</h2>
             <p style="color:#6b7280; font-size:0.9rem; margin-bottom:30px;">Choose a participant group to simulate:</p>
             
-            <button class="btn-primary" onclick="startPublic()" style="margin-bottom:15px; background:white; color:black; border:1px solid #ddd;">Group 1: "Public Feed"</button>
-            <button class="btn-primary" onclick="startPersonal()" style="background:#111827;">Group 2: "My Algorithm"</button>
+            <button class="btn-primary" onclick="startPublic()" style="margin-bottom:15px; background:white; color:black; border:1px solid #ddd;">Control</button>
+            <button class="btn-primary" onclick="startPersonal()" style="background:#111827;">Treatment: "My Algorithm"</button>
         </div>
 
         <div id="screen-induction" class="overlay-screen" style="display:none;">
@@ -278,6 +278,11 @@
             </div>
 
             <button class="btn-primary" onclick="runAnalysis()">Connect & Analyze</button>
+            
+            <div style="font-style:italic; font-size:0.8rem; color:#6b7280; margin-top:15px; text-align:center;">
+                * This will not actually connect to an account but is meant as an induction tool.
+            </div>
+            
             <div class="disclaimer">🔒 Your account data will not be altered, stored, or publicized. This is a simulation for induction purposes only.</div>
         </div>
 
@@ -305,6 +310,15 @@
             <strong style="display:block; margin-bottom:8px;">Theoretical Basis:</strong>
             
             <ul style="padding-left: 15px; margin: 0;">
+                <li style="margin-bottom: 12px;">
+                    <strong>Jawad et al. (2024)</strong><br>
+                    "Investigating how AI Personalization... Influence Self-Perception & Group Identity"<br>
+                    <span style="display:block; margin:4px 0; color:#4b5563; font-style:italic; font-size:0.9em; line-height:1.4;">
+                        "Personalized content had a powerful influence on users' relations with their groups... associated with poor quality of social interaction and heightened social polarization."
+                    </span>
+                    <a href="https://doi.org/10.47067/ramss.v7i4.397" target="_blank">doi.org/10.47067/ramss.v7i4.397</a>
+                </li>
+
                 <li style="margin-bottom: 12px;">
                     <strong>Norton, Mochon, & Ariely (2012)</strong><br>
                     "The IKEA effect: When labor leads to love."
