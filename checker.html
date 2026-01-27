@@ -3,354 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psychology Replication Scout</title>
+    <title>Reference Hallucination Checker</title>
+    <script src="https://cdn.jsdelivr.net/npm/fuzzball/dist/fuzzball.umd.min.js"></script>
     <style>
         :root {
-            /* Google Dark Mode Palette */
-            --bg: #202124;
-            --surface: #303134;
-            --text-primary: #e8eaed;
-            --text-secondary: #9aa0a6;
-            --accent: #8ab4f8; /* Google Blue */
-            --border: #5f6368;
-            
-            /* Status Colors (Pastel/Muted) */
-            --red-muted: #f28b82;
-            --yellow-muted: #fdd663;
-            --green-muted: #81c995;
+            --bg: #1e1e1e;
+            --text: #e0e0e0;
+            --green: #2ecc71;
+            --orange: #e67e22;
+            --red: #e74c3c;
+            --yellow: #f1c40f;
+            --cyan: #3498db;
+            --dim: #888;
+            --card-bg: #2d2d2d;
         }
 
         body {
             background-color: var(--bg);
-            color: var(--text-primary);
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            color: var(--text);
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
-        /* --- HERO SECTION (Centered Search) --- */
-        .hero {
-            width: 100%;
-            max-width: 700px;
-            padding: 60px 20px 20px 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            font-weight: 400;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-            font-weight: 300;
-        }
-
-        /* --- GOOGLE-STYLE SEARCH BAR --- */
-        .search-container {
-            width: 100%;
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .search-bar-wrapper {
-            background-color: var(--surface);
-            border: 1px solid #5f6368;
-            border-radius: 24px; /* Pill shape */
-            padding: 5px 8px 5px 20px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            transition: background-color 200ms, box-shadow 200ms, border-color 200ms;
-        }
-
-        .search-bar-wrapper:hover, .search-bar-wrapper:focus-within {
-            background-color: #3c4043;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            border-color: rgba(255,255,255,0.1);
-        }
-
-        input {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 16px;
-            flex-grow: 1;
-            padding: 10px 0;
-            outline: none;
-        }
-
-        .filters {
-            margin-left: 10px;
-            padding-left: 10px;
-            border-left: 1px solid var(--border);
-        }
-
-        select {
-            background: transparent;
-            color: var(--text-secondary);
-            border: none;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-        }
-        select:hover { color: var(--text-primary); }
-
-        /* Icon Button */
-        .search-btn {
-            background: transparent;
-            color: var(--accent);
-            border: none;
-            cursor: pointer;
-            padding: 10px 15px;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* --- RESULTS AREA --- */
-        .results-container {
-            width: 100%;
-            max-width: 800px;
-            padding: 0 20px 60px 20px;
-        }
-
-        /* --- MINIMAL CARD --- */
-        .result-card {
-            padding: 20px 0;
-            border-bottom: 1px solid #3c4043;
-            animation: fadeIn 0.4s ease;
-        }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .meta-line {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .result-title {
-            color: var(--accent);
-            font-size: 20px;
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--cyan);
             text-decoration: none;
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 400;
+            font-weight: 600;
+            font-size: 0.9em;
         }
-        .result-title:hover { text-decoration: underline; }
+        .back-link:hover { color: white; text-decoration: underline; }
 
-        .snippet {
-            color: var(--text-secondary);
-            font-size: 14px;
+        h1 { color: white; margin: 0 0 5px 0; }
+        
+        .subtitle {
+            font-size: 0.9em;
+            color: var(--dim);
+            margin-bottom: 25px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+        }
+        .subtitle a { color: var(--cyan); text-decoration: none; }
+        .subtitle a:hover { text-decoration: underline; }
+        
+        .disclaimer {
+            font-size: 0.85em;
+            color: var(--yellow);
+            background: rgba(241, 196, 15, 0.1);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(241, 196, 15, 0.3);
             line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
         }
 
-        /* --- BADGES (Replication Signals) --- */
-        .badges {
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #252526;
+            color: white;
+            border: 1px solid #444;
+            padding: 12px;
+            font-family: 'Consolas', monospace;
+            resize: vertical;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--cyan);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 6px;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: var(--dim); cursor: wait; }
+
+        .results-area { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-left: 5px solid var(--dim);
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        .ref-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: var(--dim);
+            opacity: 0.5;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card.success { border-left-color: var(--green); }
+        .card.danger { border-left-color: var(--red); }
+        .card.warning { border-left-color: var(--yellow); }
+        .card.mismatch { border-left-color: var(--orange); }
+
+        .status { font-weight: 800; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
+        .title { color: white; font-weight: 700; font-size: 1.2em; line-height: 1.3; margin-bottom: 8px; }
+        .meta { color: var(--dim); font-size: 0.9em; margin-bottom: 4px; }
+        
+        .actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
             display: flex;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 15px;
             flex-wrap: wrap;
         }
-
-        .badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
+        
+        .btn-link {
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.2s;
         }
 
-        .badge-danger { color: #3c4043; background-color: var(--red-muted); }
-        .badge-warning { color: #3c4043; background-color: var(--yellow-muted); }
-        .badge-success { color: #3c4043; background-color: var(--green-muted); }
-        .badge-neutral { border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-source { background: rgba(52, 152, 219, 0.2); color: #5dade2; }
+        .btn-source:hover { background: rgba(52, 152, 219, 0.3); }
 
-        .highlight-n {
-            color: var(--text-primary);
-            font-weight: 700;
-            border-bottom: 2px solid var(--accent);
-        }
+        /* Style for the secondary DOI button */
+        .btn-doi { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .btn-doi:hover { background: rgba(46, 204, 113, 0.3); }
 
-        .loader {
-            text-align: center;
-            color: var(--text-secondary);
-            padding: 40px;
-        }
+        .btn-scholar { background: rgba(255, 255, 255, 0.1); color: #e0e0e0; }
+        .btn-scholar:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .spinner { display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
     </style>
 </head>
 <body>
 
-    <div class="hero">
-        <h1>Scout</h1>
-        <div class="subtitle">Find low-N, high-impact psychology studies.</div>
+    <div class="container">
+        <a href="https://madisonakles.github.io" class="back-link">← Back to madisonakles.github.io</a>
 
-        <div class="search-container">
-            <div class="search-bar-wrapper">
-                <span style="padding-right: 10px; filter: grayscale(1);">🔍</span>
-                <input type="text" id="topicInput" placeholder="Search topic (e.g., 'Ego Depletion')" value="Ego Depletion" onkeypress="handleEnter(event)">
-                
-                <div class="filters">
-                    <select id="yearSelect">
-                        <option value="2000-2015">2000-2015</option>
-                        <option value="2016-2024">2016-2024</option>
-                        <option value="">Any Year</option>
-                    </select>
-                </div>
-                
-                <button class="search-btn" onclick="runSearch()">➤</button>
-            </div>
+        <h1>🔍 Reference Hallucination Checker</h1>
+        <div class="subtitle">
+            Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use, utilizing <a href="https://openalex.org/" target="_blank">OpenAlex</a> and Google Scholar as back-up.
         </div>
+
+        <p>Paste your bibliography below:</p>
+        
+        <div class="disclaimer">
+            ⚠️ <strong>Disclaimer:</strong> This tool may be subject to mistakes. It is intended as a helper tool rather than a 100% certainty indicator. Students who are generating hallucinated sources may not take the time to run Python scripts, and a little something is better than nothing!
+        </div>
+        
+        <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS. https://doi.org/10.1234/example"></textarea>
+        
+        <button id="checkBtn" onclick="processReferences()">Check References</button>
+
+        <div id="results" class="results-area"></div>
     </div>
 
-    <div id="results" class="results-container"></div>
-
-    <script>
-        // --- LOGIC SAME AS BEFORE, JUST CLEANER OUTPUT ---
-
-        function handleEnter(e) {
-            if(e.key === 'Enter') runSearch();
+<script>
+    // --- 1. TITLE PARSER ---
+    function extractTitle(text) {
+        let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+        const quoteMatch = clean.match(/["“](.+?)["”]/);
+        if (quoteMatch && quoteMatch[1].length > 5) return quoteMatch[1];
+        const dateMatch = clean.match(/\(\d{4}[a-z]?\)\.\s*/);
+        if (dateMatch) {
+            const afterDate = clean.substring(dateMatch.index + dateMatch[0].length);
+            return afterDate.split('. ')[0].trim();
         }
+        return clean.split('.')[0]; 
+    }
 
-        function reconstructAbstract(invertedIndex) {
-            if (!invertedIndex) return null;
-            const sortedArray = [];
-            for (const [word, positions] of Object.entries(invertedIndex)) {
-                positions.forEach(pos => sortedArray[pos] = word);
-            }
-            return sortedArray.join(' ');
+    // --- 2. AUTHOR PARSER ---
+    function extractAuthors(text) {
+        let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+        const dateMatch = clean.match(/\(\d{4}[a-z]?\)/);
+        if (dateMatch) {
+            let authors = clean.substring(0, dateMatch.index).trim();
+            return authors.replace(/\.$/, '');
         }
+        return ""; 
+    }
 
-        function extractN(text) {
-            if (!text) return null;
-            // Common ways N is reported in abstracts
-            const patterns = [
-                /N\s?=\s?(\d+)/i,
-                /(\d+)\s?(?:undergraduates|participants|subjects|students)/i,
-                /sample of (\d+)/i,
-                /(\d+)\s?adults/i
-            ];
+    // --- 3. DOI PARSER (NEW) ---
+    function extractDOI(text) {
+        // Find pattern starting with 10.xxxx/xxxx
+        const match = text.match(/\b(10\.\d{4,}\/[^\s"<>]+)/);
+        if (match) {
+            // Remove common trailing punctuation (period, comma, semicolon, closing paren) if strictly at the end
+            return match[1].replace(/[\.,;)]+$/, '').toLowerCase();
+        }
+        return null;
+    }
 
-            for (let pat of patterns) {
-                const match = text.match(pat);
-                if (match && match[1]) {
-                    // Quick check to avoid year dates (like 2000) being mistaken for N
-                    const num = parseInt(match[1]);
-                    if (num > 1900 && num < 2030) continue; 
+    // --- 4. API QUERY (OpenAlex) ---
+    async function queryOpenAlex(title) {
+        const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
+        const shortTitle = cleanTitle.split(/\s+/).slice(0, 6).join(' ');
+        
+        const query = encodeURIComponent(shortTitle);
+        const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=5`;
 
-                    return {
-                        number: num,
-                        context: match[0]
-                    };
-                }
-            }
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) return null;
+            const data = await resp.json();
+            return data.results;
+        } catch (e) {
             return null;
         }
+    }
 
-        async function runSearch() {
-            const topic = document.getElementById('topicInput').value;
-            const yearRange = document.getElementById('yearSelect').value;
-            const container = document.getElementById('results');
+    // --- 5. MAIN PROCESS LOOP ---
+    async function processReferences() {
+        const input = document.getElementById('inputRefs').value;
+        const resultsDiv = document.getElementById('results');
+        const btn = document.getElementById('checkBtn');
+        
+        if (!input.trim()) return;
 
-            if (!topic) return;
+        resultsDiv.innerHTML = '';
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
 
-            // Loading State (Minimal)
-            container.innerHTML = '<div class="loader">Searching OpenAlex database...</div>';
+        const lines = input.split('\n').filter(line => line.trim().length > 10);
 
-            const filter = `concepts.id:C15744967,title.search:${encodeURIComponent(topic)}${yearRange ? ',publication_year:' + yearRange : ''}`;
-            const url = `https://api.openalex.org/works?filter=${filter}&sort=cited_by_count:desc&per-page=15`;
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const refNum = i + 1;
+            const extractedTitle = extractTitle(line);
+            const extractedAuthors = extractAuthors(line);
+            const extractedDOI = extractDOI(line); // Get user's DOI
+            
+            // Create loading card
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <span class="ref-number">Ref #${refNum}</span>
+                <span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 50)}...</span>
+            `;
+            resultsDiv.appendChild(card);
 
-            try {
-                const resp = await fetch(url);
-                const data = await resp.json();
-                renderResults(data.results);
-            } catch (e) {
-                container.innerHTML = `<div class="loader" style="color:var(--red-muted)">Error loading results.</div>`;
+            // Fetch candidates
+            const candidates = await queryOpenAlex(extractedTitle);
+            
+            let bestMatch = null;
+            let highestScore = 0;
+            let bestMatchType = 'strict'; 
+
+            if (candidates && candidates.length > 0) {
+                candidates.forEach(paper => {
+                    let score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
+                    let currentType = 'strict';
+
+                    if (score < 85) {
+                        const tokenScore = fuzzball.token_set_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
+                        const partialScore = fuzzball.partial_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
+                        const maxFuzzy = Math.max(tokenScore, partialScore);
+
+                        if (maxFuzzy > 85 && maxFuzzy > score) {
+                            score = maxFuzzy;
+                            currentType = 'fuzzy';
+                        }
+                    }
+
+                    if (score > highestScore) {
+                        highestScore = score;
+                        bestMatch = paper;
+                        bestMatchType = currentType;
+                    }
+                });
             }
-        }
 
-        function renderResults(papers) {
-            const container = document.getElementById('results');
-            container.innerHTML = '';
+            const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
+            const displayScore = highestScore > 99 ? 99 : highestScore;
 
-            if (!papers || papers.length === 0) {
-                container.innerHTML = '<div class="loader">No matching studies found.</div>';
-                return;
-            }
+            // --- RESULT LOGIC ---
 
-            papers.forEach(paper => {
-                const abstractRaw = reconstructAbstract(paper.abstract_inverted_index);
-                const nData = extractN(abstractRaw);
-                const citations = paper.cited_by_count;
+            if (highestScore >= 85 && bestMatchType === 'strict') {
+                // PATH A: High Confidence in Title Match
                 
-                // Determine Priority Badge
-                let badgeHtml = '';
-                if (nData) {
-                    if (nData.number < 50 && citations > 100) {
-                        badgeHtml = `<span class="badge badge-danger">High Priority (N=${nData.number})</span>`;
-                    } else if (nData.number < 100) {
-                        badgeHtml = `<span class="badge badge-warning">Small Sample (N=${nData.number})</span>`;
-                    } else {
-                        badgeHtml = `<span class="badge badge-success">Large Sample (N=${nData.number})</span>`;
+                let realAuthorsArray = bestMatch.authorships.map(a => a.author.display_name);
+                let realAuthorsString = realAuthorsArray.join(" ");
+                
+                // 1. Check Author Match
+                let authorMismatch = false;
+                if (realAuthorsArray.length > 0 && extractedAuthors.length > 3) {
+                    const authorScore = fuzzball.token_set_ratio(extractedAuthors.toLowerCase(), realAuthorsString.toLowerCase());
+                    if (authorScore < 45) authorMismatch = true;
+                }
+
+                // 2. Check DOI Match (New Logic)
+                let doiMismatch = false;
+                // Clean OpenAlex DOI (remove https://doi.org/)
+                const realDOI = bestMatch.doi ? bestMatch.doi.replace(/https?:\/\/(dx\.)?doi\.org\//, '').toLowerCase() : null;
+                
+                if (extractedDOI && realDOI) {
+                    // Compare extracting just string part
+                    if (extractedDOI !== realDOI) {
+                        doiMismatch = true;
                     }
+                }
+
+                // ** LINK LOGIC **
+                const recordLink = bestMatch.id;
+                const doiButton = bestMatch.doi 
+                    ? `<a href="${bestMatch.doi}" target="_blank" class="btn-link btn-doi">🔗 Direct DOI</a>`
+                    : '';
+
+                if (authorMismatch || doiMismatch) {
+                    // --- MISMATCH FOUND ---
+                    card.className = 'card mismatch';
+                    
+                    let warnings = [];
+                    if (authorMismatch) warnings.push(`<div class="meta" style="color:#ffcc80">⚠️ <strong>Author Mismatch:</strong> Input: "${extractedAuthors}" vs Actual: "${realAuthorsString.substring(0, 50)}..."</div>`);
+                    if (doiMismatch) warnings.push(`<div class="meta" style="color:#ffcc80">⚠️ <strong>DOI Mismatch:</strong> Input: "${extractedDOI}" vs Actual: "${realDOI}"</div>`);
+
+                    card.innerHTML = `
+                        <span class="ref-number">Ref #${refNum}</span>
+                        <span class="status" style="color:var(--orange)">SUSPECT CITATION (Details Mismatch)</span>
+                        <div class="title">${bestMatch.title}</div>
+                        ${warnings.join('')}
+                        <div class="meta" style="color:var(--dim)">The paper exists, but the details provided are incorrect.</div>
+                        <div class="actions">
+                            <a href="${recordLink}" target="_blank" class="btn-link btn-source">📄 View Record</a>
+                            ${doiButton}
+                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Google Scholar</a>
+                        </div>
+                    `;
                 } else {
-                    badgeHtml = `<span class="badge badge-neutral">N Not Found</span>`;
+                    // --- FULL SUCCESS ---
+                    card.className = 'card success';
+                    let displayAuthors = realAuthorsString ? realAuthorsArray.slice(0, 3).join(", ") : "<em>(Authors not listed)</em>";
+                    
+                    card.innerHTML = `
+                        <span class="ref-number">Ref #${refNum}</span>
+                        <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${displayScore}%)</span>
+                        <div class="title">${bestMatch.title}</div>
+                        <div class="meta">👥 ${displayAuthors} ${realAuthorsArray.length > 3 ? 'et al.' : ''}</div>
+                        <div class="meta">📅 ${bestMatch.publication_year || 'N/A'} | 🏫 ${bestMatch.primary_location?.source?.display_name || 'Unknown Venue'}</div>
+                        <div class="actions">
+                            <a href="${recordLink}" target="_blank" class="btn-link btn-source">📄 View Record</a>
+                            ${doiButton}
+                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Google Scholar</a>
+                        </div>
+                    `;
                 }
 
-                // Highlight extracted N in snippet
-                let snippet = "No abstract available.";
-                if (abstractRaw) {
-                    snippet = abstractRaw.substring(0, 280) + "...";
-                    if (nData) {
-                        // Simple replace to bold the finding
-                        snippet = snippet.replace(nData.context, `<span class="highlight-n">${nData.context}</span>`);
-                    }
-                }
-
-                const authors = paper.authorships.map(a => a.author.display_name).slice(0, 3).join(', ') + (paper.authorships.length > 3 ? ' et al.' : '');
-                const source = paper.primary_location?.source?.display_name || 'Unknown Source';
-
-                const card = document.createElement('div');
-                card.className = 'result-card';
+            } else if (highestScore >= 60) {
+                // PATH B: Potential Match
+                card.className = 'card warning';
+                let recordLink = bestMatch.id;
+                let doiButton = bestMatch.doi 
+                    ? `<a href="${bestMatch.doi}" target="_blank" class="btn-link btn-doi">🔗 Direct DOI</a>`
+                    : '';
+                
                 card.innerHTML = `
-                    <div class="meta-line">
-                        <span>${source}</span>
-                        <span>•</span>
-                        <span>${paper.publication_year}</span>
-                    </div>
-                    <a href="${paper.doi || paper.id}" target="_blank" class="result-title">${paper.title}</a>
-                    <div class="meta-line" style="margin-bottom:10px;">${authors}</div>
-                    <div class="snippet">${snippet}</div>
-                    <div class="badges">
-                        <span class="badge badge-neutral">Cited by ${citations}</span>
-                        ${badgeHtml}
+                    <span class="ref-number">Ref #${refNum}</span>
+                    <span class="status" style="color:var(--yellow)">POTENTIAL MATCH (Confidence: ${displayScore}%)</span>
+                    <div class="title">Input: ${extractedTitle}</div>
+                    <div class="meta" style="color:white">Found similar: "<em>${bestMatch.title}</em>"</div>
+                    <div class="meta" style="color:var(--dim)">Check if this is the paper you intended.</div>
+                    <div class="actions">
+                        <a href="${recordLink}" target="_blank" class="btn-link btn-source">📄 View Record</a>
+                        ${doiButton}
+                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Google Scholar</a>
                     </div>
                 `;
-                container.appendChild(card);
-            });
+            } else {
+                // PATH C: Hallucination
+                card.className = 'card danger';
+                card.innerHTML = `
+                    <span class="ref-number">Ref #${refNum}</span>
+                    <span class="status" style="color:var(--red)">POTENTIAL HALLUCINATION</span>
+                    <div class="title">${extractedTitle}</div>
+                    <div class="meta">No close matches found in OpenAlex database.</div>
+                    <div class="actions">
+                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Verify on Google Scholar</a>
+                    </div>
+                `;
+            }
+
+            await new Promise(r => setTimeout(r, 200));
         }
-    </script>
+
+        btn.disabled = false;
+        btn.innerText = 'Check References';
+    }
+</script>
+
 </body>
 </html>
