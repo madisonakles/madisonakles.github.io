@@ -3,106 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hallucination Checker</title>
+    <title>Hallucination Checker V3</title>
     <script src="https://cdn.jsdelivr.net/npm/fuzzball/dist/fuzzball.umd.min.js"></script>
     <style>
         :root {
             --bg: #1e1e1e;
-            --text: #c0c0c0;
+            --text: #e0e0e0;
             --green: #2ecc71;
             --red: #e74c3c;
             --yellow: #f1c40f;
             --cyan: #3498db;
-            --dim: #666;
-            --card-bg: #252526;
+            --dim: #888;
+            --card-bg: #2d2d2d;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             padding: 20px;
             max-width: 900px;
             margin: 0 auto;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        h1 { color: var(--text); margin-bottom: 5px; }
+        h1 { color: white; margin-bottom: 5px; }
         
         .subtitle {
             font-size: 0.9em;
             color: var(--dim);
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--dim);
+            margin-bottom: 25px;
+            border-bottom: 1px solid #444;
             padding-bottom: 15px;
         }
-        .subtitle a { color: var(--cyan); text-decoration: none; }
-        .subtitle a:hover { text-decoration: underline; }
-
-        .container { display: flex; flex-direction: column; gap: 20px; }
 
         textarea {
             width: 100%;
             height: 150px;
-            background-color: var(--card-bg);
+            background-color: #252526;
             color: white;
-            border: 1px solid var(--dim);
-            padding: 10px;
-            font-family: inherit;
+            border: 1px solid #444;
+            padding: 12px;
+            font-family: 'Consolas', monospace;
             resize: vertical;
-            border-radius: 4px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
 
         button {
             background-color: var(--cyan);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 16px;
-            border-radius: 4px;
-            align-self: flex-start;
+            border-radius: 6px;
+            transition: opacity 0.2s;
         }
 
         button:hover { opacity: 0.9; }
-        button:disabled { background-color: var(--dim); cursor: not-allowed; }
+        button:disabled { background-color: var(--dim); cursor: wait; }
 
-        .results-area { margin-top: 20px; }
+        .results-area { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
         
         .card {
             background-color: var(--card-bg);
-            border-left: 4px solid var(--dim);
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 0 4px 4px 0;
-            animation: fadeIn 0.3s ease;
+            border-left: 5px solid var(--dim);
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .card.success { border-left-color: var(--green); }
         .card.danger { border-left-color: var(--red); }
         .card.warning { border-left-color: var(--yellow); }
 
-        .status { font-weight: bold; margin-bottom: 5px; display: block; }
-        .title { color: white; font-weight: bold; font-size: 1.1em; }
-        .meta { color: var(--dim); font-size: 0.9em; margin-top: 5px; }
+        .status { font-weight: 800; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
+        .title { color: white; font-weight: 700; font-size: 1.2em; line-height: 1.3; margin-bottom: 8px; }
+        .meta { color: var(--dim); font-size: 0.9em; margin-bottom: 4px; }
         
+        /* THE NEW ACTIONS BAR */
         .actions {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #333;
-            font-size: 0.9em;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
         
-        .actions a { color: var(--cyan); text-decoration: none; }
-        .actions a:hover { text-decoration: underline; }
+        .btn-link {
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
 
-        .spinner { display: inline-block; animation: spin 1s linear infinite; margin-right: 5px; }
+        .btn-source { background: rgba(52, 152, 219, 0.2); color: #5dade2; }
+        .btn-source:hover { background: rgba(52, 152, 219, 0.3); }
+
+        .btn-scholar { background: rgba(255, 255, 255, 0.1); color: #e0e0e0; }
+        .btn-scholar:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .spinner { display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
     </style>
@@ -110,16 +120,14 @@
 <body>
 
     <div class="container">
-        <div>
-            <h1>🔍 Reference Hallucination Checker</h1>
-            <div class="subtitle">
-                Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use.
-            </div>
+        <h1>🔍 Hallucination Checker V3</h1>
+        <div class="subtitle">
+            Verifies academic references using OpenAlex + Google Scholar Backup
         </div>
 
-        <p>Paste your bibliography/reference list below. This tool queries <strong>OpenAlex</strong> to verify if the papers actually exist.</p>
+        <p>Paste your bibliography below:</p>
         
-        <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS.&#10;2. Smith, J. (2025). This paper does not exist. Journal of Fake Science."></textarea>
+        <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS."></textarea>
         
         <button id="checkBtn" onclick="processReferences()">Check References</button>
 
@@ -129,6 +137,7 @@
 <script>
     // --- REFERENCE PARSER ---
     function extractTitle(text) {
+        // Clean leading numbers like "1. ", "[1]"
         let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
 
         // Strategy A: Quotes (IEEE/MLA)
@@ -143,20 +152,20 @@
             if (titlePart.length > 5) return titlePart.trim();
         }
 
-        // Strategy C: Split by periods, ignore initials
+        // Strategy C: Fallback split
         const parts = clean.split('.');
         for (let part of parts) {
             part = part.trim();
+            // Heuristic: Titles are long (>15 chars) and have few commas
             const commaCount = (part.match(/,/g) || []).length;
             if (part.length > 15 && commaCount < 2) return part;
         }
-
         return clean;
     }
 
     async function queryOpenAlex(title) {
-        // We sort by cited_by_count to ensure we get the main paper, not obscure reprints
         const query = encodeURIComponent(title.replace(/[^\w\s]/gi, ''));
+        // Sort by citation count to prioritize the "real" paper over obscure matches
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=3`;
 
         try {
@@ -165,7 +174,6 @@
             const data = await resp.json();
             return data.results;
         } catch (e) {
-            console.error(e);
             return null;
         }
     }
@@ -189,7 +197,7 @@
             // Render loading card
             const card = document.createElement('div');
             card.className = 'card';
-            card.innerHTML = `<span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 60)}...</span>`;
+            card.innerHTML = `<span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 50)}...</span>`;
             resultsDiv.appendChild(card);
 
             // Query API
@@ -209,20 +217,15 @@
                 });
             }
 
-            // Determine Link (DOI > Open Access URL > OpenAlex ID)
-            let sourceLink = "#";
-            if (bestMatch) {
-                if (bestMatch.doi) sourceLink = bestMatch.doi;
-                else if (bestMatch.open_access?.oa_url) sourceLink = bestMatch.open_access.oa_url;
-                else sourceLink = bestMatch.id; // OpenAlex ID is a valid URL
-            }
-            
-            // Google Scholar Backup Link
+            // Create Google Scholar Link (Backup)
             const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
 
-            // Render Result
+            // Determine Status
             if (highestScore >= 85) {
+                // SUCCESS
                 card.className = 'card success';
+                
+                let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
                 const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
                 
                 card.innerHTML = `
@@ -231,29 +234,33 @@
                     <div class="meta">👥 ${authors} ${bestMatch.authorships.length > 3 ? 'et al.' : ''}</div>
                     <div class="meta">📅 ${bestMatch.publication_year || 'N/A'} | 🏫 ${bestMatch.primary_location?.source?.display_name || 'Unknown Venue'}</div>
                     <div class="actions">
-                        <a href="${sourceLink}" target="_blank">📄 View Source</a>
-                        <a href="${scholarLink}" target="_blank">🎓 Google Scholar</a>
+                        <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Source</a>
+                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
                     </div>
                 `;
             } else if (highestScore >= 60) {
+                // WARNING / POTENTIAL MATCH
                 card.className = 'card warning';
+                let sourceLink = bestMatch.doi || bestMatch.id;
+                
                 card.innerHTML = `
                     <span class="status" style="color:var(--yellow)">POTENTIAL MATCH (Confidence: ${highestScore}%)</span>
                     <div class="title">Input: ${extractedTitle}</div>
-                    <div class="match-info" style="color: white">Found similar: "<em>${bestMatch.title}</em>"</div>
+                    <div class="meta" style="color:white">Found similar: "<em>${bestMatch.title}</em>"</div>
                     <div class="actions">
-                        <a href="${sourceLink}" target="_blank">📄 View Similar Paper</a>
-                        <a href="${scholarLink}" target="_blank">🎓 Check Google Scholar</a>
+                        <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Similar Paper</a>
+                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
                     </div>
                 `;
             } else {
+                // DANGER / HALLUCINATION
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="status" style="color:var(--red)">POTENTIAL HALLUCINATION</span>
                     <div class="title">${extractedTitle}</div>
-                    <div class="meta">No close matches found in database.</div>
+                    <div class="meta">No close matches found in OpenAlex database.</div>
                     <div class="actions">
-                        <a href="${scholarLink}" target="_blank">🎓 Verify manually on Google Scholar</a>
+                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Verify on Google Scholar</a>
                     </div>
                 `;
             }
