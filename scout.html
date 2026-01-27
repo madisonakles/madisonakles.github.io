@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psychology Replication Scout (Robust)</title>
+    <title>Psychology Replication Scout (Radar Edition)</title>
     <style>
         :root {
             --bg: #202124;
@@ -16,7 +16,7 @@
             --yellow-muted: #fdd663;
             --green-muted: #81c995;
             --purple-muted: #c58af9;
-            --btn-hover: #3c4043;
+            --orange-muted: #fa903e;
         }
 
         body {
@@ -29,97 +29,131 @@
         }
 
         /* --- LAYOUT --- */
-        .hero { width: 100%; max-width: 700px; padding: 60px 20px 20px 20px; text-align: center; }
-        h1 { font-weight: 400; font-size: 2.5rem; margin-bottom: 10px; letter-spacing: -1px; }
-        .subtitle { color: var(--text-secondary); margin-bottom: 40px; font-weight: 300; }
+        .hero { width: 100%; max-width: 800px; padding: 50px 20px 20px 20px; text-align: center; }
+        h1 { font-weight: 400; font-size: 2.2rem; margin-bottom: 5px; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-secondary); margin-bottom: 30px; font-weight: 300; font-size: 1rem; }
 
         /* --- SEARCH BAR --- */
         .search-bar-wrapper {
             background-color: var(--surface);
             border: 1px solid #5f6368;
             border-radius: 24px;
-            padding: 5px 8px 5px 20px;
+            padding: 8px 15px 8px 25px;
             display: flex; align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             transition: 0.2s;
+            max-width: 700px;
+            margin: 0 auto;
         }
-        .search-bar-wrapper:focus-within { background: #303134; border-color: var(--accent); }
-        input { background: transparent; border: none; color: var(--text-primary); font-size: 16px; flex-grow: 1; padding: 10px 0; outline: none; }
-        select { background: transparent; color: var(--text-secondary); border: none; cursor: pointer; outline: none; margin-right: 10px; }
-        .search-btn { background: transparent; color: var(--accent); border: none; cursor: pointer; padding: 10px 15px; font-size: 18px; }
+        .search-bar-wrapper:focus-within { background: #303134; border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        input { background: transparent; border: none; color: var(--text-primary); font-size: 16px; flex-grow: 1; padding: 8px 0; outline: none; }
+        select { background: transparent; color: var(--text-secondary); border: none; cursor: pointer; outline: none; margin-right: 15px; font-size: 0.9rem; }
+        .search-btn { background: var(--accent); color: #202124; border: none; cursor: pointer; padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .search-btn:hover { opacity: 0.9; }
 
         /* --- RESULTS --- */
-        .results-container { width: 100%; max-width: 800px; padding: 0 20px 60px 20px; }
-        .result-card { padding: 25px 0; border-bottom: 1px solid #3c4043; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .results-container { width: 100%; max-width: 850px; padding: 0 20px 80px 20px; }
+        .result-card { 
+            padding: 25px; 
+            margin-bottom: 15px;
+            background: #292a2d;
+            border-radius: 12px;
+            border: 1px solid #3c4043;
+            animation: fadeIn 0.4s ease; 
+            position: relative;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .meta-line { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: flex; gap: 8px; align-items: center; }
-        .result-title { color: var(--accent); font-size: 20px; text-decoration: none; display: block; margin-bottom: 8px; font-weight: 400; line-height: 1.3; }
+        .meta-line { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+        .result-title { color: var(--accent); font-size: 1.25rem; text-decoration: none; display: block; margin-bottom: 8px; font-weight: 400; line-height: 1.4; }
         .result-title:hover { text-decoration: underline; }
-        .snippet { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-top: 10px; }
+        .snippet { color: #bdc1c6; font-size: 14px; line-height: 1.6; margin-top: 12px; }
         
         .highlight-match { color: var(--text-primary); font-weight: 700; border-bottom: 2px solid var(--accent); }
 
         /* --- BADGES --- */
-        .badges { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
-        .badge { font-size: 12px; padding: 4px 10px; border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; border: 1px solid transparent; }
-        .badge-danger { background-color: rgba(242, 139, 130, 0.2); color: #f28b82; border-color: rgba(242, 139, 130, 0.3); }
-        .badge-warning { background-color: rgba(253, 214, 99, 0.15); color: #fdd663; border-color: rgba(253, 214, 99, 0.3); }
-        .badge-success { background-color: rgba(129, 201, 149, 0.15); color: #81c995; border-color: rgba(129, 201, 149, 0.3); }
-        .badge-info { background-color: rgba(197, 138, 249, 0.15); color: #c58af9; border-color: rgba(197, 138, 249, 0.3); }
-        .badge-neutral { border: 1px solid #5f6368; color: var(--text-secondary); }
+        .badges { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; align-items: center; }
+        .badge { font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; letter-spacing: 0.3px; text-transform: uppercase; }
+        
+        .badge-danger { background: rgba(242, 139, 130, 0.15); color: #f28b82; border: 1px solid rgba(242, 139, 130, 0.3); }
+        .badge-warning { background: rgba(253, 214, 99, 0.1); color: #fdd663; border: 1px solid rgba(253, 214, 99, 0.3); }
+        .badge-success { background: rgba(129, 201, 149, 0.1); color: #81c995; border: 1px solid rgba(129, 201, 149, 0.3); }
+        .badge-info { background: rgba(197, 138, 249, 0.1); color: #c58af9; border: 1px solid rgba(197, 138, 249, 0.3); }
+        .badge-neutral { border: 1px solid #5f6368; color: var(--text-secondary); font-weight: 500; text-transform: none; }
+
+        /* --- REPLICATION SECTION --- */
+        .replication-box {
+            margin-top: 15px;
+            padding: 12px;
+            background: #202124;
+            border-left: 3px solid var(--orange-muted);
+            border-radius: 0 6px 6px 0;
+            font-size: 13px;
+        }
+        .rep-header { color: var(--orange-muted); font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+        .rep-link { color: var(--text-primary); text-decoration: none; display: block; margin-bottom: 4px; }
+        .rep-link:hover { text-decoration: underline; color: var(--accent); }
 
         /* --- ACTION BAR --- */
-        .action-bar { margin-top: 15px; display: flex; gap: 15px; align-items: center; }
-        .action-link { text-decoration: none; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; cursor: pointer; transition: 0.2s; }
-        .action-link:hover { text-decoration: underline; }
-        .link-doi { color: var(--text-secondary); }
-        .link-scihub { color: var(--text-secondary); }
-        .link-scihub:hover { color: #f28b82; }
-
-        /* Dynamic Deep Scan Button */
-        .btn-analyze {
-            padding: 6px 12px; border-radius: 18px; font-size: 12px; font-weight: 600; cursor: pointer; border: none;
-            display: flex; align-items: center; gap: 6px; transition: 0.2s;
+        .action-bar { 
+            margin-top: 18px; 
+            padding-top: 15px; 
+            border-top: 1px solid #3c4043;
+            display: flex; 
+            gap: 15px; 
+            align-items: center; 
+            flex-wrap: wrap;
         }
-        /* Normal */
-        .scan-normal { background: #3c4043; color: var(--text-primary); }
-        .scan-normal:hover { background: #5f6368; }
-        /* Recommended (N missing) */
-        .scan-rec { background: rgba(253, 214, 99, 0.2); color: #fdd663; border: 1px solid rgba(253, 214, 99, 0.3); }
-        .scan-rec:hover { background: rgba(253, 214, 99, 0.3); }
-        /* Critical (High cost method + N missing) */
-        .scan-crit { background: rgba(242, 139, 130, 0.2); color: #f28b82; border: 1px solid rgba(242, 139, 130, 0.5); box-shadow: 0 0 8px rgba(242, 139, 130, 0.1); }
-        .scan-crit:hover { background: rgba(242, 139, 130, 0.3); }
+
+        .btn-deepscan {
+            background: #3c4043; color: var(--text-primary);
+            border: 1px solid #5f6368;
+            padding: 6px 14px; border-radius: 4px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-deepscan:hover { background: #5f6368; }
+        
+        .btn-critical { border-color: #f28b82; color: #f28b82; background: rgba(242, 139, 130, 0.05); }
+        .btn-critical:hover { background: rgba(242, 139, 130, 0.15); }
 
         /* --- MODAL --- */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        .modal { background: #2d2e30; width: 600px; max-width: 90%; border-radius: 12px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); border: 1px solid #5f6368; }
-        .modal h2 { margin-top: 0; font-size: 1.4rem; font-weight: 400; margin-bottom: 5px; }
-        textarea { width: 100%; height: 200px; background: #1e1e1e; border: 1px solid #5f6368; color: var(--text-primary); padding: 15px; border-radius: 8px; font-family: 'Roboto Mono', monospace; font-size: 13px; resize: none; margin: 15px 0; outline: none; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal { background: #2d2e30; width: 650px; max-width: 95%; border-radius: 12px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); border: 1px solid #5f6368; display: flex; flex-direction: column; gap: 20px; }
+        
+        .step-box { background: #202124; padding: 15px; border-radius: 8px; border: 1px solid #3c4043; }
+        .step-title { font-size: 12px; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1px; margin-bottom: 8px; font-weight: bold; }
+        
+        .mirror-links { display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap; }
+        .mirror-btn { background: #3c4043; color: var(--accent); text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; border: 1px solid #5f6368; }
+        .mirror-btn:hover { background: #303134; border-color: var(--accent); }
+
+        textarea { width: 100%; height: 150px; background: #18191a; border: 1px solid #5f6368; color: var(--text-primary); padding: 15px; border-radius: 8px; font-family: 'Roboto Mono', monospace; font-size: 13px; resize: none; outline: none; box-sizing: border-box; }
         textarea:focus { border-color: var(--accent); }
         
-        .modal-footer { display: flex; justify-content: space-between; align-items: center; }
-        .modal-btn-scan { background: var(--accent); color: #202124; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .modal-btn-close { background: transparent; color: var(--text-secondary); border: none; cursor: pointer; text-decoration: underline; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+        .btn-primary { background: var(--accent); color: #202124; border: none; padding: 10px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid transparent; padding: 10px 20px; cursor: pointer; }
+        .btn-ghost:hover { color: var(--text-primary); }
 
-        .scan-result-box { margin-top: 15px; background: #202124; padding: 15px; border-radius: 8px; border-left: 4px solid var(--text-secondary); display: none; }
+        .scan-result-box { background: #202124; padding: 15px; border-radius: 8px; border-left: 4px solid var(--text-secondary); display: none; animation: fadeIn 0.3s; }
     </style>
 </head>
 <body>
 
     <div class="hero">
-        <h1>Scout <span style="font-size:0.5em; vertical-align:super; color:var(--accent)">Robust</span></h1>
-        <div class="subtitle">Identify low-N studies. Verify with deep scan.</div>
+        <h1>Scout <span style="font-size:0.5em; vertical-align:super; color:var(--accent)">Radar</span></h1>
+        <div class="subtitle">Sample sizes. Methods. Replications. All in one place.</div>
 
         <div class="search-bar-wrapper">
-            <input type="text" id="topicInput" placeholder="Enter topic (e.g., 'Embodied Cognition')" value="Ego Depletion" onkeypress="handleEnter(event)">
+            <input type="text" id="topicInput" placeholder="Enter topic (e.g., 'Ego Depletion', 'Power Posing')" value="Moral Hypocrisy" onkeypress="handleEnter(event)">
             <select id="yearSelect">
-                <option value="2000-2015">2000-2015</option>
-                <option value="2016-2024">2016-2024</option>
                 <option value="">All Time</option>
+                <option value="2015-2025">2015-2025</option>
+                <option value="2000-2015">2000-2015</option>
             </select>
-            <button class="search-btn" onclick="runSearch()">➤</button>
+            <button class="search-btn" onclick="runSearch()">Search</button>
         </div>
     </div>
 
@@ -127,111 +161,76 @@
 
     <div id="scanModal" class="modal-overlay">
         <div class="modal">
-            <h2>Deep Scan</h2>
-            <p style="color:var(--text-secondary); font-size:0.9rem; margin:0;">
-                Paste the full text (Ctrl+A, Ctrl+C) from the PDF below.
-            </p>
-            <textarea id="pasteArea" placeholder="Paste paper text here..."></textarea>
+            <h2 style="margin:0; font-weight:400;">Deep Scan Assistant</h2>
             
-            <div class="modal-footer">
-                <button class="modal-btn-close" onclick="closeModal()">Close</button>
-                <button class="modal-btn-scan" onclick="runDeepScan()">Analyze Text</button>
+            <div class="step-box">
+                <div class="step-title">Step 1: Open PDF</div>
+                <div style="font-size:14px; margin-bottom:8px;">Click a mirror below to open the paper. If one is blocked, try another.</div>
+                <div class="mirror-links" id="modalMirrors">
+                    </div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">Step 2: Paste Text</div>
+                <div style="font-size:14px; margin-bottom:8px;">Select All (Ctrl+A) in the PDF, Copy, and Paste below.</div>
+                <textarea id="pasteArea" placeholder="Paste full paper text here..."></textarea>
             </div>
 
             <div id="scanOutput" class="scan-result-box"></div>
+
+            <div class="modal-footer">
+                <button class="btn-ghost" onclick="closeModal()">Close</button>
+                <button class="btn-primary" onclick="runDeepScan()">Analyze Text</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. ROBUST PARSING ENGINE ---
-
-        // Map words to numbers for regex replacement
-        const wordToNum = {
-            'one':1, 'two':2, 'three':3, 'four':4, 'five':5, 'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10,
-            'eleven':11, 'twelve':12, 'thirteen':13, 'fourteen':14, 'fifteen':15, 'sixteen':16, 'seventeen':17, 'eighteen':18, 'nineteen':19,
-            'twenty':20, 'thirty':30, 'forty':40, 'fifty':50, 'sixty':60, 'seventy':70, 'eighty':80, 'ninety':90
-        };
+        // --- 1. CORE LOGIC ---
+        const wordToNum = {'one':1, 'two':2, 'three':3, 'four':4, 'five':5, 'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10, 'eleven':11, 'twelve':12, 'thirteen':13, 'fourteen':14, 'fifteen':15, 'sixteen':16, 'seventeen':17, 'eighteen':18, 'nineteen':19, 'twenty':20, 'thirty':30, 'forty':40, 'fifty':50, 'sixty':60, 'seventy':70, 'eighty':80, 'ninety':90};
 
         function normalizeText(text) {
             let clean = text.toLowerCase().replace(/\n/g, ' '); 
-            // Convert "twenty-five" to "25"
             return clean.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[-\s]?(one|two|three|four|five|six|seven|eight|nine)\b/g, (m) => {
                 const parts = m.split(/[-\s]/);
                 return ((wordToNum[parts[0]]||0) + (wordToNum[parts[1]]||0)).toString();
-            }).replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\b/g, (m) => {
-                return wordToNum[m] || m;
-            });
+            }).replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\b/g, (m) => wordToNum[m] || m);
         }
 
         function detectN(textRaw) {
             if (!textRaw) return null;
             const text = normalizeText(textRaw);
-            
-            // A. Statistical Forensics (The most robust method)
-            // Matches t(28), F(1, 29), r(40)
             const statRegex = /([trF])\s?\(\s?(\d+)(?:\s?,\s?(\d+))?\s?\)\s?=\s?[\d\.]+/g;
-            let match;
-            let lowestN = 99999;
-            let bestStatMatch = null;
-
+            let match, lowestN = 99999, bestStat = null;
+            
             while ((match = statRegex.exec(text)) !== null) {
                 const type = match[1];
                 const df1 = parseInt(match[2]);
                 const df2 = match[3] ? parseInt(match[3]) : null;
-                
-                let est = 0;
-                if (type === 't' || type === 'r') est = df1 + 2;
-                if (type === 'F' && df2) est = df2 + 2; // Conservative estimate for ANOVA
-
-                // Filtering: Ignore tiny DFs (likely errors) or massive ones (likely large surveys)
-                if (est > 4 && est < 2000) {
-                    if (est < lowestN) {
-                        lowestN = est;
-                        bestStatMatch = { n: est, source: "Derived from Stats", context: match[0] };
-                    }
-                }
+                let est = (type === 'F' && df2) ? df2 + 2 : df1 + 2;
+                if (est > 4 && est < 2000 && est < lowestN) { lowestN = est; bestStat = { n: est, source: "Stats (df)", context: match[0] }; }
             }
-            if (bestStatMatch) return bestStatMatch;
+            if (bestStat) return bestStat;
 
-            // B. Explicit Pattern Matching (With exclusion logic)
-            // We want to avoid matching "100 trials" or "18 years old"
-            const explicitPatterns = [
+            const patterns = [
                 { r: /n\s?=\s?(\d+)/, type: "Explicit N" },
-                { r: /(\d+)\s?(?:undergraduates|participants|subjects|students|respondents)/, type: "Participant Count" },
-                { r: /sample size (?:of|was) (\d+)/, type: "Explicit Statement" }
+                { r: /(\d+)\s?(?:participants|subjects|undergraduates)/, type: "Count" }
             ];
-
-            for (let p of explicitPatterns) {
+            for (let p of patterns) {
                 const m = text.match(p.r);
-                if (m && m[1]) {
-                    let num = parseInt(m[1]);
-                    // Robustness Checks:
-                    // 1. Is it a year? (1990-2030)
-                    if (num > 1900 && num < 2030) continue; 
-                    // 2. Is it likely an age? (Usually context checks are hard in regex, relying on keywords above)
-                    
-                    return { n: num, source: p.type, context: m[0] };
-                }
+                if (m && m[1] && parseInt(m[1]) < 2030 && parseInt(m[1]) > 1900 === false) return { n: parseInt(m[1]), source: p.type, context: m[0] };
             }
-
             return null;
         }
 
         function detectMethod(text) {
-            if (!text) return null;
-            const t = text.toLowerCase();
-            if (t.includes('fmri') || t.includes('magnetic resonance') || t.includes('neuroimaging')) return "fMRI";
+            const t = (text || '').toLowerCase();
+            if (t.includes('fmri') || t.includes('neuroimaging')) return "fMRI";
             if (t.includes('case study')) return "Case Study";
-            if (t.includes('longitudinal')) return "Longitudinal";
-            if (t.includes('eye-tracking') || t.includes('eye tracking')) return "Eye-Tracking";
-            if (t.includes('eeg') || t.includes('electroencephalography')) return "EEG";
+            if (t.includes('eye-tracking')) return "Eye-Tracking";
             return null;
         }
 
-        // --- 2. UI LOGIC ---
-
-        function handleEnter(e) { if(e.key === 'Enter') runSearch(); }
-        
         function reconstructAbstract(invertedIndex) {
             if (!invertedIndex) return null;
             const sorted = [];
@@ -241,16 +240,38 @@
             return sorted.join(' ');
         }
 
+        // --- 2. REPLICATION SEARCH ---
+        async function findReplications(originalTitle) {
+            // Remove special characters for cleaner search
+            const cleanTitle = originalTitle.replace(/[^\w\s]/gi, '').split(' ').slice(0,6).join(' '); 
+            const query = `replication "${cleanTitle}"`;
+            const url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&per-page=5`;
+            
+            try {
+                const resp = await fetch(url);
+                const data = await resp.json();
+                // Filter to ensure it's not the same paper and actually looks like a replication
+                return data.results.filter(r => 
+                    r.title.toLowerCase() !== originalTitle.toLowerCase() &&
+                    (r.title.toLowerCase().includes('replication') || r.title.toLowerCase().includes('commentary'))
+                );
+            } catch (e) { return []; }
+        }
+
+        // --- 3. MAIN UI LOGIC ---
+        function handleEnter(e) { if(e.key === 'Enter') runSearch(); }
+
         async function runSearch() {
             const topic = document.getElementById('topicInput').value;
             const yearRange = document.getElementById('yearSelect').value;
             const container = document.getElementById('results');
-
             if (!topic) return;
-            container.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">Scanning OpenAlex database...</div>';
 
+            container.innerHTML = '<div style="text-align:center; padding:50px; color:#888;">🔍 Scanning literature & checking for replications...</div>';
+            
+            // Psychology filter C15744967
             const filter = `concepts.id:C15744967,title.search:${encodeURIComponent(topic)}${yearRange ? ',publication_year:' + yearRange : ''}`;
-            const url = `https://api.openalex.org/works?filter=${filter}&sort=cited_by_count:desc&per-page=15`;
+            const url = `https://api.openalex.org/works?filter=${filter}&sort=cited_by_count:desc&per-page=10`;
 
             try {
                 const resp = await fetch(url);
@@ -261,144 +282,134 @@
             }
         }
 
-        function renderResults(papers) {
+        async function renderResults(papers) {
             const container = document.getElementById('results');
             container.innerHTML = '';
 
-            if (!papers.length) { container.innerHTML = '<div style="text-align:center; padding:40px;">No results found.</div>'; return; }
+            if (!papers.length) { container.innerHTML = '<div style="text-align:center;">No results found.</div>'; return; }
 
-            papers.forEach(paper => {
+            for (const paper of papers) {
                 const abstract = reconstructAbstract(paper.abstract_inverted_index);
                 const nData = detectN(abstract);
                 const methodFlag = detectMethod(abstract);
-                const citations = paper.cited_by_count;
                 
-                // --- ROBUSTNESS LOGIC: DETERMINE "DEEP SCAN" PRIORITY ---
-                // Level 0: N found (Green/Red badge) -> Standard Button
-                // Level 1: N missing (Yellow) -> Recommended Button
-                // Level 2: Expensive Method + N missing (Red) -> Critical Button
-
-                let deepScanLevel = 0; // 0=Standard, 1=Recommended, 2=Critical
-                if (!nData) {
-                    deepScanLevel = 1;
-                    if (methodFlag) deepScanLevel = 2;
-                }
-
-                // Construct Deep Scan Button based on Level
-                let btnClass = 'scan-normal';
-                let btnText = '📋 Paste & Analyze';
-                if (deepScanLevel === 1) {
-                    btnClass = 'scan-rec';
-                    btnText = '⚠️ Verify N (Deep Scan)';
-                } else if (deepScanLevel === 2) {
-                    btnClass = 'scan-crit';
-                    btnText = '🔥 Suspicious (Deep Scan)';
-                }
-
-                // Construct Sci-Hub Link
-                let sciHubLink = '#';
-                if (paper.doi) {
-                    const cleanDoi = paper.doi.replace(/https?:\/\/(dx\.)?doi\.org\//, '');
-                    sciHubLink = `https://www.sci-hub.ru/${cleanDoi}`;
-                }
-
-                // Badges
-                let badges = [];
-                badges.push(`<span class="badge badge-neutral">Cited by ${citations}</span>`);
-                if (methodFlag) badges.push(`<span class="badge badge-info">Method: ${methodFlag}</span>`);
-
-                if (nData) {
-                    let color = nData.n < 50 ? 'badge-danger' : (nData.n < 100 ? 'badge-warning' : 'badge-success');
-                    let text = nData.n < 50 ? `Low N ≈ ${nData.n}` : `N ≈ ${nData.n}`;
-                    badges.push(`<span class="badge ${color}" title="${nData.source}">${text}</span>`);
-                } else {
-                    badges.push(`<span class="badge badge-neutral">N Not in Abstract</span>`);
-                }
-
-                // Snippet Highlighting
-                let snippet = abstract ? abstract.substring(0, 300) + "..." : "No abstract available.";
-                if (nData && abstract) {
-                    const regex = new RegExp(nData.context.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-                    snippet = snippet.replace(regex, `<span class="highlight-match">${nData.context}</span>`);
-                }
-
+                // --- ASYNC REPLICATION CHECK ---
+                // We fire this off but don't wait for it to render the main card
+                // Then we append the result when it arrives
+                
                 const card = document.createElement('div');
                 card.className = 'result-card';
+                
+                // Badges
+                let badges = [`<span class="badge badge-neutral">Cited by ${paper.cited_by_count}</span>`];
+                if (methodFlag) badges.push(`<span class="badge badge-info">${methodFlag}</span>`);
+                
+                let scanLevel = 0; // 0=OK, 1=No N, 2=Suspicious
+                if (nData) {
+                    let color = nData.n < 50 ? 'badge-danger' : 'badge-success';
+                    let label = nData.n < 50 ? `Low N ≈ ${nData.n}` : `N ≈ ${nData.n}`;
+                    badges.push(`<span class="badge ${color}" title="${nData.source}">${label}</span>`);
+                } else {
+                    badges.push(`<span class="badge badge-neutral">N Missing</span>`);
+                    scanLevel = methodFlag ? 2 : 1;
+                }
+
+                // Button Styling
+                let btnClass = scanLevel === 2 ? 'btn-critical' : '';
+                let btnText = scanLevel === 2 ? '🔥 Suspicious - Deep Scan' : (scanLevel === 1 ? '⚠️ Check N - Deep Scan' : '⚡ Deep Scan');
+
+                // Snippet
+                let snippet = abstract ? abstract.substring(0, 300) + "..." : "No abstract available.";
+                if (nData && abstract) snippet = snippet.replace(nData.context, `<span class="highlight-match">${nData.context}</span>`);
+
+                // DOI Cleaning
+                const cleanDoi = paper.doi ? paper.doi.replace(/https?:\/\/(dx\.)?doi\.org\//, '') : '';
+                
                 card.innerHTML = `
                     <div class="meta-line">
-                        <span>${paper.primary_location?.source?.display_name || 'Unknown Journal'}</span>
-                        <span>•</span>
-                        <span>${paper.publication_year}</span>
+                        <span>${paper.primary_location?.source?.display_name || 'Journal Unknown'}</span> • <span>${paper.publication_year}</span>
                     </div>
-                    
-                    <a href="${paper.doi || paper.id}" target="_blank" class="result-title">${paper.title}</a>
-                    
-                    <div class="meta-line">
-                        ${paper.authorships.map(a => a.author.display_name).slice(0,3).join(', ')}
-                    </div>
-
+                    <a href="${paper.doi || '#'}" target="_blank" class="result-title">${paper.title}</a>
+                    <div class="meta-line">${paper.authorships.map(a => a.author.display_name).slice(0,3).join(', ')}</div>
                     <div class="snippet">${snippet}</div>
                     <div class="badges">${badges.join('')}</div>
+                    
+                    <div id="rep-${paper.id}" class="replication-container"></div>
 
                     <div class="action-bar">
-                        ${paper.doi ? `<a href="${sciHubLink}" target="_blank" class="action-link link-scihub">🔓 PDF (Sci-Hub)</a>` : ''}
-                        <button class="btn-analyze ${btnClass}" onclick="openModal('${deepScanLevel}')">${btnText}</button>
+                        <button class="btn-deepscan ${btnClass}" onclick="openModal('${cleanDoi}')">${btnText}</button>
+                        ${paper.doi ? `<a href="${paper.doi}" target="_blank" style="color:#888; text-decoration:none; font-size:12px;">Publisher Link ↗</a>` : ''}
                     </div>
                 `;
+                
                 container.appendChild(card);
-            });
+
+                // Lazy load replications
+                findReplications(paper.title).then(reps => {
+                    if (reps.length > 0) {
+                        const repBox = document.getElementById(`rep-${paper.id}`);
+                        let links = reps.map(r => `<a href="${r.doi || r.id}" target="_blank" class="rep-link">• ${r.title} (${r.publication_year})</a>`).join('');
+                        repBox.innerHTML = `
+                            <div class="replication-box">
+                                <div class="rep-header"><span>⚡</span> Possible Replications / Commentaries Found:</div>
+                                ${links}
+                            </div>
+                        `;
+                    }
+                });
+            }
         }
 
-        // --- MODAL LOGIC ---
+        // --- 4. MODAL LOGIC ---
         const modal = document.getElementById('scanModal');
-        const output = document.getElementById('scanOutput');
+        const modalMirrors = document.getElementById('modalMirrors');
         const pasteArea = document.getElementById('pasteArea');
+        const scanOutput = document.getElementById('scanOutput');
 
-        function openModal(level) {
+        function openModal(doi) {
             modal.style.display = 'flex';
             pasteArea.value = '';
-            output.style.display = 'none';
-            output.innerHTML = '';
-            // Could add custom message based on level here if desired
+            scanOutput.style.display = 'none';
+            
+            // Generate Mirror Links
+            if (doi) {
+                modalMirrors.innerHTML = `
+                    <a href="https://sci-hub.ru/${doi}" target="_blank" class="mirror-btn">sci-hub.ru</a>
+                    <a href="https://sci-hub.se/${doi}" target="_blank" class="mirror-btn">sci-hub.se</a>
+                    <a href="https://sci-hub.st/${doi}" target="_blank" class="mirror-btn">sci-hub.st</a>
+                `;
+            } else {
+                modalMirrors.innerHTML = `<span style="color:#f28b82">No DOI available for this paper.</span>`;
+            }
         }
+
         function closeModal() { modal.style.display = 'none'; }
-        
+        window.onclick = (e) => { if(e.target == modal) closeModal(); }
+
         function runDeepScan() {
             const text = pasteArea.value;
             if(!text) return;
-            
+
             const nData = detectN(text);
             const method = detectMethod(text);
-            const box = document.getElementById('scanOutput');
 
             let html = '';
-            
-            // Logic for Modal Output
-            if(nData) {
-                const color = nData.n < 50 ? '#f28b82' : '#81c995';
-                box.style.borderLeftColor = color;
-                html += `<div style="color:${color}; font-size:1.3rem; font-weight:bold; margin-bottom:5px;">Found N ≈ ${nData.n}</div>`;
-                html += `<div style="color:#9aa0a6; font-size:0.9rem; margin-bottom:10px;">Source: "${nData.context}" (${nData.source})</div>`;
-                
-                if (nData.n < 50) html += `<div style="color:#f28b82; font-size:0.9rem;">⚠️ This confirms a low sample size.</div>`;
-                else html += `<div style="color:#81c995; font-size:0.9rem;">✅ Sample size appears robust.</div>`;
-
+            if (nData) {
+                let color = nData.n < 50 ? '#f28b82' : '#81c995';
+                scanOutput.style.borderLeftColor = color;
+                html += `<div style="color:${color}; font-size:1.4rem; font-weight:bold;">Found N ≈ ${nData.n}</div>`;
+                html += `<div style="color:#aaa; margin-top:5px;">Source context: "...${nData.context}..."</div>`;
             } else {
-                box.style.borderLeftColor = '#fdd663';
-                html += `<div style="color:#fdd663; font-size:1.2rem; font-weight:bold;">No Clear N Found</div>`;
-                html += `<div style="color:#9aa0a6; font-size:0.9rem; margin-top:5px;">Even in full text, no standard statistical reporting was found. Check 'Participants' section manually.</div>`;
+                scanOutput.style.borderLeftColor = '#fdd663';
+                html += `<div style="color:#fdd663; font-size:1.2rem; font-weight:bold;">No definitive N found.</div>`;
+                html += `<div style="color:#aaa;">Check the "Participants" section manually.</div>`;
             }
 
-            if(method) {
-                html += `<hr style="border:0; border-top:1px solid #3c4043; margin:10px 0;">`;
-                html += `<div style="color:#c58af9;">Method Detected: ${method}</div>`;
-            }
+            if(method) html += `<div style="margin-top:10px; padding-top:10px; border-top:1px solid #333; color:#c58af9;">Method Detected: ${method}</div>`;
 
-            box.innerHTML = html;
-            box.style.display = 'block';
+            scanOutput.innerHTML = html;
+            scanOutput.style.display = 'block';
         }
-
-        window.onclick = function(event) { if (event.target == modal) closeModal(); }
     </script>
 </body>
 </html>
