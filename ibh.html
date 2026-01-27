@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hallucination Checker V3</title>
+    <title>Reference Hallucination Checker</title>
     <script src="https://cdn.jsdelivr.net/npm/fuzzball/dist/fuzzball.umd.min.js"></script>
     <style>
         :root {
@@ -35,6 +35,19 @@
             margin-bottom: 25px;
             border-bottom: 1px solid #444;
             padding-bottom: 15px;
+        }
+        
+        .subtitle a { color: var(--cyan); text-decoration: none; }
+        .subtitle a:hover { text-decoration: underline; }
+
+        .disclaimer {
+            font-size: 0.85em;
+            color: var(--yellow);
+            background: rgba(241, 196, 15, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(241, 196, 15, 0.3);
         }
 
         textarea {
@@ -87,7 +100,6 @@
         .title { color: white; font-weight: 700; font-size: 1.2em; line-height: 1.3; margin-bottom: 8px; }
         .meta { color: var(--dim); font-size: 0.9em; margin-bottom: 4px; }
         
-        /* THE NEW ACTIONS BAR */
         .actions {
             margin-top: 15px;
             padding-top: 15px;
@@ -120,12 +132,16 @@
 <body>
 
     <div class="container">
-        <h1>🔍 Hallucination Checker V3</h1>
+        <h1>🔍 Reference Hallucination Checker</h1>
         <div class="subtitle">
-            Verifies academic references using OpenAlex + Google Scholar Backup
+            Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use.
         </div>
 
         <p>Paste your bibliography below:</p>
+        
+        <div class="disclaimer">
+            ⚠️ <strong>Disclaimer:</strong> This tool may be subject to mistakes. It is intended as a helper tool rather than a 100% certainty indicator.
+        </div>
         
         <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS."></textarea>
         
@@ -220,6 +236,9 @@
             // Create Google Scholar Link (Backup)
             const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
 
+            // CAP CONFIDENCE AT 99%
+            const displayScore = highestScore > 99 ? 99 : highestScore;
+
             // Determine Status
             if (highestScore >= 85) {
                 // SUCCESS
@@ -229,7 +248,7 @@
                 const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
                 
                 card.innerHTML = `
-                    <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${highestScore}%)</span>
+                    <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${displayScore}%)</span>
                     <div class="title">${bestMatch.title}</div>
                     <div class="meta">👥 ${authors} ${bestMatch.authorships.length > 3 ? 'et al.' : ''}</div>
                     <div class="meta">📅 ${bestMatch.publication_year || 'N/A'} | 🏫 ${bestMatch.primary_location?.source?.display_name || 'Unknown Venue'}</div>
@@ -244,7 +263,7 @@
                 let sourceLink = bestMatch.doi || bestMatch.id;
                 
                 card.innerHTML = `
-                    <span class="status" style="color:var(--yellow)">POTENTIAL MATCH (Confidence: ${highestScore}%)</span>
+                    <span class="status" style="color:var(--yellow)">POTENTIAL MATCH (Confidence: ${displayScore}%)</span>
                     <div class="title">Input: ${extractedTitle}</div>
                     <div class="meta" style="color:white">Found similar: "<em>${bestMatch.title}</em>"</div>
                     <div class="actions">
