@@ -29,7 +29,6 @@
 
         h1 { color: var(--text); margin-bottom: 5px; }
         
-        /* New style for the attribution link */
         .subtitle {
             font-size: 0.9em;
             color: var(--dim);
@@ -123,26 +122,43 @@
     </div>
 
 <script>
-    // --- Helper: Simple Reference Parser ---
+    // --- IMPROVED Reference Parser ---
     function extractTitle(text) {
-        // 1. Remove leading numbering (e.g., "[1]", "1.")
+        // 1. Clean numbering (e.g., "[1]", "1.")
         let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
 
-        // 2. Try to find content inside quotes first (common in IEEE/MLA)
+        // 2. STRATEGY A: Look for Quoted Title (IEEE/MLA)
         const quoteMatch = clean.match(/["“](.+?)["”]/);
-        if (quoteMatch && quoteMatch[1].length > 10) {
+        if (quoteMatch && quoteMatch[1].length > 5) {
             return quoteMatch[1];
         }
 
-        // 3. Fallback: Split by period. 
-        // Usually: Authors. Title. Venue.
-        const parts = clean.split('.').map(p => p.trim()).filter(p => p.length > 0);
-        
-        if (parts.length >= 2) {
-            return parts[1];
+        // 3. STRATEGY B: Look for Year Anchor (APA: "(2017). Title")
+        // We look for the pattern (YYYY). and capture the text immediately following it.
+        const dateMatch = clean.match(/\(\d{4}[a-z]?\)\.\s*/);
+        if (dateMatch) {
+            // Get everything after "(2017). "
+            const afterDate = clean.substring(dateMatch.index + dateMatch[0].length);
+            // Take the first segment before the next period
+            const titlePart = afterDate.split('. ')[0];
+            if (titlePart.length > 5) return titlePart.trim();
         }
 
-        // 4. Last resort: just send the whole thing
+        // 4. STRATEGY C: Fallback - Split by periods, but ignore initials
+        // We skip parts that look like initials (length < 3)
+        const parts = clean.split('.');
+        let bestPart = clean;
+        
+        for (let part of parts) {
+            part = part.trim();
+            // Titles are usually long (>15 chars) and don't have many commas (authors do)
+            const commaCount = (part.match(/,/g) || []).length;
+            if (part.length > 15 && commaCount < 2) {
+                return part;
+            }
+        }
+
+        // 5. Last resort: Return the whole string (OpenAlex fuzzy search might still catch it)
         return clean;
     }
 
@@ -169,23 +185,21 @@
         
         if (!input.trim()) return;
 
-        // Reset UI
         resultsDiv.innerHTML = '';
         btn.disabled = true;
         btn.innerText = 'Processing...';
 
-        // Split by newlines and filter empty
         const lines = input.split('\n').filter(line => line.trim().length > 10);
 
         for (const line of lines) {
-            // Create a loading card
             const card = document.createElement('div');
             card.className = 'card';
-            card.innerHTML = `<span class="dim"><span class="spinner">⏳</span> Checking: ${line.substring(0, 60)}...</span>`;
-            resultsDiv.appendChild(card);
-
+            
             // 1. Parse Title
             const extractedTitle = extractTitle(line);
+
+            card.innerHTML = `<span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 60)}...</span>`;
+            resultsDiv.appendChild(card);
 
             // 2. Query API
             const candidates = await queryOpenAlex(extractedTitle);
@@ -196,7 +210,6 @@
 
             if (candidates && candidates.length > 0) {
                 candidates.forEach(paper => {
-                    // Use fuzzball for ratio (0-100)
                     const score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                     if (score > highestScore) {
                         highestScore = score;
@@ -207,12 +220,8 @@
 
             // 4. Render Result
             if (highestScore >= 85) {
-                // High confidence match
                 card.className = 'card success';
-                
-                // Extract authors from OpenAlex result
                 const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
-                
                 card.innerHTML = `
                     <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${highestScore}%)</span>
                     <div class="title">${bestMatch.title}</div>
@@ -223,7 +232,6 @@
                     </div>
                 `;
             } else if (highestScore >= 60) {
-                // Ambiguous match
                 card.className = 'card warning';
                 card.innerHTML = `
                     <span class="status" style="color:var(--yellow)">POTENTIAL MATCH (Confidence: ${highestScore}%)</span>
@@ -234,17 +242,15 @@
                     <div class="meta">Verify authors manually.</div>
                 `;
             } else {
-                // Hallucination
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="status" style="color:var(--red)">POTENTIAL HALLUCINATION</span>
                     <div class="title">${extractedTitle}</div>
                     <div class="meta">No close matches found in OpenAlex database.</div>
-                    <div class="meta" style="font-size:0.8em; margin-top:5px;">Original text: ${line}</div>
+                    <div class="meta" style="font-size:0.8em; margin-top:5px; color:#888;">Parsed as: ${extractedTitle}</div>
                 `;
             }
 
-            // Gentle rate limit for the loop
             await new Promise(r => setTimeout(r, 200));
         }
 
