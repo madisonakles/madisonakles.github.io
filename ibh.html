@@ -212,7 +212,11 @@
     // --- 3. API QUERY ---
     async function queryOpenAlex(title) {
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
-        const query = encodeURIComponent(cleanTitle);
+        // FIX: Truncate query to first 12 words.
+        // This prevents fake subtitles from polluting the search and returning 0 results.
+        const shortTitle = cleanTitle.split(/\s+/).slice(0, 12).join(' ');
+        
+        const query = encodeURIComponent(shortTitle);
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=5`;
 
         try {
@@ -239,7 +243,6 @@
 
         const lines = input.split('\n').filter(line => line.trim().length > 10);
 
-        // Use standard for loop to get index easily
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const refNum = i + 1;
@@ -258,24 +261,25 @@
             
             let bestMatch = null;
             let highestScore = 0;
-            // 'strict' = high confidence exact match
-            // 'fuzzy' = matched via flexible token set (good for subtitles/extra words)
             let bestMatchType = 'strict'; 
 
             if (candidates && candidates.length > 0) {
                 candidates.forEach(paper => {
-                    // 1. Strict Ratio (Order matters, exactness matters)
+                    // 1. Strict Ratio
                     let score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                     let currentType = 'strict';
 
-                    // 2. Rescue Logic (Token Set Ratio)
-                    // If strict score is low (<85), try Token Set.
-                    // Token Set ignores word order and handles "extra words" (like fake subtitles) very well.
+                    // 2. Rescue Logic (Partial/Token Set)
+                    // If strict score is low, try fuzzy methods to catch "Subtitle Spam"
                     if (score < 85) {
-                        const fuzzyScore = fuzzball.token_set_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
-                        // Only accept rescue if it's a strong fuzzy match (>85)
-                        if (fuzzyScore > 85 && fuzzyScore > score) {
-                            score = fuzzyScore;
+                        const tokenScore = fuzzball.token_set_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
+                        const partialScore = fuzzball.partial_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
+                        
+                        // Use the better of the two fuzzy scores
+                        const maxFuzzy = Math.max(tokenScore, partialScore);
+
+                        if (maxFuzzy > 85 && maxFuzzy > score) {
+                            score = maxFuzzy;
                             currentType = 'fuzzy';
                         }
                     }
@@ -283,7 +287,7 @@
                     if (score > highestScore) {
                         highestScore = score;
                         bestMatch = paper;
-                        bestMatchType = currentType; // CRITICAL: Save the type of the BEST match only
+                        bestMatchType = currentType;
                     }
                 });
             }
@@ -291,18 +295,15 @@
             const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
             const displayScore = highestScore > 99 ? 99 : highestScore;
 
-            // --- LOGIC DECISION TREE ---
+            // --- LOGIC TREE ---
 
-            // A. GREEN / ORANGE PATH: High Score AND Strict Match
-            // We only verify authors if the title is a strict match.
-            // If it's a "fuzzy" match (Typo or Subtitle issue), we go to Yellow.
             if (highestScore >= 85 && bestMatchType === 'strict') {
+                // PATH A: GREEN (Verified) OR ORANGE (Author Mismatch)
                 
                 let realAuthorsArray = bestMatch.authorships.map(a => a.author.display_name);
                 let realAuthorsString = realAuthorsArray.join(" ");
                 let authorMismatch = false;
 
-                // Author Verification
                 if (realAuthorsArray.length > 0 && extractedAuthors.length > 3) {
                     const authorScore = fuzzball.token_set_ratio(extractedAuthors.toLowerCase(), realAuthorsString.toLowerCase());
                     if (authorScore < 45) authorMismatch = true;
@@ -311,7 +312,6 @@
                 let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
 
                 if (authorMismatch) {
-                    // ORANGE: Real Paper, Fake Authors
                     card.className = 'card mismatch';
                     card.innerHTML = `
                         <span class="ref-number">Ref #${refNum}</span>
@@ -325,7 +325,6 @@
                         </div>
                     `;
                 } else {
-                    // GREEN: Verified
                     card.className = 'card success';
                     let displayAuthors = realAuthorsString ? realAuthorsArray.slice(0, 3).join(", ") : "<em>(Authors not listed in DB)</em>";
                     
@@ -343,8 +342,7 @@
                 }
 
             } else if (highestScore >= 60) {
-                // B. YELLOW PATH: Potential Match
-                // Matches that are "Fuzzy" (High score but used token_set) OR "Mid-range" strict matches.
+                // PATH B: YELLOW (Potential Match / Typos / Subtitle Issues)
                 card.className = 'card warning';
                 let sourceLink = bestMatch.doi || bestMatch.id;
                 
@@ -360,7 +358,7 @@
                     </div>
                 `;
             } else {
-                // C. RED PATH: Hallucination
+                // PATH C: RED (Hallucination)
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="ref-number">Ref #${refNum}</span>
