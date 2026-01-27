@@ -62,7 +62,41 @@
         .hotspot:hover .tooltip { visibility: visible; opacity: 1; }
 
         /* CAPTION STYLE */
-        .caption { font-size: 0.75rem; color: #999; margin-bottom: 50px; font-style: italic;}
+        .caption { font-size: 0.75rem; color: #999; margin-bottom: 40px; font-style: italic;}
+
+        /* --- NEW CHECKER BOX STYLES --- */
+        .checker-box {
+            display: block;
+            max-width: 480px;
+            margin: 0 auto 40px auto;
+            padding: 15px 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+        .checker-box:hover {
+            border-color: #999;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .checker-q {
+            display: block;
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .checker-a {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +137,11 @@
     <div class="caption">
         (this is my actual brain scan. bc social neuroscience. get it? :-)
     </div>
+
+    <a href="checker.html" class="checker-box">
+        <span class="checker-q">Worried you are reading fake-AI sources?</span>
+        <span class="checker-a">Try my new bibliography hallucination checker &rarr;</span>
+    </a>
 
     <footer style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.8rem; color: #777;">
         &copy; 2026 Madison Akles / designed with basic HTML
