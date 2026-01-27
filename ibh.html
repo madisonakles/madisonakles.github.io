@@ -102,6 +102,18 @@
             border-radius: 4px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        /* Numbering Badge */
+        .ref-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: var(--dim);
+            opacity: 0.5;
         }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -184,13 +196,11 @@
     // --- 2. AUTHOR PARSER ---
     function extractAuthors(text) {
         let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
-        // Look for text before (20XX)
         const dateMatch = clean.match(/\(\d{4}[a-z]?\)/);
         if (dateMatch) {
             let authors = clean.substring(0, dateMatch.index).trim();
             return authors.replace(/\.$/, '');
         }
-        // Look for text before quotes
         const quoteMatch = clean.match(/["“]/);
         if (quoteMatch && quoteMatch.index > 5) {
              let authors = clean.substring(0, quoteMatch.index).trim();
@@ -201,10 +211,8 @@
 
     // --- 3. API QUERY ---
     async function queryOpenAlex(title) {
-        // Replace punctuation with spaces to avoid "peertopeer" bug
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
         const query = encodeURIComponent(cleanTitle);
-        // Fetch 5 results to allow deep checking
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=5`;
 
         try {
@@ -231,40 +239,51 @@
 
         const lines = input.split('\n').filter(line => line.trim().length > 10);
 
-        for (const line of lines) {
+        // Use standard for loop to get index easily
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const refNum = i + 1;
             const extractedTitle = extractTitle(line);
             const extractedAuthors = extractAuthors(line);
             
             const card = document.createElement('div');
             card.className = 'card';
-            card.innerHTML = `<span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 50)}...</span>`;
+            card.innerHTML = `
+                <span class="ref-number">Ref #${refNum}</span>
+                <span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 50)}...</span>
+            `;
             resultsDiv.appendChild(card);
 
             const candidates = await queryOpenAlex(extractedTitle);
             
             let bestMatch = null;
             let highestScore = 0;
-            let matchType = 'ratio'; // Track if we used strict or partial matching
+            // 'strict' = high confidence exact match
+            // 'fuzzy' = matched via flexible token set (good for subtitles/extra words)
+            let bestMatchType = 'strict'; 
 
             if (candidates && candidates.length > 0) {
                 candidates.forEach(paper => {
-                    // Method A: Strict Ratio (Best for exact matches)
+                    // 1. Strict Ratio (Order matters, exactness matters)
                     let score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
-                    
-                    // Method B: Partial Ratio (Rescue logic for long subtitles)
-                    // Only run this if the found paper title is substantial (>15 chars) to avoid false positives on short words
-                    if (score < 80 && paper.title.length > 15) {
-                        const partial = fuzzball.partial_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
-                        // If partial is very high, use it, but flag it
-                        if (partial > 85 && partial > score) {
-                            score = partial; 
-                            matchType = 'partial'; 
+                    let currentType = 'strict';
+
+                    // 2. Rescue Logic (Token Set Ratio)
+                    // If strict score is low (<85), try Token Set.
+                    // Token Set ignores word order and handles "extra words" (like fake subtitles) very well.
+                    if (score < 85) {
+                        const fuzzyScore = fuzzball.token_set_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
+                        // Only accept rescue if it's a strong fuzzy match (>85)
+                        if (fuzzyScore > 85 && fuzzyScore > score) {
+                            score = fuzzyScore;
+                            currentType = 'fuzzy';
                         }
                     }
 
                     if (score > highestScore) {
                         highestScore = score;
                         bestMatch = paper;
+                        bestMatchType = currentType; // CRITICAL: Save the type of the BEST match only
                     }
                 });
             }
@@ -272,28 +291,30 @@
             const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
             const displayScore = highestScore > 99 ? 99 : highestScore;
 
-            // DECISION TREE
-            // 1. If High Score (>=85) AND it was a Strict Match ('ratio') -> Check Authors -> GREEN or ORANGE
-            if (highestScore >= 85 && matchType === 'ratio') {
+            // --- LOGIC DECISION TREE ---
+
+            // A. GREEN / ORANGE PATH: High Score AND Strict Match
+            // We only verify authors if the title is a strict match.
+            // If it's a "fuzzy" match (Typo or Subtitle issue), we go to Yellow.
+            if (highestScore >= 85 && bestMatchType === 'strict') {
                 
                 let realAuthorsArray = bestMatch.authorships.map(a => a.author.display_name);
                 let realAuthorsString = realAuthorsArray.join(" ");
-                let authorScore = 100; // Default pass
                 let authorMismatch = false;
 
-                // Only verify authors if input exists AND database has data
-                // This fixes the "Book" issue where API returns empty authors
+                // Author Verification
                 if (realAuthorsArray.length > 0 && extractedAuthors.length > 3) {
-                    authorScore = fuzzball.token_set_ratio(extractedAuthors.toLowerCase(), realAuthorsString.toLowerCase());
+                    const authorScore = fuzzball.token_set_ratio(extractedAuthors.toLowerCase(), realAuthorsString.toLowerCase());
                     if (authorScore < 45) authorMismatch = true;
                 }
 
                 let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
 
                 if (authorMismatch) {
-                    // ORANGE: Suspect Attribution
+                    // ORANGE: Real Paper, Fake Authors
                     card.className = 'card mismatch';
                     card.innerHTML = `
+                        <span class="ref-number">Ref #${refNum}</span>
                         <span class="status" style="color:var(--orange)">SUSPECT ATTRIBUTION (Authors Mismatch)</span>
                         <div class="title">${bestMatch.title}</div>
                         <div class="meta" style="color:#ffcc80">⚠️ Input Authors: "${extractedAuthors}"</div>
@@ -309,6 +330,7 @@
                     let displayAuthors = realAuthorsString ? realAuthorsArray.slice(0, 3).join(", ") : "<em>(Authors not listed in DB)</em>";
                     
                     card.innerHTML = `
+                        <span class="ref-number">Ref #${refNum}</span>
                         <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${displayScore}%)</span>
                         <div class="title">${bestMatch.title}</div>
                         <div class="meta">👥 ${displayAuthors} ${realAuthorsArray.length > 3 ? 'et al.' : ''}</div>
@@ -321,12 +343,13 @@
                 }
 
             } else if (highestScore >= 60) {
-                // 2. YELLOW: Potential Match
-                // Triggered if match is between 60-84%, OR if it was a 'partial' match (subtitle rescue)
+                // B. YELLOW PATH: Potential Match
+                // Matches that are "Fuzzy" (High score but used token_set) OR "Mid-range" strict matches.
                 card.className = 'card warning';
                 let sourceLink = bestMatch.doi || bestMatch.id;
                 
                 card.innerHTML = `
+                    <span class="ref-number">Ref #${refNum}</span>
                     <span class="status" style="color:var(--yellow)">POTENTIAL MATCH (Confidence: ${displayScore}%)</span>
                     <div class="title">Input: ${extractedTitle}</div>
                     <div class="meta" style="color:white">Found similar: "<em>${bestMatch.title}</em>"</div>
@@ -337,9 +360,10 @@
                     </div>
                 `;
             } else {
-                // 3. RED: Hallucination
+                // C. RED PATH: Hallucination
                 card.className = 'card danger';
                 card.innerHTML = `
+                    <span class="ref-number">Ref #${refNum}</span>
                     <span class="status" style="color:var(--red)">POTENTIAL HALLUCINATION</span>
                     <div class="title">${extractedTitle}</div>
                     <div class="meta">No close matches found in OpenAlex database.</div>
