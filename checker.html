@@ -171,7 +171,7 @@
             ⚠️ <strong>Disclaimer:</strong> This tool may be subject to mistakes. It is intended as a helper tool rather than a 100% certainty indicator. Students who are generating hallucinated sources may not take the time to run Python scripts, and a little something is better than nothing!
         </div>
         
-        <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS."></textarea>
+        <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS. https://doi.org/10.1234/example"></textarea>
         
         <button id="checkBtn" onclick="processReferences()">Check References</button>
 
@@ -203,7 +203,18 @@
         return ""; 
     }
 
-    // --- 3. API QUERY (OpenAlex) ---
+    // --- 3. DOI PARSER (NEW) ---
+    function extractDOI(text) {
+        // Find pattern starting with 10.xxxx/xxxx
+        const match = text.match(/\b(10\.\d{4,}\/[^\s"<>]+)/);
+        if (match) {
+            // Remove common trailing punctuation (period, comma, semicolon, closing paren) if strictly at the end
+            return match[1].replace(/[\.,;)]+$/, '').toLowerCase();
+        }
+        return null;
+    }
+
+    // --- 4. API QUERY (OpenAlex) ---
     async function queryOpenAlex(title) {
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
         const shortTitle = cleanTitle.split(/\s+/).slice(0, 6).join(' ');
@@ -221,7 +232,7 @@
         }
     }
 
-    // --- 4. MAIN PROCESS LOOP ---
+    // --- 5. MAIN PROCESS LOOP ---
     async function processReferences() {
         const input = document.getElementById('inputRefs').value;
         const resultsDiv = document.getElementById('results');
@@ -240,6 +251,7 @@
             const refNum = i + 1;
             const extractedTitle = extractTitle(line);
             const extractedAuthors = extractAuthors(line);
+            const extractedDOI = extractDOI(line); // Get user's DOI
             
             // Create loading card
             const card = document.createElement('div');
@@ -287,33 +299,50 @@
             // --- RESULT LOGIC ---
 
             if (highestScore >= 85 && bestMatchType === 'strict') {
-                // PATH A: High Confidence
+                // PATH A: High Confidence in Title Match
                 
                 let realAuthorsArray = bestMatch.authorships.map(a => a.author.display_name);
                 let realAuthorsString = realAuthorsArray.join(" ");
+                
+                // 1. Check Author Match
                 let authorMismatch = false;
-
                 if (realAuthorsArray.length > 0 && extractedAuthors.length > 3) {
                     const authorScore = fuzzball.token_set_ratio(extractedAuthors.toLowerCase(), realAuthorsString.toLowerCase());
                     if (authorScore < 45) authorMismatch = true;
                 }
 
+                // 2. Check DOI Match (New Logic)
+                let doiMismatch = false;
+                // Clean OpenAlex DOI (remove https://doi.org/)
+                const realDOI = bestMatch.doi ? bestMatch.doi.replace(/https?:\/\/(dx\.)?doi\.org\//, '').toLowerCase() : null;
+                
+                if (extractedDOI && realDOI) {
+                    // Compare extracting just string part
+                    if (extractedDOI !== realDOI) {
+                        doiMismatch = true;
+                    }
+                }
+
                 // ** LINK LOGIC **
-                // 1. Primary: OpenAlex ID page (Safe)
                 const recordLink = bestMatch.id;
-                // 2. Secondary: DOI (Direct, if it exists)
                 const doiButton = bestMatch.doi 
                     ? `<a href="${bestMatch.doi}" target="_blank" class="btn-link btn-doi">🔗 Direct DOI</a>`
                     : '';
 
-                if (authorMismatch) {
+                if (authorMismatch || doiMismatch) {
+                    // --- MISMATCH FOUND ---
                     card.className = 'card mismatch';
+                    
+                    let warnings = [];
+                    if (authorMismatch) warnings.push(`<div class="meta" style="color:#ffcc80">⚠️ <strong>Author Mismatch:</strong> Input: "${extractedAuthors}" vs Actual: "${realAuthorsString.substring(0, 50)}..."</div>`);
+                    if (doiMismatch) warnings.push(`<div class="meta" style="color:#ffcc80">⚠️ <strong>DOI Mismatch:</strong> Input: "${extractedDOI}" vs Actual: "${realDOI}"</div>`);
+
                     card.innerHTML = `
                         <span class="ref-number">Ref #${refNum}</span>
-                        <span class="status" style="color:var(--orange)">SUSPECT ATTRIBUTION (Authors Mismatch)</span>
+                        <span class="status" style="color:var(--orange)">SUSPECT CITATION (Details Mismatch)</span>
                         <div class="title">${bestMatch.title}</div>
-                        <div class="meta" style="color:#ffcc80">⚠️ Input Authors: "${extractedAuthors}"</div>
-                        <div class="meta" style="color:var(--green)">✅ Actual Authors: ${realAuthorsString.substring(0, 80)}...</div>
+                        ${warnings.join('')}
+                        <div class="meta" style="color:var(--dim)">The paper exists, but the details provided are incorrect.</div>
                         <div class="actions">
                             <a href="${recordLink}" target="_blank" class="btn-link btn-source">📄 View Record</a>
                             ${doiButton}
@@ -321,6 +350,7 @@
                         </div>
                     `;
                 } else {
+                    // --- FULL SUCCESS ---
                     card.className = 'card success';
                     let displayAuthors = realAuthorsString ? realAuthorsArray.slice(0, 3).join(", ") : "<em>(Authors not listed)</em>";
                     
