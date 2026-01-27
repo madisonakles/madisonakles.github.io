@@ -10,7 +10,7 @@
             --bg: #1e1e1e;
             --text: #e0e0e0;
             --green: #2ecc71;
-            --orange: #e67e22; /* Author Mismatch */
+            --orange: #e67e22;
             --red: #e74c3c;
             --yellow: #f1c40f;
             --cyan: #3498db;
@@ -21,14 +21,13 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: Arial, sans-serif; /* Font changed to Arial */
             padding: 20px;
             max-width: 900px;
             margin: 0 auto;
             line-height: 1.6;
         }
 
-        /* Back Button Style */
         .back-link {
             display: inline-block;
             margin-bottom: 20px;
@@ -36,11 +35,10 @@
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9em;
-            transition: color 0.2s;
         }
         .back-link:hover { color: white; text-decoration: underline; }
 
-        h1 { color: white; margin-bottom: 5px; margin-top: 0; }
+        h1 { color: white; margin: 0 0 5px 0; }
         
         .subtitle {
             font-size: 0.9em;
@@ -49,10 +47,8 @@
             border-bottom: 1px solid #444;
             padding-bottom: 15px;
         }
-        
         .subtitle a { color: var(--cyan); text-decoration: none; }
-        .subtitle a:hover { text-decoration: underline; }
-
+        
         .disclaimer {
             font-size: 0.85em;
             color: var(--yellow);
@@ -61,7 +57,6 @@
             border-radius: 4px;
             margin-bottom: 15px;
             border: 1px solid rgba(241, 196, 15, 0.3);
-            line-height: 1.5;
         }
 
         textarea {
@@ -89,7 +84,6 @@
             border-radius: 6px;
             transition: opacity 0.2s;
         }
-
         button:hover { opacity: 0.9; }
         button:disabled { background-color: var(--dim); cursor: wait; }
 
@@ -105,7 +99,6 @@
             position: relative;
         }
 
-        /* Numbering Badge */
         .ref-number {
             position: absolute;
             top: 20px;
@@ -163,13 +156,13 @@
 
         <h1>🔍 Reference Hallucination Checker</h1>
         <div class="subtitle">
-            Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use, utilizing <a href="https://openalex.org/" target="_blank">OpenAlex</a> and Google Scholar as back-up.
+            Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use.
         </div>
 
         <p>Paste your bibliography below:</p>
         
         <div class="disclaimer">
-            ⚠️ <strong>Disclaimer:</strong> This tool may be subject to mistakes. It is intended as a helper tool rather than a 100% certainty indicator. Students who are generating hallucinated sources may not take the time to run Python scripts, and a little something is better than nothing!
+            ⚠️ <strong>Disclaimer:</strong> This tool may be subject to mistakes. It is intended as a helper tool rather than a 100% certainty indicator.
         </div>
         
         <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS."></textarea>
@@ -201,20 +194,14 @@
             let authors = clean.substring(0, dateMatch.index).trim();
             return authors.replace(/\.$/, '');
         }
-        const quoteMatch = clean.match(/["“]/);
-        if (quoteMatch && quoteMatch.index > 5) {
-             let authors = clean.substring(0, quoteMatch.index).trim();
-             return authors.replace(/\.$/, '');
-        }
         return ""; 
     }
 
-    // --- 3. API QUERY ---
+    // --- 3. API QUERY (OpenAlex) ---
     async function queryOpenAlex(title) {
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
-        // FIX: Truncate query to first 12 words.
-        // This prevents fake subtitles from polluting the search and returning 0 results.
-        const shortTitle = cleanTitle.split(/\s+/).slice(0, 12).join(' ');
+        // FIX: Truncate query to first 6 words to avoid subtitle confusion
+        const shortTitle = cleanTitle.split(/\s+/).slice(0, 6).join(' ');
         
         const query = encodeURIComponent(shortTitle);
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=5`;
@@ -249,6 +236,7 @@
             const extractedTitle = extractTitle(line);
             const extractedAuthors = extractAuthors(line);
             
+            // Create loading card
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -257,6 +245,7 @@
             `;
             resultsDiv.appendChild(card);
 
+            // Fetch candidates
             const candidates = await queryOpenAlex(extractedTitle);
             
             let bestMatch = null;
@@ -265,17 +254,14 @@
 
             if (candidates && candidates.length > 0) {
                 candidates.forEach(paper => {
-                    // 1. Strict Ratio
+                    // Strict Match
                     let score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                     let currentType = 'strict';
 
-                    // 2. Rescue Logic (Partial/Token Set)
-                    // If strict score is low, try fuzzy methods to catch "Subtitle Spam"
+                    // Fuzzy Rescue (for typos or subtitles)
                     if (score < 85) {
                         const tokenScore = fuzzball.token_set_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                         const partialScore = fuzzball.partial_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
-                        
-                        // Use the better of the two fuzzy scores
                         const maxFuzzy = Math.max(tokenScore, partialScore);
 
                         if (maxFuzzy > 85 && maxFuzzy > score) {
@@ -295,10 +281,10 @@
             const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
             const displayScore = highestScore > 99 ? 99 : highestScore;
 
-            // --- LOGIC TREE ---
+            // --- RESULT LOGIC ---
 
             if (highestScore >= 85 && bestMatchType === 'strict') {
-                // PATH A: GREEN (Verified) OR ORANGE (Author Mismatch)
+                // PATH A: High Confidence
                 
                 let realAuthorsArray = bestMatch.authorships.map(a => a.author.display_name);
                 let realAuthorsString = realAuthorsArray.join(" ");
@@ -309,9 +295,11 @@
                     if (authorScore < 45) authorMismatch = true;
                 }
 
+                // Safe Link Fallback (DOI -> OA -> ID)
                 let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
 
                 if (authorMismatch) {
+                    // Mismatch (Orange)
                     card.className = 'card mismatch';
                     card.innerHTML = `
                         <span class="ref-number">Ref #${refNum}</span>
@@ -325,8 +313,9 @@
                         </div>
                     `;
                 } else {
+                    // Verified (Green)
                     card.className = 'card success';
-                    let displayAuthors = realAuthorsString ? realAuthorsArray.slice(0, 3).join(", ") : "<em>(Authors not listed in DB)</em>";
+                    let displayAuthors = realAuthorsString ? realAuthorsArray.slice(0, 3).join(", ") : "<em>(Authors not listed)</em>";
                     
                     card.innerHTML = `
                         <span class="ref-number">Ref #${refNum}</span>
@@ -342,7 +331,7 @@
                 }
 
             } else if (highestScore >= 60) {
-                // PATH B: YELLOW (Potential Match / Typos / Subtitle Issues)
+                // PATH B: Potential Match (Yellow)
                 card.className = 'card warning';
                 let sourceLink = bestMatch.doi || bestMatch.id;
                 
@@ -358,7 +347,7 @@
                     </div>
                 `;
             } else {
-                // PATH C: RED (Hallucination)
+                // PATH C: Hallucination (Red)
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="ref-number">Ref #${refNum}</span>
@@ -371,6 +360,7 @@
                 `;
             }
 
+            // Rate limit delay
             await new Promise(r => setTimeout(r, 200));
         }
 
