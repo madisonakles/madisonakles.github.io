@@ -21,7 +21,7 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: Arial, sans-serif; /* Font: Arial */
+            font-family: Arial, sans-serif;
             padding: 20px;
             max-width: 900px;
             margin: 0 auto;
@@ -143,6 +143,10 @@
         .btn-source { background: rgba(52, 152, 219, 0.2); color: #5dade2; }
         .btn-source:hover { background: rgba(52, 152, 219, 0.3); }
 
+        /* Style for the secondary DOI button */
+        .btn-doi { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .btn-doi:hover { background: rgba(46, 204, 113, 0.3); }
+
         .btn-scholar { background: rgba(255, 255, 255, 0.1); color: #e0e0e0; }
         .btn-scholar:hover { background: rgba(255, 255, 255, 0.2); }
 
@@ -202,11 +206,9 @@
     // --- 3. API QUERY (OpenAlex) ---
     async function queryOpenAlex(title) {
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
-        // FIX: Truncate query to first 6 words to avoid subtitle confusion
         const shortTitle = cleanTitle.split(/\s+/).slice(0, 6).join(' ');
         
         const query = encodeURIComponent(shortTitle);
-        // We sort by 'cited_by_count' to prioritize famous papers
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=5`;
 
         try {
@@ -257,11 +259,9 @@
 
             if (candidates && candidates.length > 0) {
                 candidates.forEach(paper => {
-                    // Strict Match
                     let score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                     let currentType = 'strict';
 
-                    // Fuzzy Rescue (for typos or subtitles)
                     if (score < 85) {
                         const tokenScore = fuzzball.token_set_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                         const partialScore = fuzzball.partial_ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
@@ -287,7 +287,7 @@
             // --- RESULT LOGIC ---
 
             if (highestScore >= 85 && bestMatchType === 'strict') {
-                // PATH A: High Confidence (Check Authors)
+                // PATH A: High Confidence
                 
                 let realAuthorsArray = bestMatch.authorships.map(a => a.author.display_name);
                 let realAuthorsString = realAuthorsArray.join(" ");
@@ -298,11 +298,15 @@
                     if (authorScore < 45) authorMismatch = true;
                 }
 
-                // Safe Link Fallback (DOI -> OA -> ID)
-                let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
+                // ** LINK LOGIC **
+                // 1. Primary: OpenAlex ID page (Safe)
+                const recordLink = bestMatch.id;
+                // 2. Secondary: DOI (Direct, if it exists)
+                const doiButton = bestMatch.doi 
+                    ? `<a href="${bestMatch.doi}" target="_blank" class="btn-link btn-doi">🔗 Direct DOI</a>`
+                    : '';
 
                 if (authorMismatch) {
-                    // Mismatch (Orange)
                     card.className = 'card mismatch';
                     card.innerHTML = `
                         <span class="ref-number">Ref #${refNum}</span>
@@ -311,12 +315,12 @@
                         <div class="meta" style="color:#ffcc80">⚠️ Input Authors: "${extractedAuthors}"</div>
                         <div class="meta" style="color:var(--green)">✅ Actual Authors: ${realAuthorsString.substring(0, 80)}...</div>
                         <div class="actions">
-                            <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Real Source</a>
-                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
+                            <a href="${recordLink}" target="_blank" class="btn-link btn-source">📄 View Record</a>
+                            ${doiButton}
+                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Google Scholar</a>
                         </div>
                     `;
                 } else {
-                    // Verified (Green)
                     card.className = 'card success';
                     let displayAuthors = realAuthorsString ? realAuthorsArray.slice(0, 3).join(", ") : "<em>(Authors not listed)</em>";
                     
@@ -327,16 +331,20 @@
                         <div class="meta">👥 ${displayAuthors} ${realAuthorsArray.length > 3 ? 'et al.' : ''}</div>
                         <div class="meta">📅 ${bestMatch.publication_year || 'N/A'} | 🏫 ${bestMatch.primary_location?.source?.display_name || 'Unknown Venue'}</div>
                         <div class="actions">
-                            <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Source</a>
-                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
+                            <a href="${recordLink}" target="_blank" class="btn-link btn-source">📄 View Record</a>
+                            ${doiButton}
+                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Google Scholar</a>
                         </div>
                     `;
                 }
 
             } else if (highestScore >= 60) {
-                // PATH B: Potential Match (Yellow)
+                // PATH B: Potential Match
                 card.className = 'card warning';
-                let sourceLink = bestMatch.doi || bestMatch.id;
+                let recordLink = bestMatch.id;
+                let doiButton = bestMatch.doi 
+                    ? `<a href="${bestMatch.doi}" target="_blank" class="btn-link btn-doi">🔗 Direct DOI</a>`
+                    : '';
                 
                 card.innerHTML = `
                     <span class="ref-number">Ref #${refNum}</span>
@@ -345,12 +353,13 @@
                     <div class="meta" style="color:white">Found similar: "<em>${bestMatch.title}</em>"</div>
                     <div class="meta" style="color:var(--dim)">Check if this is the paper you intended.</div>
                     <div class="actions">
-                        <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Similar Paper</a>
-                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
+                        <a href="${recordLink}" target="_blank" class="btn-link btn-source">📄 View Record</a>
+                        ${doiButton}
+                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Google Scholar</a>
                     </div>
                 `;
             } else {
-                // PATH C: Hallucination (Red)
+                // PATH C: Hallucination
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="ref-number">Ref #${refNum}</span>
@@ -363,7 +372,6 @@
                 `;
             }
 
-            // Rate limit delay
             await new Promise(r => setTimeout(r, 200));
         }
 
