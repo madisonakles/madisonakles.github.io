@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reference Hallucination Checker V3.1</title>
+    <title>Reference Hallucination Checker V3.2</title>
     <script src="https://cdn.jsdelivr.net/npm/fuzzball/dist/fuzzball.umd.min.js"></script>
     <style>
         :root {
@@ -132,7 +132,7 @@
 <body>
 
     <div class="container">
-        <h1>🔍 Reference Hallucination Checker V3.1</h1>
+        <h1>🔍 Reference Hallucination Checker V3.2</h1>
         <div class="subtitle">
             Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use.
         </div>
@@ -180,12 +180,13 @@
     }
 
     async function queryOpenAlex(title) {
-        // BUG FIX: Replace punctuation with SPACE instead of deleting it.
-        // "peer-to-peer" becomes "peer to peer", NOT "peertopeer"
+        // CLEANUP: Replace non-alphanumeric chars with spaces to prevent "peertopeer" issues
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
         const query = encodeURIComponent(cleanTitle);
         
-        const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=3`;
+        // UPGRADE: Fetch 10 results instead of 3.
+        // This ensures the real paper isn't pushed off the list by a typo-heavy search.
+        const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=10`;
 
         try {
             const resp = await fetch(url);
@@ -244,7 +245,7 @@
             const displayScore = highestScore > 99 ? 99 : highestScore;
 
             // Determine Status
-            if (highestScore >= 90) { // Increased strictness for pure Green
+            if (highestScore >= 90) { 
                 // SUCCESS
                 card.className = 'card success';
                 let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
@@ -260,7 +261,7 @@
                         <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
                     </div>
                 `;
-            } else if (highestScore >= 50) { // Lowered threshold for Gold to catch more partials
+            } else if (highestScore >= 45) { // LOWERED THRESHOLD: Catch more partial matches (Gold)
                 // WARNING / POTENTIAL MATCH
                 card.className = 'card warning';
                 let sourceLink = bestMatch.doi || bestMatch.id;
