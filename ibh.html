@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reference Hallucination Checker</title>
+    <title>Reference Hallucination Checker V4</title>
     <script src="https://cdn.jsdelivr.net/npm/fuzzball/dist/fuzzball.umd.min.js"></script>
     <style>
         :root {
             --bg: #1e1e1e;
             --text: #e0e0e0;
             --green: #2ecc71;
+            --orange: #e67e22; /* New color for Author Mismatch */
             --red: #e74c3c;
             --yellow: #f1c40f;
             --cyan: #3498db;
@@ -108,6 +109,7 @@
         .card.success { border-left-color: var(--green); }
         .card.danger { border-left-color: var(--red); }
         .card.warning { border-left-color: var(--yellow); }
+        .card.mismatch { border-left-color: var(--orange); } /* Orange for Author Mismatch */
 
         .status { font-weight: 800; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
         .title { color: white; font-weight: 700; font-size: 1.2em; line-height: 1.3; margin-bottom: 8px; }
@@ -192,12 +194,32 @@
         return clean;
     }
 
+    // --- NEW: AUTHOR PARSER ---
+    function extractAuthors(text) {
+        let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+        
+        // Strategy: Look for text BEFORE the year (20xx)
+        const dateMatch = clean.match(/\(\d{4}[a-z]?\)/);
+        if (dateMatch) {
+            let authors = clean.substring(0, dateMatch.index).trim();
+            if (authors.endsWith('.')) authors = authors.slice(0, -1);
+            return authors;
+        }
+        
+        // Strategy: Look for text BEFORE quotes
+        const quoteMatch = clean.match(/["“]/);
+        if (quoteMatch && quoteMatch.index > 5) {
+             let authors = clean.substring(0, quoteMatch.index).trim();
+             if (authors.endsWith('.')) authors = authors.slice(0, -1);
+             return authors;
+        }
+        return ""; // Fallback
+    }
+
     async function queryOpenAlex(title) {
-        // Cleaning: replace non-alphanumeric with spaces to fix "peer-to-peer" bug
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
         const query = encodeURIComponent(cleanTitle);
-        
-        // Fetch 10 results for better accuracy with typos
+        // Fetch 10 results to help find the real paper deeper in the list
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=10`;
 
         try {
@@ -225,6 +247,7 @@
 
         for (const line of lines) {
             const extractedTitle = extractTitle(line);
+            const extractedAuthors = extractAuthors(line);
             
             const card = document.createElement('div');
             card.className = 'card';
@@ -250,21 +273,50 @@
             const displayScore = highestScore > 99 ? 99 : highestScore;
 
             if (highestScore >= 90) { 
-                card.className = 'card success';
-                let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
-                const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
+                // TITLE IS VERIFIED. NOW CHECK AUTHORS.
+                let realAuthors = bestMatch.authorships.map(a => a.author.display_name).join(" ");
+                let authorScore = 100; // Default to pass if extraction fails
                 
-                card.innerHTML = `
-                    <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${displayScore}%)</span>
-                    <div class="title">${bestMatch.title}</div>
-                    <div class="meta">👥 ${authors} ${bestMatch.authorships.length > 3 ? 'et al.' : ''}</div>
-                    <div class="meta">📅 ${bestMatch.publication_year || 'N/A'} | 🏫 ${bestMatch.primary_location?.source?.display_name || 'Unknown Venue'}</div>
-                    <div class="actions">
-                        <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Source</a>
-                        <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
-                    </div>
-                `;
+                if (extractedAuthors.length > 3) {
+                    // Use token_set_ratio (handles order: "Smith, J" == "J. Smith")
+                    authorScore = fuzzball.token_set_ratio(extractedAuthors.toLowerCase(), realAuthors.toLowerCase());
+                }
+
+                if (authorScore < 45) {
+                    // --- CASE: SUSPECT ATTRIBUTION (ORANGE) ---
+                    card.className = 'card mismatch';
+                    let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
+                    
+                    card.innerHTML = `
+                        <span class="status" style="color:var(--orange)">SUSPECT ATTRIBUTION (Authors Mismatch)</span>
+                        <div class="title">${bestMatch.title}</div>
+                        <div class="meta" style="color:#ffcc80">⚠️ Input Authors: "${extractedAuthors}"</div>
+                        <div class="meta" style="color:var(--green)">✅ Actual Authors: ${realAuthors.substring(0, 80)}...</div>
+                        <div class="actions">
+                            <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Real Source</a>
+                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
+                        </div>
+                    `;
+                } else {
+                    // --- CASE: VERIFIED (GREEN) ---
+                    card.className = 'card success';
+                    let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
+                    const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
+                    
+                    card.innerHTML = `
+                        <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${displayScore}%)</span>
+                        <div class="title">${bestMatch.title}</div>
+                        <div class="meta">👥 ${authors} ${bestMatch.authorships.length > 3 ? 'et al.' : ''}</div>
+                        <div class="meta">📅 ${bestMatch.publication_year || 'N/A'} | 🏫 ${bestMatch.primary_location?.source?.display_name || 'Unknown Venue'}</div>
+                        <div class="actions">
+                            <a href="${sourceLink}" target="_blank" class="btn-link btn-source">📄 View Source</a>
+                            <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
+                        </div>
+                    `;
+                }
+
             } else if (highestScore >= 45) { 
+                // --- CASE: POTENTIAL MATCH (YELLOW) ---
                 card.className = 'card warning';
                 let sourceLink = bestMatch.doi || bestMatch.id;
                 
@@ -278,6 +330,7 @@
                     </div>
                 `;
             } else {
+                // --- CASE: HALLUCINATION (RED) ---
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="status" style="color:var(--red)">POTENTIAL HALLUCINATION</span>
