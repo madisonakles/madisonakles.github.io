@@ -90,12 +90,17 @@
         .title { color: white; font-weight: bold; font-size: 1.1em; }
         .meta { color: var(--dim); font-size: 0.9em; margin-top: 5px; }
         
-        .match-info {
+        .actions {
             margin-top: 10px;
             padding-top: 10px;
             border-top: 1px solid #333;
             font-size: 0.9em;
+            display: flex;
+            gap: 15px;
         }
+        
+        .actions a { color: var(--cyan); text-decoration: none; }
+        .actions a:hover { text-decoration: underline; }
 
         .spinner { display: inline-block; animation: spin 1s linear infinite; margin-right: 5px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -122,50 +127,37 @@
     </div>
 
 <script>
-    // --- IMPROVED Reference Parser ---
+    // --- REFERENCE PARSER ---
     function extractTitle(text) {
-        // 1. Clean numbering (e.g., "[1]", "1.")
         let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
 
-        // 2. STRATEGY A: Look for Quoted Title (IEEE/MLA)
+        // Strategy A: Quotes (IEEE/MLA)
         const quoteMatch = clean.match(/["“](.+?)["”]/);
-        if (quoteMatch && quoteMatch[1].length > 5) {
-            return quoteMatch[1];
-        }
+        if (quoteMatch && quoteMatch[1].length > 5) return quoteMatch[1];
 
-        // 3. STRATEGY B: Look for Year Anchor (APA: "(2017). Title")
-        // We look for the pattern (YYYY). and capture the text immediately following it.
+        // Strategy B: Year Anchor (APA: "(2017). Title")
         const dateMatch = clean.match(/\(\d{4}[a-z]?\)\.\s*/);
         if (dateMatch) {
-            // Get everything after "(2017). "
             const afterDate = clean.substring(dateMatch.index + dateMatch[0].length);
-            // Take the first segment before the next period
             const titlePart = afterDate.split('. ')[0];
             if (titlePart.length > 5) return titlePart.trim();
         }
 
-        // 4. STRATEGY C: Fallback - Split by periods, but ignore initials
-        // We skip parts that look like initials (length < 3)
+        // Strategy C: Split by periods, ignore initials
         const parts = clean.split('.');
-        let bestPart = clean;
-        
         for (let part of parts) {
             part = part.trim();
-            // Titles are usually long (>15 chars) and don't have many commas (authors do)
             const commaCount = (part.match(/,/g) || []).length;
-            if (part.length > 15 && commaCount < 2) {
-                return part;
-            }
+            if (part.length > 15 && commaCount < 2) return part;
         }
 
-        // 5. Last resort: Return the whole string (OpenAlex fuzzy search might still catch it)
         return clean;
     }
 
     async function queryOpenAlex(title) {
-        // Remove special characters for search query
+        // We sort by cited_by_count to ensure we get the main paper, not obscure reprints
         const query = encodeURIComponent(title.replace(/[^\w\s]/gi, ''));
-        const url = `https://api.openalex.org/works?filter=title.search:${query}&per-page=3`;
+        const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=3`;
 
         try {
             const resp = await fetch(url);
@@ -192,19 +184,18 @@
         const lines = input.split('\n').filter(line => line.trim().length > 10);
 
         for (const line of lines) {
+            const extractedTitle = extractTitle(line);
+            
+            // Render loading card
             const card = document.createElement('div');
             card.className = 'card';
-            
-            // 1. Parse Title
-            const extractedTitle = extractTitle(line);
-
             card.innerHTML = `<span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 60)}...</span>`;
             resultsDiv.appendChild(card);
 
-            // 2. Query API
+            // Query API
             const candidates = await queryOpenAlex(extractedTitle);
             
-            // 3. Fuzzy Match Validation
+            // Fuzzy Match
             let bestMatch = null;
             let highestScore = 0;
 
@@ -218,17 +209,30 @@
                 });
             }
 
-            // 4. Render Result
+            // Determine Link (DOI > Open Access URL > OpenAlex ID)
+            let sourceLink = "#";
+            if (bestMatch) {
+                if (bestMatch.doi) sourceLink = bestMatch.doi;
+                else if (bestMatch.open_access?.oa_url) sourceLink = bestMatch.open_access.oa_url;
+                else sourceLink = bestMatch.id; // OpenAlex ID is a valid URL
+            }
+            
+            // Google Scholar Backup Link
+            const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
+
+            // Render Result
             if (highestScore >= 85) {
                 card.className = 'card success';
                 const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
+                
                 card.innerHTML = `
                     <span class="status" style="color:var(--green)">VERIFIED (Confidence: ${highestScore}%)</span>
                     <div class="title">${bestMatch.title}</div>
                     <div class="meta">👥 ${authors} ${bestMatch.authorships.length > 3 ? 'et al.' : ''}</div>
                     <div class="meta">📅 ${bestMatch.publication_year || 'N/A'} | 🏫 ${bestMatch.primary_location?.source?.display_name || 'Unknown Venue'}</div>
-                    <div class="match-info">
-                        <a href="${bestMatch.doi || bestMatch.id}" target="_blank" style="color:var(--cyan)">View Source</a>
+                    <div class="actions">
+                        <a href="${sourceLink}" target="_blank">📄 View Source</a>
+                        <a href="${scholarLink}" target="_blank">🎓 Google Scholar</a>
                     </div>
                 `;
             } else if (highestScore >= 60) {
@@ -236,18 +240,21 @@
                 card.innerHTML = `
                     <span class="status" style="color:var(--yellow)">POTENTIAL MATCH (Confidence: ${highestScore}%)</span>
                     <div class="title">Input: ${extractedTitle}</div>
-                    <div class="match-info" style="color: white">
-                        Found similar: "<em>${bestMatch.title}</em>"
+                    <div class="match-info" style="color: white">Found similar: "<em>${bestMatch.title}</em>"</div>
+                    <div class="actions">
+                        <a href="${sourceLink}" target="_blank">📄 View Similar Paper</a>
+                        <a href="${scholarLink}" target="_blank">🎓 Check Google Scholar</a>
                     </div>
-                    <div class="meta">Verify authors manually.</div>
                 `;
             } else {
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="status" style="color:var(--red)">POTENTIAL HALLUCINATION</span>
                     <div class="title">${extractedTitle}</div>
-                    <div class="meta">No close matches found in OpenAlex database.</div>
-                    <div class="meta" style="font-size:0.8em; margin-top:5px; color:#888;">Parsed as: ${extractedTitle}</div>
+                    <div class="meta">No close matches found in database.</div>
+                    <div class="actions">
+                        <a href="${scholarLink}" target="_blank">🎓 Verify manually on Google Scholar</a>
+                    </div>
                 `;
             }
 
