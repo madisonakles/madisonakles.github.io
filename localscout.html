@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lightweight Scout</title>
+    <style>
+        body { background: #f4f6f8; font-family: system-ui, -apple-system, sans-serif; padding: 40px; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; font-size: 16px; box-sizing: border-box; }
+
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid transparent; }
+        
+        .has-n { border-left-color: #34a853; }     /* Green: We found data */
+        .low-n { border-left-color: #ea4335; }     /* Red: Low sample size */
+        .no-n { border-left-color: #ccc; }         /* Gray: No data found */
+
+        .header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .title { font-weight: 600; color: #1a0dab; text-decoration: none; font-size: 1.1rem; }
+        .title:hover { text-decoration: underline; }
+        
+        .meta { font-size: 0.85rem; color: #5f6368; }
+        
+        .tags { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+        .tag { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #eee; color: #555; }
+        
+        .tag-n { background: #e6f4ea; color: #137333; }
+        .tag-low { background: #fce8e6; color: #c5221f; }
+
+        .btn-rep { background: white; border: 1px solid #1a73e8; color: #1a73e8; cursor: pointer; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .btn-rep:hover { background: #e8f0fe; }
+
+        .rep-box { margin-top: 10px; padding: 10px; background: #f8f9fa; border-top: 1px solid #eee; display: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Lightweight Scout ⚡</h1>
+    <p style="color:#666; margin-bottom:20px;">Database size: <span id="dbSize">0</span> papers. No local PDFs.</p>
+    
+    <input type="text" id="search" placeholder="Filter by title..." onkeyup="render()">
+    <div id="list"></div>
+</div>
+
+<script src="db.js"></script>
+<script>
+    function render() {
+        const query = document.getElementById('search').value.toLowerCase();
+        const list = document.getElementById('list');
+        list.innerHTML = '';
+        
+        DATABASE.forEach((paper, index) => {
+            if (!paper.title.toLowerCase().includes(query)) return;
+
+            // Determine Status Color
+            let statusClass = 'no-n';
+            let nTag = `<span class="tag">N: Unknown</span>`;
+            
+            if (paper.n_val) {
+                statusClass = paper.n_val < 50 ? 'low-n' : 'has-n';
+                let colorClass = paper.n_val < 50 ? 'tag-low' : 'tag-n';
+                nTag = `<span class="tag ${colorClass}">N ≈ ${paper.n_val}</span>`;
+            }
+
+            const div = document.createElement('div');
+            div.className = `card ${statusClass}`;
+            div.innerHTML = `
+                <div class="header">
+                    <a href="${paper.pdf_link}" target="_blank" class="title">${paper.title}</a>
+                    <span class="meta">${paper.year}</span>
+                </div>
+                <div class="meta">Cited by ${paper.cited}</div>
+                <div class="tags">
+                    ${nTag}
+                    ${paper.method !== 'Unknown' ? `<span class="tag">${paper.method}</span>` : ''}
+                    <button class="btn-rep" onclick="checkRep('${paper.title.replace(/'/g, "\\'")}', 'rep-${index}')">Find Replications</button>
+                </div>
+                <div id="rep-${index}" class="rep-box">Searching...</div>
+            `;
+            list.appendChild(div);
+        });
+        
+        document.getElementById('dbSize').innerText = DATABASE.length;
+    }
+
+    // Live Replication Checker
+    async function checkRep(title, divId) {
+        const box = document.getElementById(divId);
+        box.style.display = 'block';
+        box.innerHTML = 'Scanning OpenAlex for replications...';
+        
+        // Simple search for "Replication of [First 4 words]"
+        const shortTitle = title.split(' ').slice(0, 4).join(' ');
+        const url = `https://api.openalex.org/works?search=replication ${encodeURIComponent(shortTitle)}&per-page=5`;
+        
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const results = data.results.filter(r => r.title !== title); // Exclude self
+            
+            if (results.length > 0) {
+                box.innerHTML = `<strong>Found potential matches:</strong><br>` + 
+                    results.map(r => `<a href="${r.doi}" target="_blank">• ${r.title} (${r.publication_year})</a>`).join('<br>');
+            } else {
+                box.innerHTML = 'No direct replications found with this title search.';
+            }
+        } catch(e) {
+            box.innerHTML = 'Error searching.';
+        }
+    }
+
+    if (typeof DATABASE !== 'undefined') render();
+</script>
+</body>
+</html>
