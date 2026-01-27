@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reference Hallucination Checker</title>
+    <title>Reference Hallucination Checker V3.1</title>
     <script src="https://cdn.jsdelivr.net/npm/fuzzball/dist/fuzzball.umd.min.js"></script>
     <style>
         :root {
@@ -132,7 +132,7 @@
 <body>
 
     <div class="container">
-        <h1>🔍 Reference Hallucination Checker</h1>
+        <h1>🔍 Reference Hallucination Checker V3.1</h1>
         <div class="subtitle">
             Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use.
         </div>
@@ -180,8 +180,11 @@
     }
 
     async function queryOpenAlex(title) {
-        const query = encodeURIComponent(title.replace(/[^\w\s]/gi, ''));
-        // Sort by citation count to prioritize the "real" paper over obscure matches
+        // BUG FIX: Replace punctuation with SPACE instead of deleting it.
+        // "peer-to-peer" becomes "peer to peer", NOT "peertopeer"
+        const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
+        const query = encodeURIComponent(cleanTitle);
+        
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=3`;
 
         try {
@@ -225,6 +228,7 @@
 
             if (candidates && candidates.length > 0) {
                 candidates.forEach(paper => {
+                    // Use partial ratio to be more forgiving
                     const score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                     if (score > highestScore) {
                         highestScore = score;
@@ -235,15 +239,14 @@
 
             // Create Google Scholar Link (Backup)
             const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
-
-            // CAP CONFIDENCE AT 99%
+            
+            // Cap confidence display
             const displayScore = highestScore > 99 ? 99 : highestScore;
 
             // Determine Status
-            if (highestScore >= 85) {
+            if (highestScore >= 90) { // Increased strictness for pure Green
                 // SUCCESS
                 card.className = 'card success';
-                
                 let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
                 const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
                 
@@ -257,7 +260,7 @@
                         <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
                     </div>
                 `;
-            } else if (highestScore >= 60) {
+            } else if (highestScore >= 50) { // Lowered threshold for Gold to catch more partials
                 // WARNING / POTENTIAL MATCH
                 card.className = 'card warning';
                 let sourceLink = bestMatch.doi || bestMatch.id;
