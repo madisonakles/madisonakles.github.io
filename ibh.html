@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reference Hallucination Checker V3.2</title>
+    <title>Reference Hallucination Checker</title>
     <script src="https://cdn.jsdelivr.net/npm/fuzzball/dist/fuzzball.umd.min.js"></script>
     <style>
         :root {
@@ -27,7 +27,19 @@
             line-height: 1.6;
         }
 
-        h1 { color: white; margin-bottom: 5px; }
+        /* Back Button Style */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: white; text-decoration: underline; }
+
+        h1 { color: white; margin-bottom: 5px; margin-top: 0; }
         
         .subtitle {
             font-size: 0.9em;
@@ -44,10 +56,11 @@
             font-size: 0.85em;
             color: var(--yellow);
             background: rgba(241, 196, 15, 0.1);
-            padding: 10px;
+            padding: 15px;
             border-radius: 4px;
             margin-bottom: 15px;
             border: 1px solid rgba(241, 196, 15, 0.3);
+            line-height: 1.5;
         }
 
         textarea {
@@ -132,15 +145,17 @@
 <body>
 
     <div class="container">
-        <h1>🔍 Reference Hallucination Checker V3.2</h1>
+        <a href="https://madisonakles.github.io" class="back-link">← Back to madisonakles.github.io</a>
+
+        <h1>🔍 Reference Hallucination Checker</h1>
         <div class="subtitle">
-            Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use.
+            Adapted from <a href="https://github.com/gianlucasb/hallucinator" target="_blank">gianlucasb/hallucinator</a> for in-browser use, utilizing <a href="https://openalex.org/" target="_blank">OpenAlex</a> and Google Scholar as back-up.
         </div>
 
         <p>Paste your bibliography below:</p>
         
         <div class="disclaimer">
-            ⚠️ <strong>Disclaimer:</strong> This tool may be subject to mistakes. It is intended as a helper tool rather than a 100% certainty indicator.
+            ⚠️ <strong>Disclaimer:</strong> This tool may be subject to mistakes. It is intended as a helper tool rather than a 100% certainty indicator. Students who are generating hallucinated sources may not take the time to run Python scripts, and a little something is better than nothing!
         </div>
         
         <textarea id="inputRefs" placeholder="1. Vaswani, A., et al. (2017). Attention is all you need. In NIPS."></textarea>
@@ -153,14 +168,13 @@
 <script>
     // --- REFERENCE PARSER ---
     function extractTitle(text) {
-        // Clean leading numbers like "1. ", "[1]"
         let clean = text.replace(/^\[\d+\]\s*/, '').replace(/^\d+\.\s*/, '').trim();
 
-        // Strategy A: Quotes (IEEE/MLA)
+        // Strategy A: Quotes
         const quoteMatch = clean.match(/["“](.+?)["”]/);
         if (quoteMatch && quoteMatch[1].length > 5) return quoteMatch[1];
 
-        // Strategy B: Year Anchor (APA: "(2017). Title")
+        // Strategy B: Year Anchor
         const dateMatch = clean.match(/\(\d{4}[a-z]?\)\.\s*/);
         if (dateMatch) {
             const afterDate = clean.substring(dateMatch.index + dateMatch[0].length);
@@ -172,7 +186,6 @@
         const parts = clean.split('.');
         for (let part of parts) {
             part = part.trim();
-            // Heuristic: Titles are long (>15 chars) and have few commas
             const commaCount = (part.match(/,/g) || []).length;
             if (part.length > 15 && commaCount < 2) return part;
         }
@@ -180,12 +193,11 @@
     }
 
     async function queryOpenAlex(title) {
-        // CLEANUP: Replace non-alphanumeric chars with spaces to prevent "peertopeer" issues
+        // Cleaning: replace non-alphanumeric with spaces to fix "peer-to-peer" bug
         const cleanTitle = title.replace(/[^\w\s]/gi, ' ');
         const query = encodeURIComponent(cleanTitle);
         
-        // UPGRADE: Fetch 10 results instead of 3.
-        // This ensures the real paper isn't pushed off the list by a typo-heavy search.
+        // Fetch 10 results for better accuracy with typos
         const url = `https://api.openalex.org/works?filter=title.search:${query}&sort=cited_by_count:desc&per-page=10`;
 
         try {
@@ -214,22 +226,18 @@
         for (const line of lines) {
             const extractedTitle = extractTitle(line);
             
-            // Render loading card
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `<span class="dim"><span class="spinner">⏳</span> Checking: ${extractedTitle.substring(0, 50)}...</span>`;
             resultsDiv.appendChild(card);
 
-            // Query API
             const candidates = await queryOpenAlex(extractedTitle);
             
-            // Fuzzy Match
             let bestMatch = null;
             let highestScore = 0;
 
             if (candidates && candidates.length > 0) {
                 candidates.forEach(paper => {
-                    // Use partial ratio to be more forgiving
                     const score = fuzzball.ratio(extractedTitle.toLowerCase(), paper.title.toLowerCase());
                     if (score > highestScore) {
                         highestScore = score;
@@ -238,15 +246,10 @@
                 });
             }
 
-            // Create Google Scholar Link (Backup)
             const scholarLink = `https://scholar.google.com/scholar?q=${encodeURIComponent(extractedTitle)}`;
-            
-            // Cap confidence display
             const displayScore = highestScore > 99 ? 99 : highestScore;
 
-            // Determine Status
             if (highestScore >= 90) { 
-                // SUCCESS
                 card.className = 'card success';
                 let sourceLink = bestMatch.doi || bestMatch.open_access?.oa_url || bestMatch.id;
                 const authors = bestMatch.authorships.map(a => a.author.display_name).slice(0, 3).join(", ");
@@ -261,8 +264,7 @@
                         <a href="${scholarLink}" target="_blank" class="btn-link btn-scholar">🎓 Check Google Scholar</a>
                     </div>
                 `;
-            } else if (highestScore >= 45) { // LOWERED THRESHOLD: Catch more partial matches (Gold)
-                // WARNING / POTENTIAL MATCH
+            } else if (highestScore >= 45) { 
                 card.className = 'card warning';
                 let sourceLink = bestMatch.doi || bestMatch.id;
                 
@@ -276,7 +278,6 @@
                     </div>
                 `;
             } else {
-                // DANGER / HALLUCINATION
                 card.className = 'card danger';
                 card.innerHTML = `
                     <span class="status" style="color:var(--red)">POTENTIAL HALLUCINATION</span>
