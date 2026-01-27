@@ -7,8 +7,8 @@ import random
 from pypdf import PdfReader
 
 # --- CONFIGURATION ---
-TOPIC = "Social Priming"
-YEAR_RANGE = "2010-2025"
+TOPIC = "Social Learning"
+YEAR_RANGE = "2000-2020"
 MAX_PAPERS = 20           # Start small to test Sci-Hub speed
 WAIT_TIME = 3             # Sci-Hub blocks you if you go too fast. Keep this at 3+.
 
