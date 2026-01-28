@@ -32,8 +32,7 @@
             flex: 3;
             position: relative;
             background: var(--sky-gradient);
-            perspective: 1000px; /* Increased depth for better FOV */
-            perspective-origin: 50% 50%;
+            perspective: 800px;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -45,121 +44,112 @@
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            transform: rotateX(45deg) translateY(-20px); /* Tilted slightly less for better view */
+            transform: rotateX(50deg) translateY(-20px);
         }
 
+        /* Moving Floor (Grid) */
         .sim-grid {
             position: absolute;
-            top: -150%; left: -150%;
-            width: 400%; height: 400%;
+            top: -100%; left: -100%;
+            width: 300%; height: 300%;
             background-image: 
-                linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
             background-size: 100px 100px;
             transform: translateZ(-20px);
-            animation: gridMove 0.6s linear infinite;
-            pointer-events: none;
+            animation: gridMove 0.8s linear infinite;
         }
 
+        /* The Road */
         .road-bed {
             position: absolute;
-            left: 50%; top: -150%;
-            width: 340px; height: 400%;
+            left: 50%; top: -100%;
+            width: 340px; height: 300%;
             transform: translateX(-50%);
             background: var(--road-color);
-            border-left: 10px solid #fff;
-            border-right: 10px solid #fff;
-            box-shadow: 0 10px 50px rgba(0,0,0,0.1);
+            border-left: 8px solid #fff;
+            border-right: 8px solid #fff;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         }
 
         .lane-marker {
             position: absolute;
             left: 50%; top: 0;
-            width: 8px; height: 100%;
+            width: 6px; height: 100%;
             background: repeating-linear-gradient(
                 to bottom,
-                transparent 0px, transparent 50px,
-                #fbbc04 50px, #fbbc04 100px
+                transparent 0px, transparent 40px,
+                #fbbc04 40px, #fbbc04 80px /* Original tighter dash pattern */
             );
-            animation: roadScroll 0.6s linear infinite;
+            animation: roadScroll 0.8s linear infinite;
         }
 
         /* --- CAR UPDATES --- */
         .sim-object {
             position: absolute;
             transform-style: preserve-3d;
-            will-change: transform; /* Hardware Acceleration */
+            will-change: transform;
         }
 
         #ego-car {
-            bottom: 10%; left: 50%;
-            width: 120px; height: 200px; 
+            bottom: 12%; left: 50%;
+            width: 110px; height: 190px; 
             background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            transform: translateX(-50%) rotateX(-45deg); /* Match camera angle */
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            transform: translateX(-50%) rotateX(-50deg);
             z-index: 10;
             border: 1px solid #dcdcdc;
-            display: flex; 
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 0;
-            box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 15px 0; box-sizing: border-box;
         }
 
-        /* Waymo Logo Text (Rear) */
+        /* Waymo Logo (Rear) */
         #ego-car::after {
             content: 'WAYMO';
-            font-family: 'Arial', sans-serif;
-            font-weight: 900;
-            color: #bdc1c6;
-            font-size: 22px;
-            letter-spacing: 2px;
-            margin-bottom: 20px; /* Pushes it towards back */
-            transform: scaleY(1.5); /* Stretch for perspective */
+            font-family: 'Arial', sans-serif; font-weight: 900;
+            color: #bdc1c6; font-size: 20px; letter-spacing: 2px;
+            transform: scaleY(1.5);
+            margin-bottom: 10px;
         }
 
-        /* The Lidar Dome (Front) */
+        /* Lidar Dome (Front) */
         #lidar-dome {
-            width: 44px; height: 44px;
-            background: var(--waymo-blue); 
-            border-radius: 50%;
-            box-shadow: 0 5px 15px rgba(0,86,245,0.4);
-            margin-top: 10px; /* Pushes it towards front */
-            position: relative;
+            width: 40px; height: 40px;
+            background: var(--waymo-blue); border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             z-index: 12;
+            position: relative;
         }
-        /* Spinning effect hint */
         #lidar-dome::before {
-            content: ''; position: absolute; top: 5px; left: 5px; width: 15px; height: 15px;
-            background: rgba(255,255,255,0.4); border-radius: 50%;
+            content: ''; position: absolute; top: 8px; left: 8px; width: 12px; height: 12px;
+            background: rgba(255,255,255,0.5); border-radius: 50%;
         }
 
         /* Tail Lights */
         .tail-lights {
-            position: absolute; bottom: -2px; left: 10px; right: 10px; height: 12px;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 8px;
             background: #ea4335;
-            border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
-            box-shadow: 0 0 20px rgba(234, 67, 53, 0.6);
+            border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;
+            box-shadow: 0 0 15px rgba(234, 67, 53, 0.4);
         }
 
         /* --- TRAJECTORY --- */
         #trajectory-line {
             position: absolute;
             bottom: 50%; left: 50%;
-            width: 12px; height: 600px; 
+            width: 14px; height: 550px;
             background: linear-gradient(to top, transparent, var(--waymo-blue), var(--waymo-blue));
             transform-origin: bottom center;
             transform: translateX(-50%) rotateX(90deg);
             opacity: 0;
             transition: opacity 0.5s, transform 0.1s;
-            border-radius: 6px;
+            border-radius: 7px;
             z-index: 5;
             mix-blend-mode: multiply;
         }
 
-        /* --- OBSTACLES (THREATS) --- */
+        /* --- OBSTACLES --- */
         .obstacle {
             width: 50px; height: 50px;
             background: #fff;
@@ -168,8 +158,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             display: flex; justify-content: center; align-items: center;
             color: #ea4335; font-size: 24px; font-weight: 900;
-            z-index: 8;
-            font-family: sans-serif;
+            z-index: 20; /* Ensure on top of road */
         }
 
         /* --- RIGHT SIDE: PANEL --- */
@@ -181,7 +170,7 @@
             display: flex;
             flex-direction: column;
             box-shadow: -4px 0 20px rgba(0,0,0,0.05);
-            z-index: 20;
+            z-index: 50;
             overflow-y: auto;
         }
 
@@ -230,7 +219,7 @@
         }
 
         @keyframes gridMove { to { transform: translateZ(-20px) translateY(100px); } }
-        @keyframes roadScroll { to { background-position: 0 100px; } }
+        @keyframes roadScroll { to { background-position: 0 80px; } }
     </style>
 </head>
 <body>
@@ -330,23 +319,34 @@
             el.innerText = '!';
             dynamicLayer.appendChild(el);
             
-            // SPAWN ZONES (Width of road is 340px, so edges are +/- 170)
+            // SPAWN LOGIC: 
+            // Road Width is 340px. Center 0.
             // Left Lane: -85 | Right Lane: 85
-            // Far Left: -250 | Far Right: 250
-            const zones = [-250, -85, 85, 250];
-            const randomZone = zones[Math.floor(Math.random() * zones.length)];
+            // Sidewalks: -250 | 250
+            
+            // Weighted Random: 70% chance to spawn ON ROAD to ensure visibility
+            const isRoadHazard = Math.random() < 0.7;
+            let spawnX;
+
+            if (isRoadHazard) {
+                // Pick Left or Right Lane
+                spawnX = Math.random() > 0.5 ? 85 : -85;
+            } else {
+                // Pick Left or Right Sidewalk
+                spawnX = Math.random() > 0.5 ? 250 : -250;
+            }
 
             obstacles.push({
                 el: el,
-                x: randomZone, 
-                z: -1500, // Spawn further back
-                speed: 16 // Faster for smoother visuals
+                x: spawnX, 
+                z: -1500, 
+                speed: 15
             });
         }
 
         function updatePhysics() {
-            // Spawn more frequently (every 80 frames) to check sides
-            if (frame % 80 === 0) spawnObstacle();
+            // Spawn every 90 frames (approx 1.5 seconds)
+            if (frame % 90 === 0) spawnObstacle();
             frame++;
 
             let nearestDist = 9999;
@@ -354,19 +354,20 @@
 
             obstacles.forEach((obs, index) => {
                 obs.z += obs.speed;
-                // Rotate obstacle to face camera
-                obs.el.style.transform = `translate3d(${obs.x}px, 0, ${obs.z}px) rotateX(-45deg)`;
+                // Update CSS 3D position
+                obs.el.style.transform = `translate3d(${obs.x}px, 0, ${obs.z}px) rotateX(-50deg)`;
 
-                // Simple collision horizon
+                // Collision Horizon
                 const dist = Math.abs(obs.z - 0); 
-                if (obs.z > -700 && obs.z < 200) {
+                // Detection Range: -800 to 200
+                if (obs.z > -800 && obs.z < 200) {
                     if (dist < nearestDist) {
                         nearestDist = dist;
                         nearestObs = obs;
                     }
                 }
 
-                if (obs.z > 300) {
+                if (obs.z > 400) {
                     obs.el.remove();
                     obstacles.splice(index, 1);
                 }
@@ -374,38 +375,39 @@
 
             // LOGIC: React to threats
             if (nearestObs) {
-                // If threat is on Left (negative X), go Right (Positive Evidence).
+                // If threat is on Left (-X), go Right.
                 const requiredDir = nearestObs.x < 0 ? 1 : -1;
                 
-                // Urgency: Off-road threats (abs > 100) are less urgent
+                // Urgency Calculation
                 const isOffRoad = Math.abs(nearestObs.x) > 100;
-                const urgency = isOffRoad ? 0.8 : 3.5;
+                // High urgency for on-road, low for off-road
+                const urgency = isOffRoad ? 0.6 : 3.0;
 
                 evidence += (requiredDir * urgency); 
-                evidence += (Math.random() - 0.5) * 5; // Noise
+                evidence += (Math.random() - 0.5) * 6; // Neural Noise
                 
-                // Clamp
                 if (evidence > 100) evidence = 100;
                 if (evidence < -100) evidence = -100;
 
             } else {
-                evidence *= 0.92; // Decay
+                evidence *= 0.94; // Decay to center
             }
 
-            // Move Car
-            if (evidence > 40) targetPos = 85; // Right Lane
-            else if (evidence < -40) targetPos = -85; // Left Lane
-            else targetPos = 0; // Center
+            // Move Car Target
+            if (evidence > 40) targetPos = 85;      // Switch Right
+            else if (evidence < -40) targetPos = -85; // Switch Left
+            else targetPos = 0;                     // Center
 
-            // Linear Interpolation for smooth movement
-            carPos += (targetPos - carPos) * 0.1;
+            // SMOOTH CAR MOVEMENT
+            // Lower value (0.05) creates "heavy" smooth feeling
+            carPos += (targetPos - carPos) * 0.05;
             
-            // Banking animation
-            const bankAngle = (targetPos - carPos) * 0.3;
-            egoCar.style.transform = `translateX(${carPos}px) rotateX(-45deg) rotateZ(${bankAngle}deg)`;
+            // Banking Animation
+            const bankAngle = (targetPos - carPos) * 0.25;
+            egoCar.style.transform = `translateX(${carPos}px) rotateX(-50deg) rotateZ(${bankAngle}deg)`;
 
-            // Trajectory skew
-            const skewAmount = evidence * -0.3;
+            // Trajectory Skew
+            const skewAmount = evidence * -0.4;
             trajectory.style.transform = `translateX(-50%) rotateX(90deg) skewX(${skewAmount}deg)`;
             
             updateGraph();
@@ -420,9 +422,11 @@
             const mid = ddmCanvas.height / 2;
             const scale = (mid - 10) / 100;
 
+            // Axis
             ddmCtx.strokeStyle = '#e0e0e0';
             ddmCtx.beginPath(); ddmCtx.moveTo(0, mid); ddmCtx.lineTo(ddmCanvas.width, mid); ddmCtx.stroke();
             
+            // Thresholds
             ddmCtx.setLineDash([4,4]);
             ddmCtx.beginPath(); 
             ddmCtx.moveTo(0, mid - (40*scale)); ddmCtx.lineTo(ddmCanvas.width, mid - (40*scale));
@@ -430,10 +434,10 @@
             ddmCtx.stroke();
             ddmCtx.setLineDash([]);
 
+            // Signal
             ddmCtx.strokeStyle = '#0056f5';
             ddmCtx.lineWidth = 2;
             ddmCtx.beginPath();
-            
             const step = ddmCanvas.width / decisionHistory.length;
             decisionHistory.forEach((val, i) => {
                 const x = i * step;
