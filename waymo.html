@@ -9,7 +9,7 @@
             /* Light Mode Palette */
             --waymo-blue: #0056f5;
             --waymo-green: #00a85d;
-            --bg-color: #f8f9fa; /* Light background */
+            --bg-color: #f8f9fa;
             --panel-bg: #ffffff;
             --text-main: #202124;
             --text-sub: #5f6368;
@@ -31,7 +31,7 @@
         #sim-container {
             flex: 3;
             position: relative;
-            background: var(--sky-gradient); /* Daytime Sky */
+            background: var(--sky-gradient);
             perspective: 800px; 
             overflow: hidden;
             display: flex;
@@ -39,7 +39,6 @@
             border-right: 1px solid #dadce0;
         }
 
-        /* The 3D Stage */
         .world-stage {
             position: relative;
             width: 100%;
@@ -48,12 +47,10 @@
             transform: rotateX(50deg) translateY(-20px);
         }
 
-        /* Moving Floor (Grid) */
         .sim-grid {
             position: absolute;
             top: -100%; left: -100%;
             width: 300%; height: 300%;
-            /* Subtle grey grid for perspective */
             background-image: 
                 linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
@@ -62,90 +59,106 @@
             animation: gridMove 0.8s linear infinite;
         }
 
-        /* The Road */
         .road-bed {
             position: absolute;
             left: 50%; top: -100%;
             width: 340px; height: 300%;
             transform: translateX(-50%);
-            background: var(--road-color); /* Asphalt */
-            border-left: 4px solid #fff;
-            border-right: 4px solid #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: var(--road-color);
+            border-left: 8px solid #fff;
+            border-right: 8px solid #fff;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         }
 
         .lane-marker {
             position: absolute;
             left: 50%; top: 0;
-            width: 4px; height: 100%;
+            width: 6px; height: 100%;
             background: repeating-linear-gradient(
                 to bottom,
                 transparent 0px, transparent 40px,
-                #fbbc04 40px, #fbbc04 80px /* Yellow dashed line */
+                #fbbc04 40px, #fbbc04 80px
             );
             animation: roadScroll 0.8s linear infinite;
         }
 
-        /* Elements (Car, Objects) */
+        /* --- CAR UPDATES: BIGGER & BRANDED --- */
         .sim-object {
             position: absolute;
             transform-style: preserve-3d;
             transition: transform 0.1s linear;
         }
 
-        /* The Ego Car */
         #ego-car {
-            bottom: 15%; left: 50%;
-            width: 50px; height: 84px;
+            bottom: 12%; left: 50%;
+            /* Increased size significantly to match road scale */
+            width: 110px; height: 180px; 
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Realistic shadow */
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
             transform: translateX(-50%) rotateX(-50deg);
             z-index: 10;
             border: 1px solid #dcdcdc;
-        }
-        /* Waymo Dome */
-        #ego-car::before {
-            content: ''; position: absolute; top: 40%; left: 50%; width: 24px; height: 24px;
-            background: var(--waymo-blue); border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        /* Tail lights */
-        #ego-car::after { 
-            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
-            background: #ea4335;
-            border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* The Trajectory Line */
+        /* Waymo Logo Text on Roof */
+        #ego-car::after {
+            content: 'WAYMO';
+            font-family: 'Arial', sans-serif;
+            font-weight: 900;
+            color: #dcdcdc;
+            font-size: 20px;
+            transform: rotate(-90deg);
+            letter-spacing: 2px;
+        }
+
+        /* The Lidar Dome */
+        #ego-car::before {
+            content: ''; position: absolute; top: 40%; left: 50%; width: 40px; height: 40px;
+            background: var(--waymo-blue); border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 2;
+        }
+
+        /* Tail Lights */
+        .tail-lights {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 8px;
+            background: #ea4335;
+            border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;
+            box-shadow: 0 0 15px rgba(234, 67, 53, 0.4);
+        }
+
+        /* --- TRAJECTORY --- */
         #trajectory-line {
             position: absolute;
             bottom: 50%; left: 50%;
-            width: 8px; height: 450px;
+            width: 16px; height: 500px; /* Thicker line for bigger car */
             background: linear-gradient(to top, transparent, var(--waymo-blue), var(--waymo-blue));
             transform-origin: bottom center;
             transform: translateX(-50%) rotateX(90deg);
             opacity: 0;
             transition: opacity 0.5s, transform 0.1s;
-            border-radius: 4px;
+            border-radius: 8px;
             z-index: 5;
-            mix-blend-mode: multiply; /* Blends nicely onto road in light mode */
+            mix-blend-mode: multiply;
         }
 
-        /* Obstacles */
+        /* --- OBSTACLES (THREATS) --- */
         .obstacle {
-            width: 44px; height: 44px;
+            width: 50px; height: 50px;
             background: #fff;
-            border: 2px solid #ea4335;
-            border-radius: 8px;
+            border: 3px solid #ea4335;
+            border-radius: 50%; /* Make them dots/cones */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             transform: translate(-50%, -50%) rotateX(-50deg);
             display: flex; justify-content: center; align-items: center;
-            color: #ea4335; font-size: 10px; font-weight: bold;
+            color: #ea4335; font-size: 14px; font-weight: bold;
+            z-index: 8;
         }
 
-        /* --- RIGHT SIDE: CONTROLS & INFO --- */
+        /* --- RIGHT SIDE: PANEL --- */
         #panel {
             flex: 1;
             max-width: 450px;
@@ -172,7 +185,6 @@
         }
         .toggle-btn.active { background: #fff; color: var(--waymo-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        /* DDM Canvas */
         .ddm-wrapper {
             position: relative;
             background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 20px;
@@ -180,7 +192,6 @@
         }
         canvas#ddmCanvas { width: 100%; height: 140px; display: block; }
         
-        /* The "Opaque" mask for Theory of Mind mode */
         .blur-mask {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.85);
@@ -192,13 +203,11 @@
             text-align: center; padding: 20px; box-sizing: border-box;
         }
 
-        /* Stats */
         .stat-row {
             display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; border-bottom: 1px solid #f1f3f4; padding-bottom: 8px;
         }
         .stat-value { font-family: 'Roboto Mono', monospace; font-weight: bold; }
 
-        /* Info Box */
         .note {
             background: #e8f0fe; color: #174ea6; 
             padding: 16px; border-radius: 8px; 
@@ -208,7 +217,6 @@
 
         @keyframes gridMove { to { transform: translateZ(-20px) translateY(100px); } }
         @keyframes roadScroll { to { background-position: 0 80px; } }
-
     </style>
 </head>
 <body>
@@ -223,8 +231,10 @@
             </div>
 
             <div id="dynamic-layer">
-                <div id="ego-car" class="sim-object"></div>
+                <div id="ego-car" class="sim-object">
+                    <div class="tail-lights"></div>
                 </div>
+            </div>
         </div>
     </div>
 
@@ -259,7 +269,6 @@
     </div>
 
     <script>
-        // --- 1. SETUP & CONFIG ---
         const ddmCanvas = document.getElementById('ddmCanvas');
         const ddmCtx = ddmCanvas.getContext('2d');
         const dynamicLayer = document.getElementById('dynamic-layer');
@@ -269,47 +278,33 @@
         const loadVal = document.getElementById('loadVal');
         const descText = document.getElementById('descText');
         
-        // Canvas Sizing
         ddmCanvas.width = ddmCanvas.offsetWidth;
         ddmCanvas.height = ddmCanvas.offsetHeight;
 
-        // State
         let mode = 'self';
         let evidence = 0;
         let decisionHistory = new Array(100).fill(0);
         let frame = 0;
-        
-        // Physics State
-        let carPos = 0; // -1 to 1 (L/R)
+        let carPos = 0;
         let targetPos = 0;
         let obstacles = [];
 
-        // --- 2. LOGIC ---
         function setMode(newMode, btn) {
             mode = newMode;
-            
-            // UI Toggles
             document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
 
-            // Visual Logic
             if (mode === 'self') {
-                // VISUALS
                 trajectory.style.opacity = '1';
                 document.getElementById('opaqueMask').style.opacity = '0';
-                
-                // TEXT & STATS
                 loadVal.innerText = "LOW";
-                loadVal.style.color = "#00a85d"; // Green
+                loadVal.style.color = "#00a85d"; 
                 descText.innerHTML = "<b>Hypothesis (vmPFC):</b> Instant feedback and trajectory visualization allow the brain to process the AV as an extension of the body, creating 'fluency'.";
             } else {
-                // VISUALS
                 trajectory.style.opacity = '0';
                 document.getElementById('opaqueMask').style.opacity = '1';
-                
-                // TEXT & STATS
                 loadVal.innerText = "HIGH";
-                loadVal.style.color = "#d93025"; // Red
+                loadVal.style.color = "#d93025"; 
                 descText.innerHTML = "<b>Hypothesis (Theory of Mind):</b> Opaque decision-making forces the user to infer intent, activating high-effort social cognition networks.";
             }
         }
@@ -320,16 +315,24 @@
             el.innerText = '!';
             dynamicLayer.appendChild(el);
             
+            // SPAWN ZONES:
+            // -85 (Left Lane)
+            // 85 (Right Lane)
+            // -220 (Off road Left)
+            // 220 (Off road Right)
+            const zones = [-220, -85, 85, 220];
+            const randomZone = zones[Math.floor(Math.random() * zones.length)];
+
             obstacles.push({
                 el: el,
-                x: (Math.random() > 0.5 ? 85 : -85), // Aligned with wider road lanes
-                z: -1000, 
-                speed: 12 // Faster for smooth look
+                x: randomZone, 
+                z: -1200, 
+                speed: 14 // Faster relative speed
             });
         }
 
         function updatePhysics() {
-            if (frame % 120 === 0) spawnObstacle();
+            if (frame % 100 === 0) spawnObstacle();
             frame++;
 
             let nearestDist = 9999;
@@ -337,56 +340,55 @@
 
             obstacles.forEach((obs, index) => {
                 obs.z += obs.speed;
-                
-                // CSS 3D Update
                 obs.el.style.transform = `translate3d(${obs.x}px, 0, ${obs.z}px) rotateX(-50deg)`;
 
-                // Detection Logic
+                // Simple collision horizon
                 const dist = Math.abs(obs.z - 0); 
-                if (obs.z > -500 && obs.z < 200) {
+                if (obs.z > -600 && obs.z < 200) {
                     if (dist < nearestDist) {
                         nearestDist = dist;
                         nearestObs = obs;
                     }
                 }
 
-                // Cleanup
                 if (obs.z > 300) {
                     obs.el.remove();
                     obstacles.splice(index, 1);
                 }
             });
 
-            // DDM Decision Logic
+            // LOGIC: React to threats
             if (nearestObs) {
-                // If obstacle is on Left, go Right
+                // Determine direction: If threat is on Left (or far Left), go Right.
                 const requiredDir = nearestObs.x < 0 ? 1 : -1;
                 
-                // Accumulate Evidence (Drift)
-                evidence += (requiredDir * 2.5); 
-                evidence += (Math.random() - 0.5) * 8; // Noise
+                // Weighting: Off-road threats create less "Panic" (drift) than on-road threats
+                const isOffRoad = Math.abs(nearestObs.x) > 100;
+                const urgency = isOffRoad ? 0.5 : 3.0;
+
+                evidence += (requiredDir * urgency); 
+                evidence += (Math.random() - 0.5) * 5; // Neural noise
                 
-                // Clamp
                 if (evidence > 100) evidence = 100;
                 if (evidence < -100) evidence = -100;
 
             } else {
-                evidence *= 0.9; // Decay
+                evidence *= 0.9; // Decay to neutral
             }
 
-            // Move Car based on Evidence
+            // Move Car
             if (evidence > 40) targetPos = 85; // Right Lane
             else if (evidence < -40) targetPos = -85; // Left Lane
             else targetPos = 0; // Center
 
             carPos += (targetPos - carPos) * 0.08;
             
-            // Apply Car Transforms
-            const bankAngle = (targetPos - carPos) * 0.3;
+            // Banking animation
+            const bankAngle = (targetPos - carPos) * 0.2;
             egoCar.style.transform = `translateX(${carPos}px) rotateX(-50deg) rotateZ(${bankAngle}deg)`;
 
-            // Trajectory Logic
-            const skewAmount = evidence * -0.4;
+            // Trajectory skew
+            const skewAmount = evidence * -0.3;
             trajectory.style.transform = `translateX(-50%) rotateX(90deg) skewX(${skewAmount}deg)`;
             
             updateGraph();
@@ -395,21 +397,15 @@
         function updateGraph() {
             decisionHistory.push(evidence);
             decisionHistory.shift();
-
-            // Drift Value Text
             driftVal.innerText = Math.abs(evidence).toFixed(2);
 
-            // Draw Graph
             ddmCtx.clearRect(0, 0, ddmCanvas.width, ddmCanvas.height);
-            
             const mid = ddmCanvas.height / 2;
             const scale = (mid - 10) / 100;
 
-            // Guidelines
             ddmCtx.strokeStyle = '#e0e0e0';
             ddmCtx.beginPath(); ddmCtx.moveTo(0, mid); ddmCtx.lineTo(ddmCanvas.width, mid); ddmCtx.stroke();
             
-            // Thresholds
             ddmCtx.setLineDash([4,4]);
             ddmCtx.beginPath(); 
             ddmCtx.moveTo(0, mid - (40*scale)); ddmCtx.lineTo(ddmCanvas.width, mid - (40*scale));
@@ -417,13 +413,11 @@
             ddmCtx.stroke();
             ddmCtx.setLineDash([]);
 
-            // Signal Line
             ddmCtx.strokeStyle = '#0056f5';
             ddmCtx.lineWidth = 2;
             ddmCtx.beginPath();
             
             const step = ddmCanvas.width / decisionHistory.length;
-            
             decisionHistory.forEach((val, i) => {
                 const x = i * step;
                 const y = mid - (val * scale);
@@ -438,10 +432,8 @@
             requestAnimationFrame(loop);
         }
 
-        // Init
         setMode('self', document.querySelector('.toggle-btn.active'));
         loop();
-
     </script>
 </body>
 </html>
