@@ -3,445 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waymo Safety Research: Identity vs. Theory of Mind</title>
+    <title>Waymo Safety Research: Perception Logic</title>
     <style>
         :root {
             --waymo-blue: #0056f5;
-            --waymo-green: #00a85d;
-            --bg-color: #ffffff;
-            --panel-bg: #f8f9fa;
+            --waymo-cyan: #00f0ff;
+            --bg-color: #050505;
+            --panel-bg: #ffffff;
             --text-main: #202124;
             --text-sub: #5f6368;
-            --border-radius: 16px;
         }
 
         body {
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Roboto Mono', 'Roboto', sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-main);
             margin: 0;
             height: 100vh;
             display: flex;
             overflow: hidden;
         }
 
-        /* --- Left Side: Simulation --- */
+        /* --- LEFT SIDE: 3D SIMULATION WORLD --- */
         #sim-container {
-            flex: 2;
+            flex: 3;
             position: relative;
-            background-color: #e8eaed;
+            background: radial-gradient(circle at 50% 10%, #1a2a3a 0%, #050505 80%);
+            perspective: 800px; /* The camera lens */
+            overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: center;
-            overflow: hidden;
         }
 
-        canvas#simCanvas {
-            background-color: #fff;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        /* The 3D Stage */
+        .world-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform: rotateX(50deg) translateY(-20px); /* Camera Angle */
         }
 
-        /* --- Right Side: DDM & Controls --- */
+        /* Moving Floor */
+        .sim-grid {
+            position: absolute;
+            top: -100%; left: -100%;
+            width: 300%; height: 300%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+            background-size: 80px 80px;
+            transform: translateZ(-20px);
+            animation: gridMove 0.8s linear infinite;
+        }
+
+        /* The Road */
+        .road-bed {
+            position: absolute;
+            left: 50%; top: -100%;
+            width: 300px; height: 300%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 12, 0.8);
+            border-left: 2px solid rgba(255,255,255,0.3);
+            border-right: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .lane-marker {
+            position: absolute;
+            left: 50%; top: 0;
+            width: 2px; height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px, transparent 40px,
+                rgba(0, 240, 255, 0.5) 40px, rgba(0, 240, 255, 0.5) 80px
+            );
+            animation: roadScroll 0.8s linear infinite;
+        }
+
+        /* Elements (Car, Objects) */
+        .sim-object {
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.1s linear;
+        }
+
+        /* The Ego Car */
+        #ego-car {
+            bottom: 15%; left: 50%;
+            width: 50px; height: 80px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+            transform: translateX(-50%) rotateX(-50deg); /* Counter-rotate to stand up */
+            z-index: 10;
+        }
+        #ego-car::after { /* Tail lights */
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
+            background: #ff0055; box-shadow: 0 0 15px #ff0055;
+            border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
+        }
+
+        /* The Trajectory Line */
+        #trajectory-line {
+            position: absolute;
+            bottom: 50%; left: 50%;
+            width: 6px; height: 400px;
+            background: linear-gradient(to top, transparent, var(--waymo-cyan), transparent);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotateX(90deg); /* Lay flat on road */
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.1s;
+            border-radius: 4px;
+            box-shadow: 0 0 15px var(--waymo-cyan);
+            z-index: 5;
+        }
+
+        /* Obstacles */
+        .obstacle {
+            width: 40px; height: 40px;
+            background: rgba(255, 60, 0, 0.2);
+            border: 1px solid #ff3c00;
+            box-shadow: 0 0 20px rgba(255, 60, 0, 0.4);
+            transform: translate(-50%, -50%) rotateX(-50deg);
+            display: flex; justify-content: center; align-items: center;
+            color: #ff3c00; font-size: 10px; font-weight: bold;
+        }
+
+        /* --- RIGHT SIDE: CONTROLS --- */
         #panel {
             flex: 1;
-            max-width: 450px;
-            background-color: #fff;
+            max-width: 400px;
+            background-color: var(--panel-bg);
             padding: 32px;
             display: flex;
             flex-direction: column;
-            border-left: 1px solid #dadce0;
-            box-shadow: -4px 0 20px rgba(0,0,0,0.02);
-            z-index: 10;
+            border-left: 1px solid #333;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            z-index: 20;
         }
 
-        h1 { font-size: 20px; margin-bottom: 8px; font-weight: 500; }
-        h2 { font-size: 14px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; margin-bottom: 12px;}
-        p { font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 20px; }
-
-        /* Controls */
+        h1 { font-size: 18px; margin: 0 0 8px 0; color: #111; }
+        p { font-size: 12px; color: #666; margin-bottom: 24px; line-height: 1.5; }
+        
         .toggle-container {
-            display: flex;
-            background: var(--panel-bg);
-            padding: 4px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
+            display: flex; background: #f1f3f4; padding: 4px; border-radius: 8px; margin-bottom: 24px;
         }
-
         .toggle-btn {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            color: var(--text-sub);
+            flex: 1; padding: 10px; border: none; background: transparent; 
+            font-weight: 600; font-size: 12px; cursor: pointer; color: #666; border-radius: 6px;
+            transition: all 0.2s;
         }
+        .toggle-btn.active { background: #fff; color: var(--waymo-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        .toggle-btn.active {
-            background: #fff;
-            color: var(--waymo-blue);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        /* DDM Graph Container */
+        /* DDM Canvas */
         .ddm-wrapper {
-            background: var(--panel-bg);
-            padding: 16px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
             position: relative;
+            background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 20px;
+            border: 1px solid #eee;
         }
-
-        canvas#ddmCanvas {
-            width: 100%;
-            height: 150px;
-            display: block;
-        }
-
-        .legend {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-top: 8px;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
+        canvas#ddmCanvas { width: 100%; height: 120px; display: block; }
         
-        .value { font-family: 'Courier New', monospace; font-weight: bold; }
+        .blur-mask {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; color: #333; font-size: 12px; letter-spacing: 1px;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            border-radius: 12px;
+        }
 
-        /* Annotations */
-        .note {
-            background: #e8f0fe;
-            color: var(--waymo-blue);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-top: auto;
+        /* Stats */
+        .stat-box {
+            display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px;
         }
-        
-        .hidden-mask {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                45deg,
-                rgba(0,0,0,0.05),
-                rgba(0,0,0,0.05) 10px,
-                rgba(0,0,0,0.1) 10px,
-                rgba(0,0,0,0.1) 20px
-            );
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #888;
-            font-weight: bold;
-            display: none;
-            backdrop-filter: blur(2px);
-            border-radius: var(--border-radius);
-        }
+        .stat-value { font-family: 'Courier New', monospace; font-weight: bold; }
+
+        @keyframes gridMove { to { transform: translateZ(-20px) translateY(80px); } }
+        @keyframes roadScroll { to { background-position: 0 80px; } }
 
     </style>
 </head>
 <body>
 
     <div id="sim-container">
-        <canvas id="simCanvas" width="500" height="700"></canvas>
+        <div class="world-stage">
+            <div class="sim-grid"></div>
+            
+            <div class="road-bed">
+                <div class="lane-marker"></div>
+                <div id="trajectory-line"></div>
+            </div>
+
+            <div id="dynamic-layer">
+                <div id="ego-car" class="sim-object"></div>
+                </div>
+        </div>
     </div>
 
     <div id="panel">
-        <h1>Safety Research: Cognitive Alignment</h1>
-        <p>Testing whether AV behavior is processed as "Self" (vmPFC) or "Other" (Theory of Mind).</p>
+        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <span style="background:var(--waymo-blue); color:#fff; font-size:10px; padding:4px 8px; border-radius:4px;">RESEARCH PREVIEW</span>
+        </div>
+        
+        <h1>Cognitive Coupling</h1>
+        <p>Testing driver reaction times when AV intent is visualized (Self) vs hidden (Other).</p>
 
-        <h2>Experiment Mode</h2>
         <div class="toggle-container">
-            <button class="toggle-btn active" onclick="setMode('self')">Extension of Self</button>
-            <button class="toggle-btn" onclick="setMode('other')">Social Other</button>
+            <button class="toggle-btn active" onclick="setMode('self', this)">Extension of Self</button>
+            <button class="toggle-btn" onclick="setMode('other', this)">Social Other</button>
         </div>
 
-        <h2>Real-Time DDM (Decision Making)</h2>
+        <div class="stat-box">
+            <span>Prediction Confidence</span>
+            <span class="stat-value" id="driftVal" style="color:var(--waymo-blue)">0.00</span>
+        </div>
+
         <div class="ddm-wrapper">
             <canvas id="ddmCanvas"></canvas>
-            <div id="otherMask" class="hidden-mask">INTERNAL STATE OPAQUE</div>
-            <div class="legend">
-                <span>Avoid Left</span>
-                <span>Neutral</span>
-                <span>Avoid Right</span>
-            </div>
+            <div id="opaqueMask" class="blur-mask">INTERNAL STATE HIDDEN</div>
         </div>
 
-        <div class="stat-row">
-            <span>Cognitive Load (Sim):</span>
-            <span class="value" id="loadVal">LOW</span>
-        </div>
-        <div class="stat-row">
-            <span>Drift Rate (Evidence):</span>
-            <span class="value" id="driftVal">0.00</span>
-        </div>
-
-        <div class="note" id="descText">
-            <b>Hypothesis:</b> When feedback is transparent and trajectory is projected, the user's brain adopts the AI as a tool (vmPFC), reducing reaction time and anxiety.
+        <div style="background:#e8f0fe; padding:15px; border-radius:8px; font-size:12px; color:var(--waymo-blue); line-height:1.4;">
+            <strong id="hypothesis-title">Hypothesis:</strong>
+            <span id="hypothesis-text">Visualizing trajectory allows the motor cortex to 'adopt' the car's path, reducing cognitive load.</span>
         </div>
     </div>
 
     <script>
-        // --- Configuration ---
-        const canvas = document.getElementById('simCanvas');
-        const ctx = canvas.getContext('2d');
+        // --- 1. SETUP & CONFIG ---
         const ddmCanvas = document.getElementById('ddmCanvas');
         const ddmCtx = ddmCanvas.getContext('2d');
+        const dynamicLayer = document.getElementById('dynamic-layer');
+        const egoCar = document.getElementById('ego-car');
+        const trajectory = document.getElementById('trajectory-line');
+        const driftVal = document.getElementById('driftVal');
         
-        let mode = 'self'; // 'self' or 'other'
-        let frame = 0;
-        let speed = 4;
-        
-        // --- State ---
-        const car = { x: 250, y: 550, width: 40, height: 70, targetX: 250 };
-        const obstacles = [];
-        const roadLines = [];
-
-        // DDM Variables
-        let evidence = 0; // -100 to 100 (0 is neutral)
-        let decisionHistory = []; // For plotting graph
-        let threshold = 80;
-        let decisionMade = null; // 'left' or 'right'
-
-        // --- Resize DDM Canvas ---
+        // Canvas Sizing
         ddmCanvas.width = ddmCanvas.offsetWidth;
         ddmCanvas.height = ddmCanvas.offsetHeight;
 
-        function setMode(newMode) {
+        // State
+        let mode = 'self';
+        let evidence = 0;
+        let decisionHistory = new Array(100).fill(0);
+        let frame = 0;
+        
+        // Physics State
+        let carPos = 0; // -1 to 1 (L/R)
+        let targetPos = 0;
+        let obstacles = [];
+
+        // --- 2. CONTROL LOGIC ---
+        function setMode(newMode, btn) {
             mode = newMode;
-            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
             
-            const desc = document.getElementById('descText');
-            const mask = document.getElementById('otherMask');
+            // UI Toggles
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
 
+            // Visual Logic
             if (mode === 'self') {
-                desc.innerHTML = "<b>Hypothesis (vmPFC):</b> Instant feedback and trajectory visualization allow the brain to process the AV as an extension of the body, creating 'fluency'.";
-                mask.style.display = 'none';
-                document.getElementById('loadVal').innerText = "LOW";
-                document.getElementById('loadVal').style.color = "green";
+                trajectory.style.opacity = '1';
+                document.getElementById('opaqueMask').style.opacity = '0';
+                document.getElementById('hypothesis-text').innerText = "Visualizing trajectory allows the motor cortex to 'adopt' the car's path, reducing cognitive load.";
             } else {
-                desc.innerHTML = "<b>Hypothesis (Theory of Mind):</b> Opaque decision-making forces the user to infer intent, activating high-effort social cognition networks.";
-                mask.style.display = 'flex';
-                document.getElementById('loadVal').innerText = "HIGH";
-                document.getElementById('loadVal').style.color = "red";
+                trajectory.style.opacity = '0';
+                document.getElementById('opaqueMask').style.opacity = '1';
+                document.getElementById('hypothesis-text').innerText = "Hiding intent forces the brain to use 'Theory of Mind' to guess the car's actions, increasing anxiety.";
             }
         }
 
+        // --- 3. GAME LOOP ---
         function spawnObstacle() {
-            // Only spawn if clear
-            if (obstacles.length === 0 || obstacles[obstacles.length-1].y > 300) {
-                const isLeft = Math.random() > 0.5;
-                obstacles.push({
-                    x: isLeft ? 180 : 320, // Lanes
-                    y: -100,
-                    type: 'pedestrian',
-                    avoidDirection: isLeft ? 'right' : 'left'
-                });
-            }
-        }
-
-        function updateDDM(nearestObstacle) {
-            // Drift Diffusion Model Logic
+            // Create DOM element
+            const el = document.createElement('div');
+            el.className = 'obstacle sim-object';
+            el.innerText = 'OBJ';
+            dynamicLayer.appendChild(el);
             
-            if (!nearestObstacle) {
-                // Decay to 0
-                evidence = evidence * 0.9;
-                decisionMade = null;
-                car.targetX = 250;
-                document.getElementById('driftVal').innerText = "0.00";
-                return;
-            }
-
-            // Distance to collision
-            const dist = nearestObstacle.y - car.y; // Negative value
-            const timeToCollision = Math.abs(dist) / speed;
-
-            // If obstacle is far, low drift. If close, high drift.
-            if (Math.abs(dist) < 400 && nearestObstacle.y < car.y) {
-                // Determine drift direction
-                const driftDir = nearestObstacle.avoidDirection === 'right' ? 1 : -1;
-                
-                // Rate increases as we get closer (Evidence Accumulation)
-                // Add some noise
-                const noise = (Math.random() - 0.5) * 5;
-                const rate = (400 / Math.abs(dist)) * 2; 
-                
-                evidence += (rate * driftDir) + noise;
-                document.getElementById('driftVal').innerText = Math.abs(evidence).toFixed(2);
-
-                // Threshold Check
-                if (Math.abs(evidence) > threshold) {
-                    decisionMade = evidence > 0 ? 'right' : 'left';
-                    evidence = decisionMade === 'right' ? threshold : -threshold; // Clamp
-                }
-            } else {
-                 // Reset if passed
-                 evidence = evidence * 0.9;
-                 decisionMade = null;
-                 car.targetX = 250;
-            }
-        }
-
-        function drawRoad() {
-            ctx.fillStyle = '#f8f9fa'; // Light road
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Lane markers
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([40, 40]);
-            ctx.lineDashOffset = -frame * speed;
-            
-            // Center Line
-            ctx.beginPath();
-            ctx.moveTo(250, 0);
-            ctx.lineTo(250, 700);
-            ctx.stroke();
-
-            // Shoulders
-            ctx.strokeStyle = '#dadce0';
-            ctx.setLineDash([]);
-            ctx.beginPath(); ctx.moveTo(100, 0); ctx.lineTo(100, 700); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(400, 0); ctx.lineTo(400, 700); ctx.stroke();
-        }
-
-        function drawCar() {
-            // Smooth movement to target
-            if (decisionMade === 'right') car.targetX = 350;
-            if (decisionMade === 'left') car.targetX = 150;
-            
-            // Simple Lerp for physics
-            car.x += (car.targetX - car.x) * 0.1;
-
-            // --- CONCEPT 2: PREDICTION VISUALIZATION ---
-            if (mode === 'self') {
-                // Ghost Trajectory (The "Extension of Self" cue)
-                ctx.beginPath();
-                ctx.moveTo(car.x, car.y);
-                // Quadratic curve simulating the path
-                let cpX = car.targetX;
-                let endX = car.targetX;
-                ctx.quadraticCurveTo(car.x, car.y - 100, endX, car.y - 250);
-                
-                ctx.strokeStyle = 'rgba(0, 86, 245, 0.3)'; // Waymo Blue, transparent
-                ctx.lineWidth = 40; // Width of car
-                ctx.stroke();
-
-                // Delineator line
-                ctx.strokeStyle = '#0056f5';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-
-            // Draw Car Body
-            ctx.fillStyle = '#fff';
-            ctx.shadowColor = 'rgba(0,0,0,0.1)';
-            ctx.shadowBlur = 10;
-            
-            // If "Other" mode and deciding, maybe show a "Thinking" indicator?
-            if (mode === 'other' && Math.abs(evidence) > 10 && Math.abs(evidence) < threshold) {
-               // Car is hesitating/thinking, but gives no visual cue to user
-            }
-
-            // Car Shape
-            ctx.beginPath();
-            ctx.roundRect(car.x - 20, car.y - 35, 40, 70, 8);
-            ctx.fill();
-            
-            // Waymo Dome (Lidar)
-            ctx.fillStyle = (mode === 'self') ? '#0056f5' : '#5f6368'; // Blue for self, Grey for other
-            ctx.beginPath();
-            ctx.arc(car.x, car.y, 12, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.shadowBlur = 0; // Reset
-        }
-
-        function drawObstacles() {
-            obstacles.forEach((obs, index) => {
-                obs.y += speed;
-
-                // Draw
-                ctx.fillStyle = '#ea4335'; // Hazard Red
-                ctx.beginPath();
-                ctx.moveTo(obs.x, obs.y);
-                ctx.lineTo(obs.x - 15, obs.y + 15);
-                ctx.lineTo(obs.x + 15, obs.y + 15);
-                ctx.fill();
-
-                // Remove if off screen
-                if (obs.y > 800) obstacles.splice(index, 1);
+            // Logic Object
+            obstacles.push({
+                el: el,
+                x: (Math.random() > 0.5 ? 40 : -40), // Left or Right lane (pixels from center)
+                z: -800, // Start far back
+                speed: 10
             });
         }
 
-        function drawDDMGraph() {
-            // Shift history
-            decisionHistory.push(evidence);
-            if (decisionHistory.length > ddmCanvas.width) decisionHistory.shift();
+        function updatePhysics() {
+            // Spawn logic
+            if (frame % 150 === 0) spawnObstacle();
+            frame++;
 
-            // Clear
-            ddmCtx.clearRect(0, 0, ddmCanvas.width, ddmCanvas.height);
+            // Obstacle Movement
+            let nearestDist = 9999;
+            let nearestObs = null;
 
-            // Draw Thresholds
-            const mid = ddmCanvas.height / 2;
-            const scale = (ddmCanvas.height / 2) / 100;
+            obstacles.forEach((obs, index) => {
+                obs.z += obs.speed;
+                
+                // Update CSS 3D Position
+                // We use translate3d for hardware acceleration
+                // x is lateral, y is up/down (0), z is depth
+                obs.el.style.transform = `translate3d(${obs.x}px, 0, ${obs.z}px) rotateX(-50deg)`;
 
-            ddmCtx.strokeStyle = '#ddd';
-            ddmCtx.beginPath(); ddmCtx.moveTo(0, mid); ddmCtx.lineTo(ddmCanvas.width, mid); ddmCtx.stroke(); // Center
+                // Collision/Detection Logic
+                const dist = Math.abs(obs.z - 0); // 0 is car Z
+                if (obs.z > -400 && obs.z < 100) {
+                    if (dist < nearestDist) {
+                        nearestDist = dist;
+                        nearestObs = obs;
+                    }
+                }
+
+                // Cleanup
+                if (obs.z > 200) {
+                    obs.el.remove();
+                    obstacles.splice(index, 1);
+                }
+            });
+
+            // DDM Decision Logic (The Brain)
+            if (nearestObs) {
+                // If obstacle is on Left (-40), go Right (+1)
+                const requiredDir = nearestObs.x < 0 ? 1 : -1;
+                
+                // Accumulate Evidence
+                evidence += (requiredDir * 2); 
+                evidence += (Math.random() - 0.5) * 5; // Noise
+                
+                // Clamp
+                if (evidence > 100) evidence = 100;
+                if (evidence < -100) evidence = -100;
+
+            } else {
+                // Decay to center
+                evidence *= 0.9;
+            }
+
+            // Move Car based on Evidence (Threshold = 50)
+            if (evidence > 50) targetPos = 75; // Move Right (pixels)
+            else if (evidence < -50) targetPos = -75; // Move Left
+            else targetPos = 0; // Center
+
+            // Smooth Car physics
+            carPos += (targetPos - carPos) * 0.1;
             
-            ddmCtx.strokeStyle = '#00a85d'; // Green Thresholds
-            ddmCtx.setLineDash([5,5]);
-            ddmCtx.beginPath(); 
-            ddmCtx.moveTo(0, mid - (threshold * scale)); ddmCtx.lineTo(ddmCanvas.width, mid - (threshold * scale)); 
-            ddmCtx.moveTo(0, mid + (threshold * scale)); ddmCtx.lineTo(ddmCanvas.width, mid + (threshold * scale)); 
-            ddmCtx.stroke();
-            ddmCtx.setLineDash([]);
+            // Update Ego Car CSS
+            // We rotate the car slightly when banking
+            const bankAngle = (targetPos - carPos) * 0.5;
+            egoCar.style.transform = `translateX(${carPos}px) rotateX(-50deg) rotateZ(${bankAngle}deg)`;
 
-            // Draw Evidence Line
-            ddmCtx.beginPath();
+            // Update Trajectory Line (The "Projected Future")
+            // We curve the line by skewing it
+            const skewAmount = evidence * -0.3; // Skew opposite to turn visual
+            trajectory.style.transform = `translateX(-50%) rotateX(90deg) skewX(${skewAmount}deg)`;
+            
+            // Color shift based on confidence
+            const urgency = Math.min(Math.abs(evidence), 100) / 100;
+            // 120 is Green, 0 is Red in HSL. We map 0.0->1.0 to Blue->Orange
+            trajectory.style.filter = `hue-rotate(${urgency * -90}deg)`;
+
+            // Update Graphs
+            updateGraph();
+        }
+
+        function updateGraph() {
+            // Push data
+            decisionHistory.push(evidence);
+            decisionHistory.shift();
+
+            // Stats
+            driftVal.innerText = Math.abs(evidence).toFixed(1) + "%";
+            driftVal.style.color = Math.abs(evidence) > 80 ? '#d93025' : '#0056f5';
+
+            // Draw
+            ddmCtx.clearRect(0, 0, ddmCanvas.width, ddmCanvas.height);
+            
+            const mid = ddmCanvas.height / 2;
+            const scale = mid / 100;
+
+            // Center Line
+            ddmCtx.strokeStyle = '#eee';
+            ddmCtx.beginPath(); ddmCtx.moveTo(0, mid); ddmCtx.lineTo(ddmCanvas.width, mid); ddmCtx.stroke();
+
+            // Graph Line
             ddmCtx.strokeStyle = '#0056f5';
             ddmCtx.lineWidth = 2;
-
-            for (let i = 0; i < decisionHistory.length; i++) {
-                const x = i;
-                const y = mid - (decisionHistory[i] * scale);
-                if (i === 0) ddmCtx.moveTo(x, y);
+            ddmCtx.beginPath();
+            
+            const step = ddmCanvas.width / decisionHistory.length;
+            
+            decisionHistory.forEach((val, i) => {
+                const x = i * step;
+                const y = mid - (val * scale);
+                if (i===0) ddmCtx.moveTo(x, y);
                 else ddmCtx.lineTo(x, y);
-            }
+            });
             ddmCtx.stroke();
         }
 
         function loop() {
-            frame++;
-            if (frame % 200 === 0) spawnObstacle();
-
-            // Find nearest
-            const nearest = obstacles.find(o => o.y < car.y && o.y > -50);
-            updateDDM(nearest);
-
-            drawRoad();
-            drawObstacles();
-            drawCar();
-            drawDDMGraph();
-
+            updatePhysics();
             requestAnimationFrame(loop);
         }
 
-        // Start
-        setMode('self'); // Init
+        // Init
+        setMode('self');
         loop();
 
     </script>
