@@ -20,7 +20,6 @@
             border-radius: 24px;
             overflow: hidden; 
             background: #fff;
-            /* This ensures the large map fits on your laptop screen */
             width: 95vw; 
             height: 95vh;
             display: flex;
@@ -28,7 +27,6 @@
             align-items: center;
         }
 
-        /* The canvas will scale down to fit the container */
         #gameCanvas { 
             display: block; 
             background: #e6e6e6; 
@@ -57,12 +55,11 @@
 
         #stun-msg {
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            color: #d93025; font-size: 42px; font-weight: 900; 
-            text-shadow: 2px 2px white; display: none; pointer-events: none;
+            color: #d93025; font-size: 50px; font-weight: 900; 
+            text-shadow: 3px 3px white; display: none; pointer-events: none;
             z-index: 15; text-transform: uppercase;
         }
 
-        /* Debug Text */
         #debug-text {
             position: absolute; bottom: 10px; left: 10px;
             background: rgba(0,0,0,0.7); color: yellow; padding: 8px;
@@ -99,7 +96,7 @@
             Hit the 6 stops.<br>
             Finish at Tina's Tavern.<br>
             <br>
-            <small style="color:#d93025">Warning: The 626 Grinch is active.</small>
+            <small style="color:#d93025">Warning: The 626 Grinch is huge now.</small>
         </p>
         <button class="btn" onclick="startGame()">START ENGINE</button>
     </div>
@@ -109,10 +106,8 @@
 
 <script>
 // --- CONFIGURATION ---
-const SPEED = 8; // Slightly faster for the bigger map
+const SPEED = 9; 
 const TURN_SPEED = 0.07;
-
-// UPDATED TO MATCH YOUR IMAGE SIZE EXACTLY
 const CANVAS_WIDTH = 1698; 
 const CANVAS_HEIGHT = 1162;
 
@@ -129,12 +124,9 @@ function loadImage(key, src) {
     images[key] = img;
 }
 
-// Load assets
 loadImage('map', 'images/map.png'); 
 loadImage('truck', 'images/truck.png');
 loadImage('grinch', 'images/grinch.png');
-
-// Buildings
 loadImage('usps', 'images/usps.png');
 loadImage('portos', 'images/portos.png');
 loadImage('hurst', 'images/hurst.png');
@@ -145,29 +137,34 @@ loadImage('theater', 'images/theater.png');
 loadImage('tavern', 'images/tavern.png');
 
 // --- GAME STATE ---
-// Start somewhere safe for now (0,0) until you fix coordinates
-let player = { x: 100, y: 100, angle: Math.PI, speed: 0 }; 
+let player = { x: 1060, y: 171, angle: Math.PI, speed: 0 }; 
 let keys = {};
 let deliveriesMade = 0;
 let startTime = 0;
 let isGameRunning = false;
 let isStunned = false;
-let grinch = { x: 800, y: 600, size: 24, timer: 0 };
+let grinch = { x: 800, y: 600, size: 40, timer: 0 };
 
 /**
  * LOCATIONS
- * These are OLD coordinates. They will be wrong on the new map.
- * CLICK THE MAP IN-GAME TO GET THE NEW NUMBERS!
+ * Sizes increased by ~30%
  */
 const locations = [
-    { name: "Post Office", x: 569, y: 120, w: 50, h: 40, color: "blue", delivered: true, type: "depot", img: 'usps' },
-    { name: "Porto's Bakery", x: 543, y: 94, w: 50, h: 40, color: "orange", delivered: false, type: "building", img: 'portos' },
-    { name: "Hurst Ranch", x: 375, y: 205, w: 50, h: 50, color: "green", delivered: false, type: "building", img: 'hurst' },
-    { name: "CSHA Hockey", x: 425, y: 201, w: 50, h: 40, color: "cyan", delivered: false, type: "building", img: 'hockey' },
-    { name: "The Donut Hole", x: 400, y: 622, w: 80, h: 40, color: "brown", delivered: false, type: "tunnel", img: 'donut' },
-    { name: "Big League Dreams", x: 798, y: 571, w: 80, h: 60, color: "blue", delivered: false, type: "building", img: 'stadium' },
-    { name: "Edwards Cinema", x: 620, y: 110, w: 60, h: 50, color: "purple", delivered: false, type: "building", img: 'theater' },
-    { name: "Tina's Tavern", x: 679, y: 116, w: 40, h: 40, color: "red", delivered: false, type: "finish", img: 'tavern' }
+    // Start Point
+    { name: "Post Office", x: 1060, y: 171, w: 65, h: 52, color: "blue", delivered: true, type: "depot", img: 'usps' },
+    
+    // Route
+    { name: "Porto's Bakery", x: 963, y: 137, w: 65, h: 52, color: "orange", delivered: false, type: "building", img: 'portos' },
+    { name: "Hurst Ranch", x: 628, y: 286, w: 65, h: 65, color: "green", delivered: false, type: "building", img: 'hurst' },
+    { name: "CSHA Hockey", x: 730, y: 292, w: 65, h: 52, color: "cyan", delivered: false, type: "building", img: 'hockey' },
+    { name: "The Donut Hole", x: 692, y: 906, w: 105, h: 52, color: "brown", delivered: false, type: "tunnel", img: 'donut' },
+    { name: "Big League Dreams", x: 1424, y: 812, w: 105, h: 80, color: "blue", delivered: false, type: "building", img: 'stadium' },
+    
+    // Placed Edwards near Tavern as estimate (x:1320)
+    { name: "Edwards Cinema", x: 1320, y: 140, w: 80, h: 65, color: "purple", delivered: false, type: "building", img: 'theater' },
+    
+    // Finish
+    { name: "Tina's Tavern", x: 1239, y: 149, w: 65, h: 65, color: "red", delivered: false, type: "finish", img: 'tavern' }
 ];
 
 let deliveryOrder = [1, 2, 3, 4, 5, 6, 7]; 
@@ -177,20 +174,14 @@ let currentOrderIndex = 0;
 window.addEventListener('keydown', e => keys[e.key] = true);
 window.addEventListener('keyup', e => keys[e.key] = false);
 
-// --- SMART DEBUGGER (HANDLES SCALING) ---
+// --- DEBUGGER ---
 canvas.addEventListener('mousedown', (e) => {
     const rect = canvas.getBoundingClientRect();
-    
-    // Calculate how much the canvas is being squished by CSS
     const scaleX = canvas.width / rect.width;   
     const scaleY = canvas.height / rect.height;
-    
-    // Calculate actual game coordinates
     const x = Math.round((e.clientX - rect.left) * scaleX);
     const y = Math.round((e.clientY - rect.top) * scaleY);
-    
     alert(`COORDINATES:\nx: ${x}, y: ${y}`);
-    console.log(`x: ${x}, y: ${y}`);
 });
 
 // --- GAME ENGINE ---
@@ -200,7 +191,7 @@ function startGame() {
     document.getElementById('message-box').style.display = "none";
     let startLoc = locations[0];
     player.x = startLoc.x; 
-    player.y = startLoc.y + 40; 
+    player.y = startLoc.y + 60; 
     player.angle = Math.PI; 
     player.speed = 0;
     
@@ -244,7 +235,6 @@ function updatePlayer() {
         return;
     }
 
-    // Driving Logic
     if (keys['ArrowUp'] || keys['w']) player.speed = SPEED;
     else if (keys['ArrowDown'] || keys['s']) player.speed = -SPEED / 2;
     else player.speed *= 0.9; 
@@ -258,7 +248,6 @@ function updatePlayer() {
     player.x += Math.sin(player.angle) * player.speed;
     player.y -= Math.cos(player.angle) * player.speed;
 
-    // Boundaries
     if (player.x < 0) player.x = 0;
     if (player.x > CANVAS_WIDTH) player.x = CANVAS_WIDTH;
     if (player.y < 0) player.y = 0;
@@ -273,7 +262,8 @@ function updateGrinch() {
         grinch.timer = 0;
     }
     let dist = Math.hypot(player.x - grinch.x, player.y - grinch.y);
-    if (dist < 40 && !isStunned) triggerGrinchStun();
+    // Increased collision radius for bigger Grinch
+    if (dist < 60 && !isStunned) triggerGrinchStun();
 }
 
 function triggerGrinchStun() {
@@ -294,8 +284,8 @@ function checkDeliveries() {
     let target = locations[deliveryOrder[currentOrderIndex]];
     let dist = Math.hypot(player.x - (target.x + target.w/2), player.y - (target.y + target.h/2));
 
-    if (dist < 100 && !target.delivered) { // Increased detection radius for big map
-        if(target.type === "tunnel" && Math.abs(player.y - (target.y+20)) > 40) return;
+    if (dist < 100 && !target.delivered) { 
+        if(target.type === "tunnel" && Math.abs(player.y - (target.y+20)) > 50) return;
         if(target.type === 'finish') {
             if(deliveriesMade < 6) return;
             endGame();
@@ -320,7 +310,6 @@ function endGame() {
 }
 
 function draw() {
-    // 1. BACKGROUND
     if (images['map'] && images['map'].complete) {
         ctx.drawImage(images['map'], 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     } else {
@@ -328,7 +317,6 @@ function draw() {
         ctx.fillStyle = "#555"; ctx.fillText("Map Loading...", 50, 50);
     }
 
-    // 2. LOCATIONS
     locations.forEach((l, index) => {
         let img = images[l.img];
         if (l.delivered && l.type !== 'depot') ctx.globalAlpha = 0.5;
@@ -340,56 +328,51 @@ function draw() {
         }
         ctx.globalAlpha = 1.0;
 
-        ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 3;
-        ctx.font = "bold 16px Roboto";
+        ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 4;
+        ctx.font = "bold 18px Roboto"; // Bigger Font
         ctx.strokeText(l.name, l.x, l.y - 10); ctx.fillText(l.name, l.x, l.y - 10);
         
         if (index === deliveryOrder[currentOrderIndex]) {
             let bounce = Math.sin(Date.now() / 200) * 8;
             ctx.fillStyle = "#ea4335"; 
             ctx.beginPath();
-            ctx.moveTo(l.x + l.w/2, l.y - 40 + bounce);
-            ctx.lineTo(l.x + l.w/2 - 12, l.y - 60 + bounce);
-            ctx.lineTo(l.x + l.w/2 + 12, l.y - 60 + bounce);
+            ctx.moveTo(l.x + l.w/2, l.y - 45 + bounce);
+            ctx.lineTo(l.x + l.w/2 - 15, l.y - 65 + bounce);
+            ctx.lineTo(l.x + l.w/2 + 15, l.y - 65 + bounce);
             ctx.fill();
         }
     });
 
-    // 3. GRINCH
+    // 3. GRINCH (BIGGER)
     ctx.save();
     ctx.translate(grinch.x, grinch.y);
     ctx.rotate(Math.sin(Date.now()/100)*0.3); 
     if (images['grinch'] && images['grinch'].complete) {
-        ctx.drawImage(images['grinch'], -30, -30, 60, 60);
+        // Size increased to 80x80
+        ctx.drawImage(images['grinch'], -40, -40, 80, 80);
     } else {
-        ctx.fillStyle = "#32CD32"; ctx.fillRect(-20,-20,40,40);
+        ctx.fillStyle = "#32CD32"; ctx.fillRect(-30,-30,60,60);
     }
     ctx.restore();
     
     ctx.fillStyle = "#32CD32"; ctx.strokeStyle = "black"; ctx.lineWidth = 3;
-    ctx.font = "bold 16px Roboto";
-    ctx.strokeText("626 GRINCH", grinch.x - 40, grinch.y - 40);
-    ctx.fillText("626 GRINCH", grinch.x - 40, grinch.y - 40);
+    ctx.font = "bold 18px Roboto";
+    ctx.strokeText("626 GRINCH", grinch.x - 50, grinch.y - 50);
+    ctx.fillText("626 GRINCH", grinch.x - 50, grinch.y - 50);
 
-    // 4. PLAYER (TRUCK)
+    // 4. PLAYER
     ctx.save();
     ctx.translate(player.x, player.y);
-    
-    // --- TRUCK ROTATION FIX ---
-    // If your truck faces DOWN-LEFT, we rotate it +2.35 radians to face UP
-    // Tweak this number if it looks crooked (Try: 0, 1.57, 3.14, 4.7)
-    ctx.rotate(player.angle + 2.35); 
+    ctx.rotate(player.angle + 2.35); // Adjust rotation if needed
 
     if (images['truck'] && images['truck'].complete) {
-        // Draw truck (Slightly larger for big map)
         ctx.drawImage(images['truck'], -25, -25, 50, 50);
     } else {
         ctx.fillStyle = "white"; ctx.fillRect(-10, -20, 20, 40);
         ctx.fillStyle = "blue"; ctx.fillRect(-10, -5, 20, 5);
     }
     
-    // GPS Arrow on Hood
-    ctx.rotate(-(player.angle + 2.35)); // Undo truck rotation for the GPS arrow
+    ctx.rotate(-(player.angle + 2.35)); 
     if(currentOrderIndex < deliveryOrder.length && !isStunned) {
         let t = locations[deliveryOrder[currentOrderIndex]];
         let targetAngle = Math.atan2((t.y + t.h/2) - player.y, (t.x + t.w/2) - player.x);
