@@ -96,7 +96,7 @@
             Hit the 6 stops.<br>
             Finish at Tina's Tavern.<br>
             <br>
-            <small style="color:#d93025">Warning: The 626 Grinch is huge now.</small>
+            <small style="color:#d93025">Warning: The 626 Grinch is active.</small>
         </p>
         <button class="btn" onclick="startGame()">START ENGINE</button>
     </div>
@@ -147,24 +147,27 @@ let grinch = { x: 800, y: 600, size: 40, timer: 0 };
 
 /**
  * LOCATIONS
- * Sizes increased by ~30%
+ * Sizes increased by 20% + Donut Hole Ratio Fix
  */
 const locations = [
     // Start Point
-    { name: "Post Office", x: 1060, y: 171, w: 65, h: 52, color: "blue", delivered: true, type: "depot", img: 'usps' },
+    { name: "Post Office", x: 1060, y: 171, w: 80, h: 65, color: "blue", delivered: true, type: "depot", img: 'usps' },
     
     // Route
-    { name: "Porto's Bakery", x: 963, y: 137, w: 65, h: 52, color: "orange", delivered: false, type: "building", img: 'portos' },
-    { name: "Hurst Ranch", x: 628, y: 286, w: 65, h: 65, color: "green", delivered: false, type: "building", img: 'hurst' },
-    { name: "CSHA Hockey", x: 730, y: 292, w: 65, h: 52, color: "cyan", delivered: false, type: "building", img: 'hockey' },
-    { name: "The Donut Hole", x: 692, y: 906, w: 105, h: 52, color: "brown", delivered: false, type: "tunnel", img: 'donut' },
-    { name: "Big League Dreams", x: 1424, y: 812, w: 105, h: 80, color: "blue", delivered: false, type: "building", img: 'stadium' },
+    { name: "Porto's Bakery", x: 963, y: 137, w: 80, h: 65, color: "orange", delivered: false, type: "building", img: 'portos' },
+    { name: "Hurst Ranch", x: 628, y: 286, w: 80, h: 80, color: "green", delivered: false, type: "building", img: 'hurst' },
+    { name: "CSHA Hockey", x: 730, y: 292, w: 80, h: 65, color: "cyan", delivered: false, type: "building", img: 'hockey' },
     
-    // Placed Edwards near Tavern as estimate (x:1320)
-    { name: "Edwards Cinema", x: 1320, y: 140, w: 80, h: 65, color: "purple", delivered: false, type: "building", img: 'theater' },
+    // Donut hole made taller to fix "squashed" look
+    { name: "The Donut Hole", x: 692, y: 906, w: 150, h: 85, color: "brown", delivered: false, type: "tunnel", img: 'donut' },
     
-    // Finish
-    { name: "Tina's Tavern", x: 1239, y: 149, w: 65, h: 65, color: "red", delivered: false, type: "finish", img: 'tavern' }
+    { name: "Big League Dreams", x: 1424, y: 812, w: 130, h: 100, color: "blue", delivered: false, type: "building", img: 'stadium' },
+    
+    // Edwards moved to the LEFT of Tina's (approx x: 1120)
+    { name: "Edwards Cinema", x: 1120, y: 140, w: 100, h: 80, color: "purple", delivered: false, type: "building", img: 'theater' },
+    
+    // Finish (Tina's is at x: 1239)
+    { name: "Tina's Tavern", x: 1239, y: 149, w: 80, h: 80, color: "red", delivered: false, type: "finish", img: 'tavern' }
 ];
 
 let deliveryOrder = [1, 2, 3, 4, 5, 6, 7]; 
@@ -262,8 +265,7 @@ function updateGrinch() {
         grinch.timer = 0;
     }
     let dist = Math.hypot(player.x - grinch.x, player.y - grinch.y);
-    // Increased collision radius for bigger Grinch
-    if (dist < 60 && !isStunned) triggerGrinchStun();
+    if (dist < 80 && !isStunned) triggerGrinchStun();
 }
 
 function triggerGrinchStun() {
@@ -284,8 +286,8 @@ function checkDeliveries() {
     let target = locations[deliveryOrder[currentOrderIndex]];
     let dist = Math.hypot(player.x - (target.x + target.w/2), player.y - (target.y + target.h/2));
 
-    if (dist < 100 && !target.delivered) { 
-        if(target.type === "tunnel" && Math.abs(player.y - (target.y+20)) > 50) return;
+    if (dist < 120 && !target.delivered) { 
+        if(target.type === "tunnel" && Math.abs(player.y - (target.y+20)) > 60) return;
         if(target.type === 'finish') {
             if(deliveriesMade < 6) return;
             endGame();
@@ -328,9 +330,7 @@ function draw() {
         }
         ctx.globalAlpha = 1.0;
 
-        ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 4;
-        ctx.font = "bold 18px Roboto"; // Bigger Font
-        ctx.strokeText(l.name, l.x, l.y - 10); ctx.fillText(l.name, l.x, l.y - 10);
+        // --- LABELS REMOVED PER REQUEST ---
         
         if (index === deliveryOrder[currentOrderIndex]) {
             let bounce = Math.sin(Date.now() / 200) * 8;
@@ -348,25 +348,21 @@ function draw() {
     ctx.translate(grinch.x, grinch.y);
     ctx.rotate(Math.sin(Date.now()/100)*0.3); 
     if (images['grinch'] && images['grinch'].complete) {
-        // Size increased to 80x80
-        ctx.drawImage(images['grinch'], -40, -40, 80, 80);
+        ctx.drawImage(images['grinch'], -50, -50, 100, 100);
     } else {
         ctx.fillStyle = "#32CD32"; ctx.fillRect(-30,-30,60,60);
     }
     ctx.restore();
     
-    ctx.fillStyle = "#32CD32"; ctx.strokeStyle = "black"; ctx.lineWidth = 3;
-    ctx.font = "bold 18px Roboto";
-    ctx.strokeText("626 GRINCH", grinch.x - 50, grinch.y - 50);
-    ctx.fillText("626 GRINCH", grinch.x - 50, grinch.y - 50);
+    // GRINCH TEXT REMOVED to match "No Labels" style
 
     // 4. PLAYER
     ctx.save();
     ctx.translate(player.x, player.y);
-    ctx.rotate(player.angle + 2.35); // Adjust rotation if needed
+    ctx.rotate(player.angle + 2.35); 
 
     if (images['truck'] && images['truck'].complete) {
-        ctx.drawImage(images['truck'], -25, -25, 50, 50);
+        ctx.drawImage(images['truck'], -30, -30, 60, 60);
     } else {
         ctx.fillStyle = "white"; ctx.fillRect(-10, -20, 20, 40);
         ctx.fillStyle = "blue"; ctx.fillRect(-10, -5, 20, 5);
@@ -381,7 +377,7 @@ function draw() {
         ctx.rotate(player.angle + relAngle); 
         ctx.fillStyle = "#fbbc04"; 
         ctx.beginPath();
-        ctx.moveTo(0, -50); ctx.lineTo(-10, -30); ctx.lineTo(10, -30); ctx.fill();
+        ctx.moveTo(0, -60); ctx.lineTo(-12, -40); ctx.lineTo(12, -40); ctx.fill();
     }
     ctx.restore();
 }
