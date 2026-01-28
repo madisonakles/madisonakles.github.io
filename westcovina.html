@@ -3,7 +3,6 @@
 <head>
     <title>West Covina Postal Panic: 626 Edition</title>
     <style>
-        /* GOOGLE STYLE: Clean, light background */
         body { 
             margin: 0; 
             background: #f0f2f5; 
@@ -15,71 +14,69 @@
             height: 100vh;
         }
 
-        /* THE CARD: Rounded edges and shadow */
         #game-container {
             position: relative;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             border-radius: 24px;
-            overflow: hidden; /* Clips the canvas corners */
-            width: 1100px;
-            height: 800px;
+            overflow: hidden; 
             background: #fff;
+            /* This ensures the large map fits on your laptop screen */
+            width: 95vw; 
+            height: 95vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
+        /* The canvas will scale down to fit the container */
         #gameCanvas { 
             display: block; 
             background: #e6e6e6; 
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: crosshair; 
         }
         
-        /* UI Overlay - Floating Pill Style */
         #ui {
             position: absolute; top: 20px; left: 20px; 
-            color: #333;
-            background: rgba(255, 255, 255, 0.95); 
-            padding: 12px 20px; 
-            border-radius: 12px;
-            pointer-events: none; 
-            font-size: 16px; 
-            font-weight: bold;
-            z-index: 10;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 20px;
+            color: #333; background: rgba(255, 255, 255, 0.95); 
+            padding: 12px 20px; border-radius: 12px;
+            pointer-events: none; font-size: 16px; font-weight: bold;
+            z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex; gap: 20px;
         }
         
-        /* Message Box - Centered Modal */
         #message-box {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; color: #202124; 
-            padding: 40px;
-            text-align: center; 
-            border-radius: 16px;
+            background: white; color: #202124; padding: 40px;
+            text-align: center; border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 400px; 
-            z-index: 20;
-            display: none;
-            font-family: 'Google Sans', 'Arial', sans-serif;
+            width: 400px; z-index: 20; display: none;
         }
 
         #stun-msg {
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
             color: #d93025; font-size: 42px; font-weight: 900; 
-            text-shadow: 2px 2px white; 
-            display: none; pointer-events: none;
-            z-index: 15;
-            text-transform: uppercase;
-            font-family: 'Arial Black', sans-serif;
+            text-shadow: 2px 2px white; display: none; pointer-events: none;
+            z-index: 15; text-transform: uppercase;
+        }
+
+        /* Debug Text */
+        #debug-text {
+            position: absolute; bottom: 10px; left: 10px;
+            background: rgba(0,0,0,0.7); color: yellow; padding: 8px;
+            font-family: monospace; font-size: 14px; pointer-events: none;
+            border-radius: 4px;
         }
 
         h1 { margin: 0 0 10px 0; font-size: 24px; color: #1a73e8; }
         p { color: #5f6368; line-height: 1.6; margin-bottom: 25px; }
-        
         .btn {
             background: #1a73e8; color: white; border: none; padding: 12px 24px;
             font-size: 16px; cursor: pointer; font-weight: bold; 
             border-radius: 8px; transition: background 0.2s;
         }
-        .btn:hover { background: #1557b0; }
     </style>
 </head>
 <body>
@@ -92,6 +89,7 @@
     </div>
 
     <div id="stun-msg">CAUGHT BY THE 626 GRINCH!</div>
+    <div id="debug-text">DEBUG MODE: Click map to get X/Y coordinates</div>
 
     <div id="message-box">
         <h1 id="msg-title">Postal Panic: West Covina</h1>
@@ -111,10 +109,12 @@
 
 <script>
 // --- CONFIGURATION ---
-const SPEED = 6;
-const TURN_SPEED = 0.08;
-const CANVAS_WIDTH = 1100; 
-const CANVAS_HEIGHT = 800;
+const SPEED = 8; // Slightly faster for the bigger map
+const TURN_SPEED = 0.07;
+
+// UPDATED TO MATCH YOUR IMAGE SIZE EXACTLY
+const CANVAS_WIDTH = 1698; 
+const CANVAS_HEIGHT = 1162;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -129,7 +129,7 @@ function loadImage(key, src) {
     images[key] = img;
 }
 
-// Load assets from the 'images' folder
+// Load assets
 loadImage('map', 'images/map.png'); 
 loadImage('truck', 'images/truck.png');
 loadImage('grinch', 'images/grinch.png');
@@ -145,34 +145,28 @@ loadImage('theater', 'images/theater.png');
 loadImage('tavern', 'images/tavern.png');
 
 // --- GAME STATE ---
-// Starting at Post Office Coordinates
-let player = { x: 569, y: 120, angle: Math.PI, speed: 0 }; 
+// Start somewhere safe for now (0,0) until you fix coordinates
+let player = { x: 100, y: 100, angle: Math.PI, speed: 0 }; 
 let keys = {};
 let deliveriesMade = 0;
 let startTime = 0;
 let isGameRunning = false;
 let isStunned = false;
-let grinch = { x: 500, y: 400, size: 24, timer: 0 };
+let grinch = { x: 800, y: 600, size: 24, timer: 0 };
 
 /**
  * LOCATIONS
- * Updated with your specific coordinates!
+ * These are OLD coordinates. They will be wrong on the new map.
+ * CLICK THE MAP IN-GAME TO GET THE NEW NUMBERS!
  */
 const locations = [
-    // Start Point
     { name: "Post Office", x: 569, y: 120, w: 50, h: 40, color: "blue", delivered: true, type: "depot", img: 'usps' },
-    
-    // Delivery Targets
     { name: "Porto's Bakery", x: 543, y: 94, w: 50, h: 40, color: "orange", delivered: false, type: "building", img: 'portos' },
     { name: "Hurst Ranch", x: 375, y: 205, w: 50, h: 50, color: "green", delivered: false, type: "building", img: 'hurst' },
     { name: "CSHA Hockey", x: 425, y: 201, w: 50, h: 40, color: "cyan", delivered: false, type: "building", img: 'hockey' },
     { name: "The Donut Hole", x: 400, y: 622, w: 80, h: 40, color: "brown", delivered: false, type: "tunnel", img: 'donut' },
     { name: "Big League Dreams", x: 798, y: 571, w: 80, h: 60, color: "blue", delivered: false, type: "building", img: 'stadium' },
-    
-    // I placed Edwards nearby Tina's since you didn't specify a coord for it
     { name: "Edwards Cinema", x: 620, y: 110, w: 60, h: 50, color: "purple", delivered: false, type: "building", img: 'theater' },
-    
-    // Finish Line
     { name: "Tina's Tavern", x: 679, y: 116, w: 40, h: 40, color: "red", delivered: false, type: "finish", img: 'tavern' }
 ];
 
@@ -183,12 +177,27 @@ let currentOrderIndex = 0;
 window.addEventListener('keydown', e => keys[e.key] = true);
 window.addEventListener('keyup', e => keys[e.key] = false);
 
+// --- SMART DEBUGGER (HANDLES SCALING) ---
+canvas.addEventListener('mousedown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    
+    // Calculate how much the canvas is being squished by CSS
+    const scaleX = canvas.width / rect.width;   
+    const scaleY = canvas.height / rect.height;
+    
+    // Calculate actual game coordinates
+    const x = Math.round((e.clientX - rect.left) * scaleX);
+    const y = Math.round((e.clientY - rect.top) * scaleY);
+    
+    alert(`COORDINATES:\nx: ${x}, y: ${y}`);
+    console.log(`x: ${x}, y: ${y}`);
+});
+
 // --- GAME ENGINE ---
 document.getElementById('message-box').style.display = "block";
 
 function startGame() {
     document.getElementById('message-box').style.display = "none";
-    // Reset Player to Post Office
     let startLoc = locations[0];
     player.x = startLoc.x; 
     player.y = startLoc.y + 40; 
@@ -227,7 +236,6 @@ function gameLoop() {
 }
 
 function updatePlayer() {
-    // Spin if hit by Grinch
     if (isStunned) {
         player.speed *= 0.9;
         player.angle += 0.4; 
@@ -236,6 +244,7 @@ function updatePlayer() {
         return;
     }
 
+    // Driving Logic
     if (keys['ArrowUp'] || keys['w']) player.speed = SPEED;
     else if (keys['ArrowDown'] || keys['s']) player.speed = -SPEED / 2;
     else player.speed *= 0.9; 
@@ -249,6 +258,7 @@ function updatePlayer() {
     player.x += Math.sin(player.angle) * player.speed;
     player.y -= Math.cos(player.angle) * player.speed;
 
+    // Boundaries
     if (player.x < 0) player.x = 0;
     if (player.x > CANVAS_WIDTH) player.x = CANVAS_WIDTH;
     if (player.y < 0) player.y = 0;
@@ -258,27 +268,20 @@ function updatePlayer() {
 function updateGrinch() {
     grinch.timer++;
     if (grinch.timer > 100) {
-        // Grinch roams the center area
-        grinch.x = 300 + Math.random() * 500; 
-        grinch.y = 200 + Math.random() * 400; 
+        grinch.x = Math.random() * CANVAS_WIDTH; 
+        grinch.y = Math.random() * CANVAS_HEIGHT; 
         grinch.timer = 0;
     }
-    
     let dist = Math.hypot(player.x - grinch.x, player.y - grinch.y);
-    if (dist < 40 && !isStunned) {
-        triggerGrinchStun();
-    }
+    if (dist < 40 && !isStunned) triggerGrinchStun();
 }
 
 function triggerGrinchStun() {
     isStunned = true;
     let msg = document.getElementById('stun-msg');
     msg.style.display = 'block';
-    
-    // Red flash
     document.getElementById('game-container').style.boxShadow = "0 0 50px red";
     setTimeout(() => { document.getElementById('game-container').style.boxShadow = "0 15px 35px rgba(0,0,0,0.2)"; }, 200);
-
     setTimeout(() => {
         isStunned = false;
         msg.style.display = 'none';
@@ -291,16 +294,13 @@ function checkDeliveries() {
     let target = locations[deliveryOrder[currentOrderIndex]];
     let dist = Math.hypot(player.x - (target.x + target.w/2), player.y - (target.y + target.h/2));
 
-    // 80px radius
-    if (dist < 80 && !target.delivered) { 
+    if (dist < 100 && !target.delivered) { // Increased detection radius for big map
         if(target.type === "tunnel" && Math.abs(player.y - (target.y+20)) > 40) return;
-
         if(target.type === 'finish') {
             if(deliveriesMade < 6) return;
             endGame();
             return;
         }
-        
         target.delivered = true;
         deliveriesMade++;
         currentOrderIndex++;
@@ -313,8 +313,7 @@ function endGame() {
     let finalTime = Math.floor((Date.now() - startTime) / 1000);
     document.getElementById('message-box').innerHTML = `
         <h1 style="color:#188038">ROUTE COMPLETE!</h1>
-        <p>Time: <b>${finalTime} seconds</b>.<br>
-        Enjoy your drink at Tina's.</p>
+        <p>Time: <b>${finalTime} seconds</b>.<br>Enjoy your drink at Tina's.</p>
         <button class="btn" onclick="location.reload()">PLAY AGAIN</button>
     `;
     document.getElementById('message-box').style.display = "block";
@@ -325,42 +324,33 @@ function draw() {
     if (images['map'] && images['map'].complete) {
         ctx.drawImage(images['map'], 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     } else {
-        ctx.fillStyle = "#e8eaed"; 
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.fillStyle = "#555";
-        ctx.fillText("Map Loading...", 50, 50);
+        ctx.fillStyle = "#e8eaed"; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = "#555"; ctx.fillText("Map Loading...", 50, 50);
     }
 
     // 2. LOCATIONS
     locations.forEach((l, index) => {
         let img = images[l.img];
-        
         if (l.delivered && l.type !== 'depot') ctx.globalAlpha = 0.5;
 
         if (img && img.complete && img.naturalWidth !== 0) {
             ctx.drawImage(img, l.x, l.y, l.w, l.h);
         } else {
-            ctx.fillStyle = l.color;
-            ctx.fillRect(l.x, l.y, l.w, l.h);
+            ctx.fillStyle = l.color; ctx.fillRect(l.x, l.y, l.w, l.h);
         }
         ctx.globalAlpha = 1.0;
 
-        // Label
-        ctx.fillStyle = "white";
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 3;
-        ctx.font = "bold 13px Roboto";
-        ctx.strokeText(l.name, l.x, l.y - 10);
-        ctx.fillText(l.name, l.x, l.y - 10);
+        ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 3;
+        ctx.font = "bold 16px Roboto";
+        ctx.strokeText(l.name, l.x, l.y - 10); ctx.fillText(l.name, l.x, l.y - 10);
         
-        // Target Indicator (Bouncing Arrow)
         if (index === deliveryOrder[currentOrderIndex]) {
             let bounce = Math.sin(Date.now() / 200) * 8;
-            ctx.fillStyle = "#ea4335"; // Google Red
+            ctx.fillStyle = "#ea4335"; 
             ctx.beginPath();
-            ctx.moveTo(l.x + l.w/2, l.y - 30 + bounce);
-            ctx.lineTo(l.x + l.w/2 - 8, l.y - 45 + bounce);
-            ctx.lineTo(l.x + l.w/2 + 8, l.y - 45 + bounce);
+            ctx.moveTo(l.x + l.w/2, l.y - 40 + bounce);
+            ctx.lineTo(l.x + l.w/2 - 12, l.y - 60 + bounce);
+            ctx.lineTo(l.x + l.w/2 + 12, l.y - 60 + bounce);
             ctx.fill();
         }
     });
@@ -370,40 +360,45 @@ function draw() {
     ctx.translate(grinch.x, grinch.y);
     ctx.rotate(Math.sin(Date.now()/100)*0.3); 
     if (images['grinch'] && images['grinch'].complete) {
-        ctx.drawImage(images['grinch'], -25, -25, 50, 50);
+        ctx.drawImage(images['grinch'], -30, -30, 60, 60);
     } else {
         ctx.fillStyle = "#32CD32"; ctx.fillRect(-20,-20,40,40);
     }
     ctx.restore();
     
-    ctx.fillStyle = "#32CD32"; 
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 3;
-    ctx.font = "bold 14px Roboto";
-    ctx.strokeText("626 GRINCH", grinch.x - 40, grinch.y - 35);
-    ctx.fillText("626 GRINCH", grinch.x - 40, grinch.y - 35);
+    ctx.fillStyle = "#32CD32"; ctx.strokeStyle = "black"; ctx.lineWidth = 3;
+    ctx.font = "bold 16px Roboto";
+    ctx.strokeText("626 GRINCH", grinch.x - 40, grinch.y - 40);
+    ctx.fillText("626 GRINCH", grinch.x - 40, grinch.y - 40);
 
-
-    // 4. PLAYER
+    // 4. PLAYER (TRUCK)
     ctx.save();
     ctx.translate(player.x, player.y);
-    ctx.rotate(player.angle);
+    
+    // --- TRUCK ROTATION FIX ---
+    // If your truck faces DOWN-LEFT, we rotate it +2.35 radians to face UP
+    // Tweak this number if it looks crooked (Try: 0, 1.57, 3.14, 4.7)
+    ctx.rotate(player.angle + 2.35); 
+
     if (images['truck'] && images['truck'].complete) {
-        ctx.drawImage(images['truck'], -15, -25, 30, 50);
+        // Draw truck (Slightly larger for big map)
+        ctx.drawImage(images['truck'], -25, -25, 50, 50);
     } else {
         ctx.fillStyle = "white"; ctx.fillRect(-10, -20, 20, 40);
         ctx.fillStyle = "blue"; ctx.fillRect(-10, -5, 20, 5);
     }
     
-    // GPS Arrow
+    // GPS Arrow on Hood
+    ctx.rotate(-(player.angle + 2.35)); // Undo truck rotation for the GPS arrow
     if(currentOrderIndex < deliveryOrder.length && !isStunned) {
         let t = locations[deliveryOrder[currentOrderIndex]];
         let targetAngle = Math.atan2((t.y + t.h/2) - player.y, (t.x + t.w/2) - player.x);
         let relAngle = targetAngle - player.angle;
-        ctx.rotate(relAngle);
-        ctx.fillStyle = "#fbbc04"; // Google Yellow
+        
+        ctx.rotate(player.angle + relAngle); 
+        ctx.fillStyle = "#fbbc04"; 
         ctx.beginPath();
-        ctx.moveTo(0, -35); ctx.lineTo(-8, -20); ctx.lineTo(8, -20); ctx.fill();
+        ctx.moveTo(0, -50); ctx.lineTo(-10, -30); ctx.lineTo(10, -30); ctx.fill();
     }
     ctx.restore();
 }
