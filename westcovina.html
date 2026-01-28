@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>West Covina Postal Panic: The True Loop</title>
+    <style>
+        body { margin: 0; background: #222; overflow: hidden; font-family: 'Courier New', monospace; }
+        #gameCanvas { display: block; margin: 0 auto; background: #e6e6e6; border: 4px solid #444; }
+        #ui {
+            position: absolute; top: 10px; left: 10px; color: white;
+            background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px;
+            pointer-events: none;
+            font-size: 18px;
+        }
+        #message-box {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0, 50, 0, 0.95); color: white; padding: 30px;
+            text-align: center; border: 4px solid white; display: none;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+            width: 420px;
+        }
+        h1 { margin: 0 0 15px 0; font-size: 28px; text-transform: uppercase; color: #ffcc00; }
+        p { font-size: 16px; line-height: 1.5; }
+        .btn {
+            background: #ffcc00; color: black; border: none; padding: 15px 30px;
+            font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 20px;
+            border-radius: 5px;
+        }
+        .btn:hover { background: #fff; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <div><b>STOPS:</b> <span id="score">0</span>/6</div>
+    <div><b>NEXT:</b> <span id="target" style="color:#ffcc00">Porto's Bakery</span></div>
+    <div><b>TIME:</b> <span id="timer">0</span>s</div>
+</div>
+
+<div id="message-box">
+    <h1 id="msg-title">WEST COVINA POSTAL PANIC</h1>
+    <p id="msg-text">
+        <b>THE ROUTE:</b><br>
+        1. Start at the Plaza (USPS)<br>
+        2. Hit the landmarks (Porto's, Hurst, CSHA)<br>
+        3. Loop down to the Donut Hole<br>
+        4. <b>RACE BACK</b> to The Lakes (Edwards)<br>
+        5. Finish at Tina's Tavern<br>
+        <br>
+        <i>Watch out for the Grinch!</i>
+    </p>
+    <button class="btn" onclick="startGame()">START ENGINE</button>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+/**
+ * CONFIGURATION
+ */
+const SPEED = 7;
+const TURN_SPEED = 0.09;
+const CANVAS_WIDTH = 1100;
+const CANVAS_HEIGHT = 800;
+
+// Setup Canvas
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = CANVAS_WIDTH;
+canvas.height = CANVAS_HEIGHT;
+
+// Game State Variables
+let player = { x: 800, y: 150, angle: Math.PI, speed: 0 }; 
+let keys = {};
+let deliveriesMade = 0;
+let startTime = 0;
+let isGameRunning = false;
+let currentTargetIndex = 0;
+
+// The Grinch (Roaming Hazard)
+let grinch = { x: 500, y: 400, size: 24, timer: 0 };
+
+/**
+ * MAP DATA 
+ * Top Right = Plaza (Start) + Edwards + Tina's (Finish)
+ * Mid Left = Hurst/CSHA
+ * Bottom Left = Donut Hole
+ * Bottom Right = Big League Dreams
+ */
+const locations = [
+    // 1. The Plaza Cluster (Start)
+    { name: "Porto's Bakery", x: 850, y: 120, w: 60, h: 40, color: "#d2691e", delivered: false, type: "building" },
+    
+    // 2. The Mid-Left Cluster
+    { name: "Hurst Ranch", x: 200, y: 300, w: 60, h: 60, color: "#228b22", delivered: false, type: "building" },
+    { name: "CSHA Hockey", x: 300, y: 350, w: 60, h: 40, color: "#00bfff", delivered: false, type: "building" },
+    
+    // 3. The South-West Leg
+    { name: "The Donut Hole", x: 100, y: 650, w: 100, h: 40, color: "#8b4513", delivered: false, type: "tunnel" },
+    
+    // 4. The South-East Leg
+    { name: "Big League Dreams", x: 850, y: 650, w: 100, h: 80, color: "#4682b4", delivered: false, type: "building" },
+
+    // 5. Back to The Lakes (Top Right)
+    { name: "Edwards Cinema", x: 950, y: 120, w: 80, h: 60, color: "#800080", delivered: false, type: "building" },
+    
+    // 6. FINISH (Next to Edwards)
+    { name: "Tina's Tavern", x: 1040, y: 130, w: 50, h: 40, color: "#ff0000", delivered: false, type: "finish" }
+];
+
+// Roads connecting the locations (Rectangles)
+const roads = [
+    // Top Horizontal (The 10 Freewayish)
+    { x: 50, y: 180, w: 1050, h: 80 }, 
+    
+    // Right Vertical (Azusa Ave connecting Plaza to South)
+    { x: 880, y: 180, w: 60, h: 500 },
+    
+    // Left Vertical (Route to Donut Hole)
+    { x: 150, y: 180, w: 60, h: 500 },
+    
+    // Middle Connector (Merced/Valinda for Hurst/CSHA)
+    { x: 150, y: 320, w: 200, h: 50 },
+    
+    // Bottom Horizontal (Amar Rd)
+    { x: 50, y: 630, w: 1000, h: 60 },
+    
+    // Driveway for Donut Hole
+    { x: 120, y: 630, w: 60, h: 100 },
+    
+    // Plaza/Lakes Parking Lot (Top Right - Extended for Tina's)
+    { x: 800, y: 100, w: 300, h: 100 }
+];
+
+// Initialize
+document.getElementById('message-box').style.display = "block";
+
+// Input Handling
+window.addEventListener('keydown', e => keys[e.key] = true);
+window.addEventListener('keyup', e => keys[e.key] = false);
+
+function startGame() {
+    document.getElementById('message-box').style.display = "none";
+    // Reset Route
+    player.x = 820; // Start at Post Office (Plaza)
+    player.y = 150;
+    player.angle = Math.PI; // Face West
+    player.speed = 0;
+    
+    deliveriesMade = 0;
+    currentTargetIndex = 0;
+    locations.forEach(l => l.delivered = false);
+    
+    startTime = Date.now();
+    isGameRunning = true;
+    updateUI();
+    requestAnimationFrame(gameLoop);
+}
+
+function updateUI() {
+    document.getElementById('score').innerText = deliveriesMade;
+    if (currentTargetIndex < locations.length) {
+        if(locations[currentTargetIndex].type === 'finish') {
+            document.getElementById('target').innerText = "FINISH: Tina's Tavern";
+            document.getElementById('target').style.color = "red";
+        } else {
+            document.getElementById('target').innerText = locations[currentTargetIndex].name;
+            document.getElementById('target').style.color = "#ffcc00";
+        }
+    }
+}
+
+function gameLoop() {
+    if (!isGameRunning) return;
+
+    updatePlayer();
+    updateGrinch();
+    checkDeliveries();
+    draw();
+    
+    // Timer
+    let elapsed = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('timer').innerText = elapsed;
+
+    requestAnimationFrame(gameLoop);
+}
+
+function updatePlayer() {
+    // Acceleration
+    if (keys['ArrowUp'] || keys['w']) player.speed = SPEED;
+    else if (keys['ArrowDown'] || keys['s']) player.speed = -SPEED / 2;
+    else player.speed *= 0.94; // Friction
+
+    // Steering (only when moving)
+    if (Math.abs(player.speed) > 0.1) {
+        let turn = TURN_SPEED * (player.speed > 0 ? 1 : -1);
+        if (keys['ArrowLeft'] || keys['a']) player.angle -= turn;
+        if (keys['ArrowRight'] || keys['d']) player.angle += turn;
+    }
+
+    // Move
+    player.x += Math.sin(player.angle) * player.speed;
+    player.y -= Math.cos(player.angle) * player.speed;
+
+    // World Boundaries
+    if (player.x < 0) player.x = 0;
+    if (player.x > CANVAS_WIDTH) player.x = CANVAS_WIDTH;
+    if (player.y < 0) player.y = 0;
+    if (player.y > CANVAS_HEIGHT) player.y = CANVAS_HEIGHT;
+}
+
+function updateGrinch() {
+    // The Grinch roams the main intersection (middle of map)
+    grinch.timer++;
+    if (grinch.timer > 80) {
+        grinch.x = 400 + Math.random() * 300; // Roams the middle area
+        grinch.y = 180 + Math.random() * 400; 
+        grinch.timer = 0;
+    }
+
+    // Collision Check
+    let dist = Math.hypot(player.x - grinch.x, player.y - grinch.y);
+    if (dist < 35) {
+        // Penalty!
+        player.speed = -5;
+        startTime -= 5000; // Add 5 seconds penalty
+        
+        // Visual Feedback
+        ctx.fillStyle = "red";
+        ctx.fillRect(0,0,CANVAS_WIDTH, CANVAS_HEIGHT);
+    }
+}
+
+function checkDeliveries() {
+    if (currentTargetIndex >= locations.length) return;
+
+    let target = locations[currentTargetIndex];
+    let dist = Math.hypot(player.x - (target.x + target.w/2), player.y - (target.y + target.h/2));
+
+    // Proximity check
+    if (dist < 70 && !target.delivered) {
+        
+        // Donut Hole logic: Must be ON the Y-axis (driving through)
+        if(target.type === "tunnel" && Math.abs(player.y - (target.y+20)) > 20) return;
+
+        // Finish Line Logic
+        if (target.type === "finish") {
+            if (deliveriesMade >= 6) endGame(); // Only win if others are done
+            return;
+        }
+
+        // Success!
+        target.delivered = true;
+        deliveriesMade++;
+        currentTargetIndex++;
+        updateUI();
+    }
+}
+
+function endGame() {
+    isGameRunning = false;
+    let finalTime = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('msg-title').innerText = "SHIFT COMPLETE!";
+    document.getElementById('msg-text').innerHTML = `
+        You navigated the West Covina loop in <b>${finalTime} seconds</b>.<br>
+        Park the truck and grab a drink at Tina's.<br><br>
+        <small>Refresh to play again.</small>
+    `;
+    document.getElementById('message-box').style.display = "block";
+}
+
+function draw() {
+    // 1. Background (Suburban Grass)
+    ctx.fillStyle = "#8fbc8f"; 
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // 2. Roads
+    ctx.fillStyle = "#555";
+    roads.forEach(r => ctx.fillRect(r.x, r.y, r.w, r.h));
+    
+    // Road Markings (Yellow Lines)
+    ctx.strokeStyle = "#dba900";
+    ctx.setLineDash([20, 20]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    // Simplified center lines
+    ctx.moveTo(50, 220); ctx.lineTo(1050, 220); // Top
+    ctx.moveTo(910, 180); ctx.lineTo(910, 680); // Right
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3. Locations
+    locations.forEach(l => {
+        ctx.fillStyle = l.delivered ? "#444" : l.color;
+        
+        if (l.type === "tunnel") {
+            // Donut Hole Visual
+            ctx.beginPath();
+            ctx.arc(l.x, l.y + 20, 35, 0, Math.PI * 2);
+            ctx.arc(l.x + l.w, l.y + 20, 35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "white";
+            ctx.fillText("DONUT HOLE", l.x, l.y - 15);
+        } else {
+            // Building Visual
+            ctx.fillRect(l.x, l.y, l.w, l.h);
+            // Label
+            ctx.fillStyle = "black";
+            ctx.font = "bold 13px Arial";
+            ctx.fillText(l.name, l.x, l.y - 8);
+        }
+        
+        // Target Marker (Bouncing Arrow above target)
+        if(l === locations[currentTargetIndex]) {
+            ctx.fillStyle = "red";
+            let bounce = Math.sin(Date.now() / 200) * 10;
+            ctx.beginPath();
+            ctx.moveTo(l.x + l.w/2, l.y - 20 + bounce);
+            ctx.lineTo(l.x + l.w/2 - 10, l.y - 40 + bounce);
+            ctx.lineTo(l.x + l.w/2 + 10, l.y - 40 + bounce);
+            ctx.fill();
+        }
+    });
+
+    // 4. The Grinch
+    ctx.fillStyle = "#32CD32"; // Grinch Green
+    ctx.save();
+    ctx.translate(grinch.x, grinch.y);
+    ctx.rotate(Math.sin(Date.now()/100)*0.5); // Dancing
+    ctx.fillRect(-15, -15, 30, 30);
+    ctx.restore();
+    ctx.fillStyle = "black";
+    ctx.fillText("GRINCH", grinch.x - 25, grinch.y - 25);
+
+    // 5. Player (USPS Truck)
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.rotate(player.angle);
+    
+    // Truck
+    ctx.fillStyle = "white";
+    ctx.fillRect(-12, -20, 24, 40); // Body
+    ctx.fillStyle = "#add8e6";
+    ctx.fillRect(-10, -18, 20, 10); // Windshield
+    ctx.fillStyle = "blue";
+    ctx.fillRect(-12, -5, 24, 5); // Stripe
+    
+    // Navigation Arrow (On the hood)
+    if(currentTargetIndex < locations.length) {
+        let t = locations[currentTargetIndex];
+        let targetAngle = Math.atan2((t.y + t.h/2) - player.y, (t.x + t.w/2) - player.x);
+        let relAngle = targetAngle - player.angle;
+        
+        ctx.rotate(relAngle); // Rotate to point to target
+        ctx.fillStyle = "#ffcc00";
+        ctx.beginPath();
+        ctx.moveTo(0, -30); // Point
+        ctx.lineTo(-5, -20);
+        ctx.lineTo(5, -20);
+        ctx.fill();
+    }
+    
+    ctx.restore();
+}
+</script>
+</body>
+</html>
