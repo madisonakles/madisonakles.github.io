@@ -105,6 +105,11 @@
         }
         
         .apple-notification.show { transform: translateX(0); }
+        /* Add a class for fading out the idle message */
+        .apple-notification.fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
 
         .app-icon {
             width: 40px; height: 40px;
@@ -337,8 +342,13 @@
     // --- AUDIO SETUP ---
     // Make sure your file is named 'note.mp3' and is in the SAME folder.
     const notifSound = new Audio('note.mp3');
-    notifSound.volume = 0.5; // Quieter as requested
+    notifSound.volume = 0.5; 
 
+    // --- IDLE TIMER VARS ---
+    let idleTimer;
+    let idlePopupShown = false;
+
+    // --- MESSAGES ---
     const messages = [
         { title: "Maybe: CEO of Domino's", body: "John..." },
         { title: "Maybe: CEO of Domino's", body: "Bad News..." },
@@ -352,59 +362,73 @@
         notifSound.play().catch(e => console.log("Sound blocked:", e));
     }
 
+    // Function to create a generic notification bubble
+    function createNotifElement(title, body) {
+        const div = document.createElement('div');
+        div.className = 'apple-notification';
+        div.innerHTML = `
+            <div class="app-icon">
+                <div class="app-bubble">💬</div>
+            </div>
+            <div class="notif-content">
+                <div class="notif-header">
+                    <span class="notif-title">Messages</span>
+                    <span class="notif-time">now</span>
+                </div>
+                <div class="notif-header">
+                    <span style="font-weight:bold;">${title}</span>
+                </div>
+                <div class="notif-body">${body}</div>
+            </div>
+        `;
+        return div;
+    }
+
     function spawnNotif(msg, index) {
         // We calculate when the visual notification appears
         const visualDelay = index * 1500;
         
-        // --- SOUND TIMING LOGIC ---
-        // For the FIRST message (index 0), play sound 0.5s (500ms) BEFORE visuals.
-        // But since the loop runs inside a 4000ms delay block (see openPost),
-        // we can't physically play it "before" the timer starts. 
-        // Instead, we will set the visual delay to start LATER, and the sound 
-        // to happen relative to that.
-        
-        // HOWEVER, simpler approach based on your request:
-        // You asked: "make the first text audio play .5s before the first text message"
-        
-        let soundDelay = visualDelay; // Default: sound plays with visual
-        
-        if (index === 0) {
-            // For the first message, play sound 500ms earlier
-            // Note: This relies on the fact that this whole spawnNotif function 
-            // is called inside a 4000ms timeout. 
-            // So if we set a timeout for -500ms it won't work.
-            // We need to decouple sound scheduling.
-        }
-
         // VISUAL ELEMENT
         setTimeout(() => {
             const stack = document.getElementById('notif-stack');
-            const div = document.createElement('div');
-            div.className = 'apple-notification';
-            div.innerHTML = `
-                <div class="app-icon">
-                    <div class="app-bubble">💬</div>
-                </div>
-                <div class="notif-content">
-                    <div class="notif-header">
-                        <span class="notif-title">Messages</span>
-                        <span class="notif-time">now</span>
-                    </div>
-                    <div class="notif-header">
-                        <span style="font-weight:bold;">${msg.title}</span>
-                    </div>
-                    <div class="notif-body">
-                        ${msg.body}
-                    </div>
-                </div>
-            `;
+            const div = createNotifElement(msg.title, msg.body);
             stack.appendChild(div);
             setTimeout(() => div.classList.add('show'), 10);
         }, visualDelay);
     }
 
+    // --- IDLE POPUP FUNCTION ---
+    function triggerIdlePopup() {
+        if (idlePopupShown) return;
+        idlePopupShown = true;
+
+        // Try to play sound (might be blocked if zero interaction, but worth a try)
+        playNote();
+
+        const stack = document.getElementById('notif-stack');
+        const div = createNotifElement("Madison", "u have to click the highlighted one for this to be cool");
+        stack.appendChild(div);
+        
+        // Show
+        setTimeout(() => div.classList.add('show'), 10);
+
+        // Fade Out after 3 seconds
+        setTimeout(() => {
+            div.classList.add('fade-out');
+            setTimeout(() => div.remove(), 500); // Remove from DOM after fade
+        }, 3000);
+    }
+
+    // Start Idle Timer on Page Load
+    window.onload = function() {
+        idleTimer = setTimeout(triggerIdlePopup, 10000); // 10 seconds
+    };
+
     function openPost(e) {
         e.preventDefault();
+        
+        // STOP THE IDLE TIMER (User clicked!)
+        clearTimeout(idleTimer);
         
         // --- CRITICAL AUDIO FIX (Unlock) ---
         notifSound.volume = 0;
@@ -426,9 +450,6 @@
         setTimeout(() => playNote(), startDelay - 500); 
         
         // Schedule subsequent audio (sync with visual for msg 2, 3, 4)
-        // Msg 2: 4000 + 1500 = 5500
-        // Msg 3: 4000 + 3000 = 7000
-        // Msg 4: 4000 + 4500 = 8500
         setTimeout(() => playNote(), startDelay + 1500);
         setTimeout(() => playNote(), startDelay + 3000);
         setTimeout(() => playNote(), startDelay + 4500);
