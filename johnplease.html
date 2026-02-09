@@ -105,11 +105,8 @@
         }
         
         .apple-notification.show { transform: translateX(0); }
-        /* Add a class for fading out the idle message */
-        .apple-notification.fade-out {
-            opacity: 0;
-            transition: opacity 0.5s ease-out;
-        }
+        /* Keeping class but unused */
+        .apple-notification.fade-out { opacity: 0; transition: opacity 0.5s ease-out; }
 
         .app-icon {
             width: 40px; height: 40px;
@@ -385,7 +382,6 @@
     }
 
     function spawnNotif(msg, index) {
-        // We calculate when the visual notification appears
         const visualDelay = index * 1500;
         
         // VISUAL ELEMENT
@@ -411,17 +407,13 @@
         
         // Show
         setTimeout(() => div.classList.add('show'), 10);
-
-        // Fade Out after 3 seconds
-        setTimeout(() => {
-            div.classList.add('fade-out');
-            setTimeout(() => div.remove(), 500); // Remove from DOM after fade
-        }, 3000);
+        
+        // REMOVED: Auto fade-out code
     }
 
     // Start Idle Timer on Page Load
     window.onload = function() {
-        idleTimer = setTimeout(triggerIdlePopup, 10000); // 10 seconds
+        idleTimer = setTimeout(triggerIdlePopup, 6000); // 6 seconds
     };
 
     function openPost(e) {
