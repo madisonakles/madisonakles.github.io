@@ -320,11 +320,11 @@
     ];
 
     function playNote() {
-        // Clone the node so we can play overlapping sounds if they come in fast
-        // (Though with 1.5s spacing, simple play is fine, but this is safer)
-        const clone = notifSound.cloneNode();
-        clone.volume = 0.5;
-        clone.play().catch(e => console.log("Sound blocked:", e));
+        // RESET the audio to start and play the exact same object
+        // Do NOT cloneNode (clones lose the user-interaction permission)
+        notifSound.pause();
+        notifSound.currentTime = 0;
+        notifSound.play().catch(e => console.log("Sound blocked:", e));
     }
 
     function spawnNotif(msg, index) {
