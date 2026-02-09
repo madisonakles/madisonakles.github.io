@@ -2,121 +2,437 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>craigslist: nyc missed connections / concrete</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>craigslist: new york missed connections</title>
     <style>
         body {
-            font-family: "Times New Roman", Times, serif;
+            font-family: "Arial", sans-serif;
+            margin: 0;
+            padding: 0;
             background-color: #fff;
-            color: #000;
-            padding: 20px;
-            line-height: 1.2;
+            color: #222;
+            font-size: 13px;
         }
+
+        /* --- Header --- */
         header {
-            background: #efefef;
+            background-color: #f3f3f3;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cl-logo {
+            font-family: serif;
+            color: #551a8b;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 10px;
+            text-decoration: none;
+        }
+
+        select {
             padding: 5px;
             border: 1px solid #ccc;
-            margin-bottom: 20px;
+            border-radius: 3px;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        .header-right {
+            margin-left: auto;
             display: flex;
-            justify-content: space-between;
+            gap: 15px;
+            font-size: 12px;
+            text-align: center;
+            color: #000;
         }
-        .dada-sidebar {
-            width: 150px;
-            float: left;
-            border-right: 1px solid #ccc;
-            margin-right: 20px;
+        
+        .header-right div { cursor: pointer; }
+
+        /* --- Search Bar Area --- */
+        .search-container {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #fff;
         }
-        .dada-sidebar a {
+
+        .section-title {
+            color: #00f;
+            font-size: 18px;
+            text-decoration: none;
+            font-weight: normal;
+        }
+
+        .search-bar-wrapper {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            gap: 5px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .search-btn, .save-btn {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        /* --- Main Layout --- */
+        .container {
+            display: flex;
+            padding: 15px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 200px;
+            padding-right: 20px;
+            font-size: 13px;
+        }
+
+        .sidebar-group {
+            margin-bottom: 15px;
+        }
+
+        .sidebar label {
             display: block;
-            color: blue;
-            text-decoration: underline;
-            font-size: 0.9em;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            cursor: pointer;
         }
-        .main-content {
+
+        .miles-input {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .miles-input input {
+            width: 50px;
+            padding: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .sidebar-btns {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .sidebar-btns button {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #fff;
+            cursor: pointer;
+        }
+        
+        .sidebar-btns button.reset { color: #aaa; cursor: default; }
+
+        /* Content */
+        .content {
+            flex-grow: 1;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .view-toggle {
+            display: flex;
+            border: 1px solid #00f;
+            border-radius: 3px;
             overflow: hidden;
         }
-        h1 { font-size: 1.2em; color: brown; }
-        .post-body {
-            max-width: 600px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-top: 10px;
-        }
-        /* The Dadaist Interaction */
-        #pinky-promise {
-            margin-top: 20px;
-            padding: 10px;
-            background: #eee;
-            border: 2px outset #ccc;
+
+        .view-btn {
+            padding: 5px 10px;
+            background: #fff;
+            border: none;
+            border-right: 1px solid #ccc;
             cursor: pointer;
-            display: inline-block;
-        }
-        #secret-message {
-            display: none;
-            color: green;
+            color: #00f;
             font-weight: bold;
-            margin-top: 10px;
-            border: 2px dashed green;
-            padding: 10px;
         }
-        .glitch-text { color: #551a8b; cursor: help; }
+        
+        .view-btn.active {
+            background: #ccccff;
+            color: #000;
+        }
+
+        .pill-btn {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .pagination {
+            margin-left: auto;
+        }
+
+        /* Listings */
+        .listing-row {
+            display: flex;
+            align-items: baseline;
+            padding: 5px 0;
+            gap: 5px;
+        }
+
+        .star {
+            color: #ccc;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .listing-date {
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .listing-title {
+            color: #0000ee;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .listing-title:hover { text-decoration: underline; }
+
+        .listing-meta {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .hide-link {
+            color: #ccc;
+            font-size: 11px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        /* --- The Modal (Overlay) --- */
+        #promise-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: "Times New Roman", serif;
+            text-align: center;
+        }
+
+        .promise-box {
+            border: 4px double #555;
+            padding: 40px;
+            background: #f0f0f0;
+            max-width: 500px;
+        }
+
+        .promise-btn {
+            background: #ddd;
+            border: 2px outset #aaa;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        
+        .promise-btn:active { border-style: inset; }
+
+        .shaking {
+            animation: shake 0.5s;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
     </style>
 </head>
 <body>
 
 <header>
-    <strong>craigslist</strong>
-    <span>new york > community > <span class="glitch-text" onclick="alert('Concrete is just liquid stone.')">missed connections</span></span>
-    <input type="text" placeholder="search concrete...">
+    <a href="#" class="cl-logo">☮ CL</a>
+    <select><option>new york</option></select>
+    <select><option>all new york</option></select>
+    <select><option>community</option></select>
+    <select><option>missed connections</option></select>
+
+    <div class="header-right">
+        <div>
+            <span style="display:block; font-size: 18px;">📝</span>
+            post
+        </div>
+        <div>
+            <span style="display:block; font-size: 18px;">👤</span>
+            acct
+        </div>
+    </div>
 </header>
 
-<div class="dada-sidebar">
-    <h2 style="font-size: 1em;">community</h2>
-    <a href="#">lost+found</a>
-    <a href="#">sidewalk cracks</a>
-    <a href="#">pigeon sightings</a>
-    <a href="#">cement philosophy</a>
-    <a href="#">weather talk</a>
+<div class="search-container">
+    <a href="#" class="section-title">missed connections</a>
+    <div class="search-bar-wrapper">
+        <input type="text" class="search-input" value="concrete" placeholder="search missed connections">
+        <button class="search-btn">🔍</button>
+    </div>
+    <button class="save-btn">🔔</button>
 </div>
 
-<div class="main-content">
-    <h1>To: The Director of "The History of Concrete" - m4m (Manhattan)</h1>
-    <div class="post-body">
-        <p>I saw you filming a piece of rebar in Queens. I was the one holding a lukewarm coffee and staring at the way the sun hit the aggregate. You looked like someone who knows that the history of the world is written in pavement.</p>
-        
-        <p>I'm looking for an <strong>advance screening</strong>. I've been thinking about the drying process for three days straight.</p>
-        
-        <p>I solemnly swear to keep the link a secret. I will not leak it. I will only watch it in a room with gray walls.</p>
-
-        <div id="pinky-promise" onclick="makePromise()">
-            [ CLICK TO PINKY PROMISE ]
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-group">
+            <label><input type="checkbox"> search titles only</label>
+            <label><input type="checkbox" checked> has image</label>
+            <label><input type="checkbox"> posted today</label>
+            <label><input type="checkbox"> hide duplicates</label>
         </div>
 
-        <div id="secret-message">
-            PROMISE RECORDED. <br>
-            John, if you're seeing this: link me? 
+        <div class="sidebar-group">
+            <div style="font-weight: bold; color: #555; margin-bottom: 5px;">MILES FROM LOCATION</div>
+            <div class="miles-input">
+                <input type="text" placeholder="miles">
+                <input type="text" placeholder="zip">
+            </div>
+            <a href="#" style="color: blue; font-size: 12px; margin-top: 5px; display:block;">use map...</a>
+        </div>
+
+        <div class="sidebar-btns">
+            <button class="reset">reset</button>
+            <button style="font-weight: bold;">apply</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="toolbar">
+            <div class="view-toggle">
+                <button class="view-btn active">☰</button>
+                <button class="view-btn">☷</button>
+                <button class="view-btn">🖼</button>
+                <button class="view-btn">🗺</button>
+            </div>
+
+            <select class="pill-btn"><option>newest</option></select>
+            <button class="pill-btn">has image</button>
+            <button class="pill-btn">posted today</button>
+            
+            <div class="pagination">1 - 15 of 99</div>
+        </div>
+
+        <div class="listings">
+            <div class="listing-row">
+                <span class="star">☆</span>
+                <span class="listing-date">Feb 09</span>
+                <a href="#" class="listing-title">Saw you filming a scaffolding cover</a>
+                <span class="listing-meta">· ridgewood · 2h ago · <span class="hide-link">hide</span></span>
+            </div>
+
+            <div class="listing-row">
+                <span class="star">☆</span>
+                <span class="listing-date">Feb 09</span>
+                <a href="#" class="listing-title">To the guy explaining "aggregate" loudly</a>
+                <span class="listing-meta">· midtown · 3h ago · <span class="hide-link">hide</span></span>
+            </div>
+
+            <div class="listing-row" style="background-color: #ffffee;">
+                <span class="star">★</span>
+                <span class="listing-date" style="color:red;">Feb 09</span>
+                <a href="#" class="listing-title" onclick="triggerPromise(event)">Re: The History of Concrete (Advance Screener?)</a>
+                <span class="listing-meta">· (scurrying away) · 4h ago · <span class="hide-link">hide</span></span>
+            </div>
+
+            <div class="listing-row">
+                <span class="star">☆</span>
+                <span class="listing-date">Feb 08</span>
+                <a href="#" class="listing-title">Lost my receipt for 50lbs of Quikrete</a>
+                <span class="listing-meta">· gowanus · <span class="hide-link">hide</span></span>
+            </div>
+
+            <div class="listing-row">
+                <span class="star">☆</span>
+                <span class="listing-date">Feb 08</span>
+                <a href="#" class="listing-title">Looking for honest scaffolding</a>
+                <span class="listing-meta">· bushwick · <span class="hide-link">hide</span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="promise-overlay">
+    <div class="promise-box">
+        <h1 style="color: brown; font-family: 'Times New Roman', serif;">Wait.</h1>
+        <p>Before I ask for the link...</p>
+        <p>I need to know you know that I know that concrete takes 28 days to fully cure.</p>
+        <p><strong>Do you pinky promise not to leak the film?</strong></p>
+        
+        <button id="promise-btn" class="promise-btn" onclick="signPromise()">I Pinky Promise</button>
+        
+        <div id="result-msg" style="display:none; color: green; margin-top: 20px;">
+            <p><strong>PROMISE NOTARIZED.</strong></p>
+            <p>(Seriously, John. I'd love to see it. <a href="mailto:your@email.com">Email me?</a>)</p>
         </div>
     </div>
 </div>
 
 <script>
-    function makePromise() {
-        const btn = document.getElementById('pinky-promise');
-        const msg = document.getElementById('secret-message');
+    function triggerPromise(e) {
+        e.preventDefault();
+        document.getElementById('promise-overlay').style.display = 'flex';
+    }
+
+    function signPromise() {
+        const btn = document.getElementById('promise-btn');
         
-        // Visual Dadaism: Change button text randomly before revealing
-        const textures = ["Hardening...", "Setting...", "Curing...", "PROMISED."];
-        let i = 0;
-        const interval = setInterval(() => {
-            btn.innerText = textures[i];
-            i++;
-            if (i === textures.length) {
-                clearInterval(interval);
-                btn.style.display = 'none';
-                msg.style.display = 'block';
-                document.body.style.backgroundColor = "#d3d3d3"; // Concrete gray
-            }
-        }, 400);
+        // Phase 1: Hesitation
+        btn.innerText = "Are you sure?";
+        btn.classList.add('shaking');
+        
+        setTimeout(() => {
+            btn.innerText = "Checking if fingers are crossed...";
+        }, 1000);
+
+        setTimeout(() => {
+            btn.classList.remove('shaking');
+            btn.style.display = 'none';
+            document.getElementById('result-msg').style.display = 'block';
+            
+            // Add a concrete texture background or grey out screen
+            document.getElementById('promise-overlay').style.backgroundColor = "#808080"; 
+            document.querySelector('.promise-box').style.backgroundColor = "#dcdcdc";
+        }, 2500);
     }
 </script>
 
