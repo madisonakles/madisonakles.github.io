@@ -307,6 +307,11 @@
 </div>
 
 <script>
+    // --- AUDIO SETUP ---
+    // Load the audio object globally so it's ready.
+    const notifSound = new Audio('https://www.myinstants.com/media/sounds/message-tone.mp3');
+    notifSound.volume = 0.5;
+
     const messages = [
         { title: "Maybe: CEO of Domino's", body: "John..." },
         { title: "Maybe: CEO of Domino's", body: "Bad News..." },
@@ -315,10 +320,11 @@
     ];
 
     function playNote() {
-        // Creates a fresh audio object for each text to allow layering/overlapping
-        const audio = new Audio('https://www.myinstants.com/media/sounds/message-tone.mp3'); 
-        audio.volume = 0.5;
-        audio.play().catch(e => console.log("Audio play blocked until interaction"));
+        // Clone the node so we can play overlapping sounds if they come in fast
+        // (Though with 1.5s spacing, simple play is fine, but this is safer)
+        const clone = notifSound.cloneNode();
+        clone.volume = 0.5;
+        clone.play().catch(e => console.log("Sound blocked:", e));
     }
 
     function spawnNotif(msg, index) {
@@ -350,12 +356,25 @@
             
             // Play Sound
             playNote();
-        }, index * 1500); // MODIFIED: 1.5s spacing
+        }, index * 1500); // 1.5s spacing
     }
 
     function openPost(e) {
         e.preventDefault();
         
+        // --- CRITICAL AUDIO FIX ---
+        // Play the sound MUTED immediately on click to "unlock" the audio engine.
+        // This tells the browser "The user interacted, allow audio for this page."
+        notifSound.volume = 0;
+        notifSound.play().then(() => {
+            // Immediately pause and reset volume for later
+            notifSound.pause();
+            notifSound.currentTime = 0;
+            notifSound.volume = 0.5;
+        }).catch(err => {
+            console.log("Audio unlock failed (likely user didn't interact enough):", err);
+        });
+
         // 1. Switch Views
         document.getElementById('list-view').classList.add('hidden');
         document.getElementById('detail-view').classList.remove('hidden');
