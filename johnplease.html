@@ -45,7 +45,7 @@
         .star { color: #ccc; margin-right: 5px; }
         .listing-meta { color: #666; font-size: 12px; }
 
-        /* --- VIEW: POST DETAIL (The "Pinky Promise" Page) --- */
+        /* --- VIEW: POST DETAIL --- */
         #detail-view { max-width: 900px; margin: 0 auto; padding: 20px; font-family: "Times New Roman", Times, serif; }
         
         .detail-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -79,12 +79,12 @@
             background: rgba(128, 0, 128, 0.1);
         }
 
-        /* --- SIMULATION: APPLE NOTIFICATION STACK --- */
+        /* --- SIMULATION: APPLE NOTIFICATIONS --- */
         .notif-stack {
             position: fixed; top: 20px; right: 20px;
-            display: flex; flex-direction: column; gap: 10px; /* Spacing between bubbles */
+            display: flex; flex-direction: column; gap: 10px;
             z-index: 9999;
-            pointer-events: none; /* Let clicks pass through empty space */
+            pointer-events: none;
         }
 
         .apple-notification {
@@ -97,9 +97,7 @@
             padding: 12px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; gap: 12px;
-            
-            /* Animation Setup */
-            transform: translateX(450px); /* Start off-screen right */
+            transform: translateX(450px);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto;
         }
@@ -108,7 +106,7 @@
 
         .app-icon {
             width: 40px; height: 40px;
-            background: #4BD963; /* iMessage Green */
+            background: #4BD963;
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
         }
@@ -120,11 +118,11 @@
         .notif-time { color: #888; font-size: 12px; }
         .notif-body { font-size: 13px; line-height: 1.3; color: #000; }
 
-        /* --- SIMULATION: VIRUS AD POPUP --- */
+        /* --- VIRUS POPUP --- */
         .virus-popup {
             position: fixed; bottom: 20px; right: 20px;
             width: 300px;
-            background: #ffffe0; /* Light yellow */
+            background: #ffffe0;
             border: 3px solid red;
             box-shadow: 10px 10px 0px #000;
             padding: 0;
@@ -139,7 +137,6 @@
             padding: 5px; font-family: Arial, sans-serif; font-size: 12px;
             display: flex; justify-content: space-between; cursor: pointer;
         }
-        
         .virus-body { padding: 15px; text-align: center; }
         .virus-h1 { font-size: 24px; color: red; margin: 0 0 10px 0; text-transform: uppercase; }
         .virus-text { font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 10px; color: #000; }
@@ -151,35 +148,24 @@
         .virus-btn:active { border: 2px inset blue; }
 
         @keyframes flashBorder {
-            0% { border-color: red; }
-            50% { border-color: yellow; }
-            100% { border-color: red; }
+            0% { border-color: red; } 50% { border-color: yellow; } 100% { border-color: red; }
         }
 
         /* --- MOBILE RESPONSIVENESS --- */
         @media screen and (max-width: 768px) {
             header { flex-wrap: wrap; }
             .header-right { width: 100%; justify-content: flex-end; margin-top: 10px; }
-            
             .search-container { flex-direction: column; align-items: stretch; }
             .search-bar-wrapper { width: 100%; }
-            
             .main-layout { flex-direction: column; }
             .sidebar { width: 100%; padding-right: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
             .sidebar-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-            
             .toolbar { overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
-            
-            /* Post Detail Mobile */
             .post-body-container { flex-direction: column; }
             .map-box { width: 100%; margin-top: 20px; }
-            
-            /* Notification Mobile */
             .notif-stack { right: 10px; left: 10px; width: auto; }
             .apple-notification { width: 100%; box-sizing: border-box; transform: translateX(120%); } 
             .apple-notification.show { transform: translateX(0); }
-            
-            /* Virus Popup Mobile */
             .virus-popup { width: 90%; right: 5%; left: 5%; bottom: 10px; }
         }
 
@@ -194,19 +180,12 @@
         <select><option>all los angeles</option></select>
         <select><option>community</option></select>
         <select><option>missed connections</option></select>
-
-        <div class="header-right">
-            <div><span style="display:block; font-size: 16px;">📝</span>post</div>
-            <div><span style="display:block; font-size: 16px;">👤</span>acct</div>
-        </div>
+        <div class="header-right"><div><span style="display:block; font-size: 16px;">📝</span>post</div><div><span style="display:block; font-size: 16px;">👤</span>acct</div></div>
     </header>
 
     <div class="search-container">
         <a href="#" class="section-title">missed connections</a>
-        <div class="search-bar-wrapper">
-            <input type="text" class="search-input" placeholder="search missed connections">
-            <button class="btn">🔍</button>
-        </div>
+        <div class="search-bar-wrapper"><input type="text" class="search-input" placeholder="search missed connections"><button class="btn">🔍</button></div>
         <button class="btn">🔔</button>
     </div>
 
@@ -216,65 +195,30 @@
                 <label><input type="checkbox"> search titles only</label>
                 <label><input type="checkbox"> has image</label>
                 <label><input type="checkbox"> posted today</label>
-                <label><input type="checkbox"> hide duplicates</label>
             </div>
             <div class="sidebar-group">
                 <div style="font-weight: bold; color: #555; margin-bottom: 5px; font-size: 11px;">MILES FROM LOCATION</div>
-                <div class="miles-input">
-                    <input type="text" placeholder="miles">
-                    <input type="text" placeholder="zip">
-                    <span>📍</span>
-                </div>
-                <a href="#" style="color: blue; font-size: 11px; margin-top: 5px; display:block;">use map...</a>
+                <div class="miles-input"><input type="text" placeholder="miles"><input type="text" placeholder="zip"><span>📍</span></div>
             </div>
-            <div style="display:flex; gap:5px;">
-                <button class="btn" style="flex:1; color:gray;">reset</button>
-                <button class="btn" style="flex:1;">apply</button>
-            </div>
+            <div style="display:flex; gap:5px;"><button class="btn" style="flex:1; color:gray;">reset</button><button class="btn" style="flex:1;">apply</button></div>
         </div>
 
         <div class="content-list">
             <div class="toolbar">
-                <button class="btn" style="background:#ddd;">☰</button>
-                <button class="btn">☷</button>
-                <button class="btn">🖼</button>
-                <select class="btn"><option>newest</option></select>
-                <span style="margin-left:auto;">1 - 15 of 99</span>
+                <button class="btn" style="background:#ddd;">☰</button><button class="btn">☷</button><button class="btn">🖼</button>
+                <select class="btn"><option>newest</option></select><span style="margin-left:auto;">1 - 15 of 99</span>
             </div>
-
-            <div class="listing-row">
-                <span class="star">☆</span>
-                <span class="listing-date">Feb 09</span>
-                <a href="#">Tension at the 2nd Ave church fire</a>
-                <span class="listing-meta">· central LA 213/323 · 2h ago · <span style="color:#aaa">hide</span></span>
-            </div>
-
-            <div class="listing-row">
-                <span class="star">☆</span>
-                <span class="listing-date">Feb 09</span>
-                <a href="#">Did U steal my dream journal?</a>
-                <span class="listing-meta">· central LA 213/323 · 3h ago · <span style="color:#aaa">hide</span></span>
-            </div>
-
+            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Tension at the 2nd Ave church fire</a><span class="listing-meta">· central LA · 2h ago</span></div>
+            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Did U steal my dream journal?</a><span class="listing-meta">· central LA · 3h ago</span></div>
+            
             <div class="listing-row" style="background-color: #fcfce6;">
-                <span class="star">★</span>
-                <span class="listing-date" style="color:red;">Feb 09</span>
+                <span class="star">★</span><span class="listing-date" style="color:red;">Feb 09</span>
                 <a href="#" onclick="openPost(event)">Re: The History of Concrete (Advance Screener?)</a>
-                <span class="listing-meta">· (west covina) · 4h ago · <span style="color:#aaa">hide</span></span>
+                <span class="listing-meta">· (west covina) · 4h ago</span>
             </div>
 
-            <div class="listing-row">
-                <span class="star">☆</span>
-                <span class="listing-date">Feb 09</span>
-                <a href="#">Need my building scaffolded (like in a sexy way)</a>
-                <span class="listing-meta">· Long Beach · 4h ago · <span style="color:#aaa">hide</span></span>
-            </div>
-             <div class="listing-row">
-                <span class="star">☆</span>
-                <span class="listing-date">Feb 09</span>
-                <a href="#">Meow...</a>
-                <span class="listing-meta">· san gabriel valley · 2/9 · <span style="color:#aaa">hide</span></span>
-            </div>
+            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Need my building scaffolded (sexy way)</a><span class="listing-meta">· Long Beach · 4h ago</span></div>
+            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Meow...</a><span class="listing-meta">· san gabriel · 2/9</span></div>
         </div>
     </div>
 </div>
@@ -282,49 +226,32 @@
 <div id="detail-view" class="hidden">
     <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 15px; font-family:Arial; font-size:12px;">
         <span style="color:#551a8b; font-weight:bold;">CL</span> los angeles > central LA > community > missed connections
-        <span style="float:right;">
-             <a href="#">post</a> | <a href="#">account</a>
-        </span>
+        <span style="float:right;"><a href="#">post</a> | <a href="#">account</a></span>
     </div>
-
     <h2 class="detail-title">Re: The History of Concrete (Advance Screener?)</h2>
-    
-    <div class="reply-box">
-        <button class="reply-btn">reply</button>
-        <span style="margin-left: 10px; color: #666; font-family: Arial; font-size: 13px;">☎ ✉</span>
-    </div>
-
+    <div class="reply-box"><button class="reply-btn">reply</button><span style="margin-left: 10px; color: #666; font-family: Arial; font-size: 13px;">☎ ✉</span></div>
     <div class="post-body-container">
         <div class="post-text">
             <p>john i really want to see your new doc because i could not go to sundance and my regal monthly pass expired when i lost my credit card</p> 
-            
             <p>i pinky promise not to show anyone if you send me a screener &lt;<a href="mailto:radmaddz@gmail.com">radmaddz@gmail.com</a>&gt;.</p>
         </div>
-
         <div class="map-box">
             <div class="map-placeholder">
-                <div style="text-align:center;">
-                    [ok i got lazy right here]<br>
-                    © deadbeatmad
-                </div>
+                <div style="text-align:center;">[ok i got lazy right here]<br>© deadbeatmad</div>
                 <div class="map-circle"></div>
                 <div style="position:absolute; top:10px; left:10px; background:white; border:1px solid #999; padding:2px; font-family:Arial; font-size:18px;">+<br>-</div>
             </div>
         </div>
     </div>
-    
     <div class="detail-meta" style="margin-top: 50px;">
-        post id: 7911848885 &nbsp;&nbsp; posted: <span style="border-bottom:1px dotted #666;">about 4 hours ago</span> &nbsp;&nbsp; <a href="#">best of</a> <sup>[?]</sup>
+        post id: 7911848885 &nbsp;&nbsp; posted: <span style="border-bottom:1px dotted #666;">about 4 hours ago</span>
     </div>
 </div>
 
 <div id="notif-stack" class="notif-stack"></div>
 
 <div id="virus-popup" class="virus-popup">
-    <div class="virus-header">
-        <span>WARNING: LEGAL REQUIREMENT</span>
-        <span onclick="this.parentElement.parentElement.style.display='none'">X</span>
-    </div>
+    <div class="virus-header"><span>WARNING: LEGAL REQUIREMENT</span><span onclick="this.parentElement.parentElement.style.display='none'">X</span></div>
     <div class="virus-body">
         <h1 class="virus-h1">LOCAL NOTARIES!</h1>
         <p class="virus-text">We found 3 notaries in your area waiting to certify that <b>MADISON</b> won't leak your movie!</p>
@@ -334,10 +261,45 @@
 </div>
 
 <script>
-    // --- AUDIO SETUP ---
-    // Load the audio object globally so it's ready.
-    const notifSound = new Audio('https://www.myinstants.com/media/sounds/message-tone.mp3');
-    notifSound.volume = 0.5;
+    // --- SELF-CONTAINED SOUND ENGINE (WEB AUDIO API) ---
+    // This creates a synth in your browser. No files to download. No blocking.
+    let audioCtx;
+
+    function initAudio() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playDing() {
+        if (!audioCtx) initAudio(); // Just in case
+        
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        // Sound Design: "Glassy Ding"
+        // 1. Sine wave (smooth)
+        osc.type = "sine";
+        // 2. High pitch (typical text tone)
+        osc.frequency.setValueAtTime(800, t);
+        osc.frequency.exponentialRampToValueAtTime(400, t + 0.3);
+
+        // 3. Envelope (Fast attack, fast decay)
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.3, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+
+        // Connect and play
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.5);
+    }
 
     const messages = [
         { title: "Maybe: CEO of Domino's", body: "John..." },
@@ -346,75 +308,45 @@
         { title: "Maybe: CEO of Domino's", body: "Sell! Sell! Sell!" }
     ];
 
-    function playNote() {
-        // RESET the audio to start and play the exact same object
-        // Do NOT cloneNode (clones lose the user-interaction permission)
-        notifSound.pause();
-        notifSound.currentTime = 0;
-        notifSound.play().catch(e => console.log("Sound blocked:", e));
-    }
-
     function spawnNotif(msg, index) {
         setTimeout(() => {
             const stack = document.getElementById('notif-stack');
             const div = document.createElement('div');
             div.className = 'apple-notification';
             div.innerHTML = `
-                <div class="app-icon">
-                    <div class="app-bubble">💬</div>
-                </div>
+                <div class="app-icon"><div class="app-bubble">💬</div></div>
                 <div class="notif-content">
-                    <div class="notif-header">
-                        <span class="notif-title">Messages</span>
-                        <span class="notif-time">now</span>
-                    </div>
-                    <div class="notif-header">
-                        <span style="font-weight:bold;">${msg.title}</span>
-                    </div>
-                    <div class="notif-body">
-                        ${msg.body}
-                    </div>
+                    <div class="notif-header"><span class="notif-title">Messages</span><span class="notif-time">now</span></div>
+                    <div class="notif-header"><span style="font-weight:bold;">${msg.title}</span></div>
+                    <div class="notif-body">${msg.body}</div>
                 </div>
             `;
             stack.appendChild(div);
-            
-            // Trigger animation
             setTimeout(() => div.classList.add('show'), 10);
             
-            // Play Sound
-            playNote();
+            // Play Synth Sound
+            playDing();
+            
         }, index * 1500); // 1.5s spacing
     }
 
     function openPost(e) {
         e.preventDefault();
         
-        // --- CRITICAL AUDIO FIX ---
-        // Play the sound MUTED immediately on click to "unlock" the audio engine.
-        // This tells the browser "The user interacted, allow audio for this page."
-        notifSound.volume = 0;
-        notifSound.play().then(() => {
-            // Immediately pause and reset volume for later
-            notifSound.pause();
-            notifSound.currentTime = 0;
-            notifSound.volume = 0.5;
-        }).catch(err => {
-            console.log("Audio unlock failed (likely user didn't interact enough):", err);
-        });
+        // --- CRITICAL: WAKE UP AUDIO ENGINE ---
+        initAudio(); // This must happen on click!
 
         // 1. Switch Views
         document.getElementById('list-view').classList.add('hidden');
         document.getElementById('detail-view').classList.remove('hidden');
 
-        // 2. START TEXT CHAIN AFTER 4 SECONDS
+        // 2. Start Texts
         setTimeout(() => {
             messages.forEach((msg, i) => spawnNotif(msg, i));
         }, 4000);
 
-        // 3. VIRUS POPUP TIMING
-        // Wait 4s (initial) + length of texts (4 * 1.5s = 6s) + 5s (final delay) = 15s total
+        // 3. Popup
         const totalDuration = 4000 + (messages.length * 1500) + 5000;
-        
         setTimeout(() => {
             document.getElementById('virus-popup').style.display = 'block';
         }, totalDuration);
