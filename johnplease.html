@@ -52,7 +52,7 @@
         .star { color: #ccc; margin-right: 5px; }
         .listing-meta { color: #666; font-size: 12px; }
 
-        /* --- VIEW: POST DETAIL (The "Pinky Promise" Page) --- */
+        /* --- VIEW: POST DETAIL --- */
         #detail-view { max-width: 900px; margin: 0 auto; padding: 20px; font-family: "Times New Roman", Times, serif; }
         
         .detail-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -160,7 +160,7 @@
             0% { border-color: red; } 50% { border-color: yellow; } 100% { border-color: red; }
         }
 
-        /* --- MOBILE RESPONSIVENESS --- */
+        /* - MOBILE RESPONSIVENESS- */
         @media screen and (max-width: 768px) {
             
             /* --- HEADER FIXES FOR MOBILE --- */
@@ -353,7 +353,7 @@
 </div>
 
 <script>
-    // --- AUDIO SETUP ---
+    // --- AUDIo SETUP ---
     // Make sure your file is named 'note.mp3' and is in the SAME folder.
     const notifSound = new Audio('note.mp3');
     notifSound.volume = 0.5; 
@@ -376,7 +376,7 @@
         notifSound.play().catch(e => console.log("Sound blocked:", e));
     }
 
-    // Function to create a generic notification bubble
+    // create a generic notification bubble
     function createNotifElement(title, body) {
         const div = document.createElement('div');
         div.className = 'apple-notification';
@@ -438,7 +438,7 @@
         // STOP THE IDLE TIMER (User clicked!)
         clearTimeout(idleTimer);
         
-        // --- CRITICAL AUDIO FIX (Unlock) ---
+        // -- CRITICAL AUDIO FIX (Unlock) ---
         notifSound.volume = 0;
         notifSound.play().then(() => {
             notifSound.pause();
