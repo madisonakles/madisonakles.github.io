@@ -3,436 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>craigslist: new york missed connections</title>
+    <title>craigslist: los angeles missed connections</title>
     <style>
-        body {
-            font-family: "Arial", sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #fff;
-            color: #222;
-            font-size: 13px;
-        }
-
-        /* --- Header --- */
-        header {
-            background-color: #f3f3f3;
-            border-bottom: 1px solid #ccc;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .cl-logo {
-            font-family: serif;
-            color: #551a8b;
-            font-weight: bold;
-            font-size: 20px;
-            margin-right: 10px;
-            text-decoration: none;
-        }
-
-        select {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            background: #fff;
-            font-size: 14px;
-        }
-
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            gap: 15px;
-            font-size: 12px;
-            text-align: center;
-            color: #000;
-        }
+        /* --- RESET & BASICS --- */
+        body { font-family: "Arial", sans-serif; margin: 0; padding: 0; background-color: #fff; color: #222; font-size: 13px; overflow-x: hidden; }
+        a { color: #0000ee; text-decoration: none; cursor: pointer; }
+        a:hover { text-decoration: underline; }
         
-        .header-right div { cursor: pointer; }
+        /* --- UTILITIES --- */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .align-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        
+        /* --- HEADER (Global) --- */
+        header { background-color: #f3f3f3; border-bottom: 1px solid #ccc; padding: 10px 15px; gap: 10px; display: flex; align-items: center; }
+        .cl-logo { font-family: serif; color: #551a8b; font-weight: bold; font-size: 20px; margin-right: 10px; }
+        select { padding: 5px; border: 1px solid #ccc; border-radius: 3px; background: #fff; font-size: 14px; }
+        .header-right { margin-left: auto; display: flex; gap: 15px; font-size: 12px; text-align: center; color: #000; }
+        
+        /* --- VIEW: SEARCH LIST (Home) --- */
+        .search-container { padding: 15px; border-bottom: 1px solid #ddd; background: #fff; gap: 15px; display: flex; align-items: center; }
+        .section-title { color: #00f; font-size: 18px; font-weight: normal; }
+        .search-bar-wrapper { flex-grow: 1; display: flex; gap: 5px; }
+        .search-input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; font-size: 14px; }
+        .btn { padding: 8px 12px; border: 1px solid #ccc; background: #fff; cursor: pointer; border-radius: 3px; }
 
-        /* --- Search Bar Area --- */
-        .search-container {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #fff;
-        }
-
-        .section-title {
-            color: #00f;
-            font-size: 18px;
-            text-decoration: none;
-            font-weight: normal;
-        }
-
-        .search-bar-wrapper {
-            flex-grow: 1;
-            position: relative;
-            display: flex;
-            gap: 5px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-
-        .search-btn, .save-btn {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            background: #fff;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        /* --- Main Layout --- */
-        .container {
-            display: flex;
-            padding: 15px;
-        }
-
+        .main-layout { display: flex; padding: 15px; }
+        
         /* Sidebar */
-        .sidebar {
-            width: 200px;
-            padding-right: 20px;
-            font-size: 13px;
-        }
+        .sidebar { width: 200px; padding-right: 20px; font-size: 13px; }
+        .sidebar-group { margin-bottom: 15px; }
+        .sidebar label { display: block; margin-bottom: 6px; cursor: pointer; }
+        .miles-input input { width: 50px; padding: 4px; border: 1px solid #ccc; }
 
-        .sidebar-group {
-            margin-bottom: 15px;
-        }
+        /* Content List */
+        .content-list { flex-grow: 1; }
+        .toolbar { margin-bottom: 15px; gap: 10px; display: flex; align-items: center; }
+        .listing-row { display: flex; align-items: baseline; padding: 5px 0; gap: 5px; }
+        .listing-date { font-size: 12px; margin-right: 5px; color: #666; }
+        .star { color: #ccc; margin-right: 5px; }
+        .listing-meta { color: #666; font-size: 12px; }
 
-        .sidebar label {
-            display: block;
-            margin-bottom: 6px;
-            cursor: pointer;
-        }
-
-        .miles-input {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .miles-input input {
-            width: 50px;
-            padding: 4px;
-            border: 1px solid #ccc;
-        }
-
-        .sidebar-btns {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-
-        .sidebar-btns button {
-            flex: 1;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            background: #fff;
-            cursor: pointer;
-        }
+        /* --- VIEW: POST DETAIL (The "Pinky Promise" Page) --- */
+        #detail-view { max-width: 900px; margin: 0 auto; padding: 20px; font-family: "Times New Roman", Times, serif; }
         
-        .sidebar-btns button.reset { color: #aaa; cursor: default; }
-
-        /* Content */
-        .content {
-            flex-grow: 1;
-        }
-
-        .toolbar {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 10px;
-        }
-
-        .view-toggle {
-            display: flex;
-            border: 1px solid #00f;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .view-btn {
-            padding: 5px 10px;
-            background: #fff;
-            border: none;
-            border-right: 1px solid #ccc;
-            cursor: pointer;
-            color: #00f;
-            font-weight: bold;
-        }
+        .detail-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .detail-title { font-size: 24px; font-weight: bold; margin: 0 0 10px 0; color: #000; }
+        .detail-meta { font-family: Arial, sans-serif; font-size: 12px; color: #666; margin-bottom: 20px; }
         
-        .view-btn.active {
-            background: #ccccff;
-            color: #000;
+        .reply-box { margin-bottom: 20px; }
+        .reply-btn { 
+            background: linear-gradient(to bottom, #fff 0%, #f0f0f0 100%); 
+            border: 1px solid #ccc; padding: 8px 25px; 
+            font-size: 14px; font-weight: bold; color: #333; cursor: pointer; border-radius: 3px; 
         }
 
-        .pill-btn {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            background: #fff;
-            cursor: pointer;
-        }
-
-        .pagination {
-            margin-left: auto;
-        }
-
-        /* Listings */
-        .listing-row {
-            display: flex;
-            align-items: baseline;
-            padding: 5px 0;
-            gap: 5px;
-        }
-
-        .star {
-            color: #ccc;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .listing-date {
-            font-size: 12px;
-            margin-right: 5px;
-        }
-
-        .listing-title {
-            color: #0000ee;
-            text-decoration: none;
-            cursor: pointer;
-        }
+        .post-body-container { display: flex; gap: 20px; }
+        .post-text { flex: 1; font-size: 18px; line-height: 1.4; color: #222; margin-top: 0; }
         
-        .listing-title:hover { text-decoration: underline; }
-
-        .listing-meta {
-            color: #666;
-            font-size: 12px;
+        /* The Fake Map */
+        .map-box { 
+            width: 300px; height: 250px; 
+            background-color: #e5e3df; border: 1px solid #ccc; 
+            position: relative; overflow: hidden; 
+        }
+        .map-placeholder {
+            width: 100%; height: 100%;
+            background-image: repeating-linear-gradient(45deg, #e5e3df 0, #e5e3df 10px, #fff 10px, #fff 20px);
+            display: flex; align-items: center; justify-content: center; color: #888;
+        }
+        .map-circle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 150px; height: 150px; border: 2px solid purple; border-radius: 50%;
+            background: rgba(128, 0, 128, 0.1);
         }
 
-        .hide-link {
-            color: #ccc;
-            font-size: 11px;
-            margin-left: 5px;
+        /* --- SIMULATION: APPLE NOTIFICATION --- */
+        .apple-notification {
+            position: fixed; top: 20px; right: -400px; /* Start off screen */
+            width: 340px;
+            background: rgba(245, 245, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #d1d1d1;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex; gap: 12px;
+            z-index: 9999;
+            transition: right 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
         }
 
-        /* --- The Modal (Overlay) --- */
-        #promise-overlay {
+        .app-icon {
+            width: 40px; height: 40px;
+            background: #4BD963; /* iMessage Green */
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .app-bubble { color: white; font-size: 24px; font-weight: bold; margin-top: -2px; }
+
+        .notif-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .notif-header { display: flex; justify-content: space-between; font-size: 13px; color: #444; margin-bottom: 2px; }
+        .notif-title { font-weight: 600; color: #000; }
+        .notif-time { color: #888; font-size: 12px; }
+        .notif-body { font-size: 13px; line-height: 1.3; color: #000; }
+
+        /* --- SIMULATION: VIRUS AD POPUP --- */
+        .virus-popup {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 300px;
+            background: #ffffe0; /* Light yellow */
+            border: 3px solid red;
+            box-shadow: 10px 10px 0px #000;
+            padding: 0;
+            font-family: "Impact", "Arial Black", sans-serif;
+            z-index: 10000;
             display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: 1000;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: "Times New Roman", serif;
-            text-align: center;
-        }
-
-        .promise-box {
-            border: 4px double #555;
-            padding: 40px;
-            background: #f0f0f0;
-            max-width: 500px;
-        }
-
-        .promise-btn {
-            background: #ddd;
-            border: 2px outset #aaa;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            margin-top: 20px;
-            cursor: pointer;
+            animation: flashBorder 1s infinite;
         }
         
-        .promise-btn:active { border-style: inset; }
-
-        .shaking {
-            animation: shake 0.5s;
-            animation-iteration-count: infinite;
+        .virus-header {
+            background: red; color: white; font-weight: bold;
+            padding: 5px; font-family: Arial, sans-serif; font-size: 12px;
+            display: flex; justify-content: space-between; cursor: pointer;
         }
+        
+        .virus-body { padding: 15px; text-align: center; }
+        .virus-h1 { font-size: 24px; color: red; margin: 0 0 10px 0; text-transform: uppercase; }
+        .virus-text { font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 10px; color: #000; }
+        .virus-btn {
+            background: blue; color: white; border: 2px outset blue;
+            padding: 10px; width: 100%; font-weight: bold; cursor: pointer;
+            text-transform: uppercase;
+        }
+        .virus-btn:active { border: 2px inset blue; }
 
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        @keyframes flashBorder {
+            0% { border-color: red; }
+            50% { border-color: yellow; }
+            100% { border-color: red; }
         }
 
     </style>
 </head>
 <body>
 
-<header>
-    <a href="#" class="cl-logo">☮ CL</a>
-    <select><option>new york</option></select>
-    <select><option>all new york</option></select>
-    <select><option>community</option></select>
-    <select><option>missed connections</option></select>
+<div id="list-view">
+    <header>
+        <a href="#" class="cl-logo">☮ CL</a>
+        <select><option>los angeles</option></select>
+        <select><option>all los angeles</option></select>
+        <select><option>community</option></select>
+        <select><option>missed connections</option></select>
 
-    <div class="header-right">
-        <div>
-            <span style="display:block; font-size: 18px;">📝</span>
-            post
+        <div class="header-right">
+            <div><span style="display:block; font-size: 16px;">📝</span>post</div>
+            <div><span style="display:block; font-size: 16px;">👤</span>acct</div>
         </div>
-        <div>
-            <span style="display:block; font-size: 18px;">👤</span>
-            acct
+    </header>
+
+    <div class="search-container">
+        <a href="#" class="section-title">missed connections</a>
+        <div class="search-bar-wrapper">
+            <input type="text" class="search-input" placeholder="search missed connections">
+            <button class="btn">🔍</button>
         </div>
+        <button class="btn">🔔</button>
     </div>
-</header>
 
-<div class="search-container">
-    <a href="#" class="section-title">missed connections</a>
-    <div class="search-bar-wrapper">
-        <input type="text" class="search-input" value="concrete" placeholder="search missed connections">
-        <button class="search-btn">🔍</button>
-    </div>
-    <button class="save-btn">🔔</button>
-</div>
-
-<div class="container">
-    <div class="sidebar">
-        <div class="sidebar-group">
-            <label><input type="checkbox"> search titles only</label>
-            <label><input type="checkbox" checked> has image</label>
-            <label><input type="checkbox"> posted today</label>
-            <label><input type="checkbox"> hide duplicates</label>
-        </div>
-
-        <div class="sidebar-group">
-            <div style="font-weight: bold; color: #555; margin-bottom: 5px;">MILES FROM LOCATION</div>
-            <div class="miles-input">
-                <input type="text" placeholder="miles">
-                <input type="text" placeholder="zip">
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="sidebar-group">
+                <label><input type="checkbox"> search titles only</label>
+                <label><input type="checkbox"> has image</label>
+                <label><input type="checkbox"> posted today</label>
+                <label><input type="checkbox"> hide duplicates</label>
             </div>
-            <a href="#" style="color: blue; font-size: 12px; margin-top: 5px; display:block;">use map...</a>
-        </div>
-
-        <div class="sidebar-btns">
-            <button class="reset">reset</button>
-            <button style="font-weight: bold;">apply</button>
-        </div>
-    </div>
-
-    <div class="content">
-        <div class="toolbar">
-            <div class="view-toggle">
-                <button class="view-btn active">☰</button>
-                <button class="view-btn">☷</button>
-                <button class="view-btn">🖼</button>
-                <button class="view-btn">🗺</button>
+            <div class="sidebar-group">
+                <div style="font-weight: bold; color: #555; margin-bottom: 5px; font-size: 11px;">MILES FROM LOCATION</div>
+                <div class="miles-input">
+                    <input type="text" placeholder="miles">
+                    <input type="text" placeholder="zip">
+                    <span>📍</span>
+                </div>
+                <a href="#" style="color: blue; font-size: 11px; margin-top: 5px; display:block;">use map...</a>
             </div>
-
-            <select class="pill-btn"><option>newest</option></select>
-            <button class="pill-btn">has image</button>
-            <button class="pill-btn">posted today</button>
-            
-            <div class="pagination">1 - 15 of 99</div>
+            <div style="display:flex; gap:5px;">
+                <button class="btn" style="flex:1; color:gray;">reset</button>
+                <button class="btn" style="flex:1;">apply</button>
+            </div>
         </div>
 
-        <div class="listings">
-            <div class="listing-row">
-                <span class="star">☆</span>
-                <span class="listing-date">Feb 09</span>
-                <a href="#" class="listing-title">Saw you filming a scaffolding cover</a>
-                <span class="listing-meta">· ridgewood · 2h ago · <span class="hide-link">hide</span></span>
+        <div class="content-list">
+            <div class="toolbar">
+                <button class="btn" style="background:#ddd;">☰</button>
+                <button class="btn">☷</button>
+                <button class="btn">🖼</button>
+                <select class="btn"><option>newest</option></select>
+                <span style="margin-left:auto;">1 - 15 of 99</span>
             </div>
 
             <div class="listing-row">
                 <span class="star">☆</span>
                 <span class="listing-date">Feb 09</span>
-                <a href="#" class="listing-title">To the guy explaining "aggregate" loudly</a>
-                <span class="listing-meta">· midtown · 3h ago · <span class="hide-link">hide</span></span>
+                <a href="#">Bumped into each other at the market</a>
+                <span class="listing-meta">· central LA 213/323 · 2h ago · <span style="color:#aaa">hide</span></span>
             </div>
 
-            <div class="listing-row" style="background-color: #ffffee;">
+            <div class="listing-row">
+                <span class="star">☆</span>
+                <span class="listing-date">Feb 09</span>
+                <a href="#">You stop by</a>
+                <span class="listing-meta">· central LA 213/323 · 3h ago · <span style="color:#aaa">hide</span></span>
+            </div>
+
+            <div class="listing-row" style="background-color: #fcfce6;">
                 <span class="star">★</span>
                 <span class="listing-date" style="color:red;">Feb 09</span>
-                <a href="#" class="listing-title" onclick="triggerPromise(event)">Re: The History of Concrete (Advance Screener?)</a>
-                <span class="listing-meta">· (scurrying away) · 4h ago · <span class="hide-link">hide</span></span>
+                <a href="#" onclick="openPost(event)">Re: The History of Concrete (Advance Screener?)</a>
+                <span class="listing-meta">· (hollywood) · 4h ago · <span style="color:#aaa">hide</span></span>
             </div>
 
             <div class="listing-row">
                 <span class="star">☆</span>
-                <span class="listing-date">Feb 08</span>
-                <a href="#" class="listing-title">Lost my receipt for 50lbs of Quikrete</a>
-                <span class="listing-meta">· gowanus · <span class="hide-link">hide</span></span>
+                <span class="listing-date">Feb 09</span>
+                <a href="#">Need my pipe goated</a>
+                <span class="listing-meta">· Long Beach · 4h ago · <span style="color:#aaa">hide</span></span>
             </div>
-
-            <div class="listing-row">
+             <div class="listing-row">
                 <span class="star">☆</span>
-                <span class="listing-date">Feb 08</span>
-                <a href="#" class="listing-title">Looking for honest scaffolding</a>
-                <span class="listing-meta">· bushwick · <span class="hide-link">hide</span></span>
+                <span class="listing-date">Feb 09</span>
+                <a href="#">Rad dad...</a>
+                <span class="listing-meta">· san gabriel valley · 2/9 · <span style="color:#aaa">hide</span></span>
             </div>
         </div>
     </div>
 </div>
 
-<div id="promise-overlay">
-    <div class="promise-box">
-        <h1 style="color: brown; font-family: 'Times New Roman', serif;">Wait.</h1>
-        <p>Before I ask for the link...</p>
-        <p>I need to know you know that I know that concrete takes 28 days to fully cure.</p>
-        <p><strong>Do you pinky promise not to leak the film?</strong></p>
-        
-        <button id="promise-btn" class="promise-btn" onclick="signPromise()">I Pinky Promise</button>
-        
-        <div id="result-msg" style="display:none; color: green; margin-top: 20px;">
-            <p><strong>PROMISE NOTARIZED.</strong></p>
-            <p>(Seriously, John. I'd love to see it. <a href="mailto:your@email.com">Email me?</a>)</p>
+<div id="detail-view" class="hidden">
+    <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 15px; font-family:Arial; font-size:12px;">
+        <span style="color:#551a8b; font-weight:bold;">CL</span> los angeles > central LA > community > missed connections
+        <span style="float:right;">
+             <a href="#">post</a> | <a href="#">account</a>
+        </span>
+    </div>
+
+    <h2 class="detail-title">Re: The History of Concrete (Advance Screener?)</h2>
+    
+    <div class="reply-box">
+        <button class="reply-btn">reply</button>
+        <span style="margin-left: 10px; color: #666; font-family: Arial; font-size: 13px;">☎ ✉</span>
+    </div>
+
+    <div class="post-body-container">
+        <div class="post-text">
+            <p>john i really want to see your new doc because i cannot go to sundance and my regal monthly pass expired.</p> 
+            
+            <p>i pinky promise not to show anyone if you send me a screener &lt;<a href="mailto:radmaddz@gmail.com">radmaddz@gmail.com</a>&gt;.</p>
         </div>
+
+        <div class="map-box">
+            <div class="map-placeholder">
+                <div style="text-align:center;">
+                    [Fake Map Data]<br>
+                    © openstreetmap
+                </div>
+                <div class="map-circle"></div>
+                <div style="position:absolute; top:10px; left:10px; background:white; border:1px solid #999; padding:2px; font-family:Arial; font-size:18px;">+<br>-</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detail-meta" style="margin-top: 50px;">
+        post id: 7911848885 &nbsp;&nbsp; posted: <span style="border-bottom:1px dotted #666;">about 4 hours ago</span> &nbsp;&nbsp; <a href="#">best of</a> <sup>[?]</sup>
+    </div>
+</div>
+
+<div id="apple-notification" class="apple-notification">
+    <div class="app-icon">
+        <div class="app-bubble">💬</div>
+    </div>
+    <div class="notif-content">
+        <div class="notif-header">
+            <span class="notif-title">Messages</span>
+            <span class="notif-time">now</span>
+        </div>
+        <div class="notif-header">
+            <span style="font-weight:bold;">Maybe: CEO of Domino's</span>
+        </div>
+        <div class="notif-body">
+            Bro... they banned cheese. we are going bankrupt. Sell now hurry.
+        </div>
+    </div>
+</div>
+
+<div id="virus-popup" class="virus-popup">
+    <div class="virus-header">
+        <span>WARNING: LEGAL REQUIREMENT</span>
+        <span onclick="this.parentElement.parentElement.style.display='none'">X</span>
+    </div>
+    <div class="virus-body">
+        <h1 class="virus-h1">LOCAL NOTARIES!</h1>
+        <p class="virus-text">We found 3 notaries in your area waiting to certify that <b>MADISON</b> won't leak your movie!</p>
+        <div style="font-size: 50px; margin: 10px 0;">✍️⚖️</div>
+        <button class="virus-btn" onclick="alert('PROMISE CERTIFIED FOREVER')">CLICK TO CERTIFY</button>
     </div>
 </div>
 
 <script>
-    function triggerPromise(e) {
+    function openPost(e) {
         e.preventDefault();
-        document.getElementById('promise-overlay').style.display = 'flex';
-    }
-
-    function signPromise() {
-        const btn = document.getElementById('promise-btn');
         
-        // Phase 1: Hesitation
-        btn.innerText = "Are you sure?";
-        btn.classList.add('shaking');
-        
-        setTimeout(() => {
-            btn.innerText = "Checking if fingers are crossed...";
-        }, 1000);
+        // 1. Switch Views
+        document.getElementById('list-view').classList.add('hidden');
+        document.getElementById('detail-view').classList.remove('hidden');
 
+        // 2. Start Timer for Apple Notification (10 seconds)
         setTimeout(() => {
-            btn.classList.remove('shaking');
-            btn.style.display = 'none';
-            document.getElementById('result-msg').style.display = 'block';
+            document.getElementById('apple-notification').style.right = '20px';
             
-            // Add a concrete texture background or grey out screen
-            document.getElementById('promise-overlay').style.backgroundColor = "#808080"; 
-            document.querySelector('.promise-box').style.backgroundColor = "#dcdcdc";
-        }, 2500);
+            // Play a fake sound effect if you want, usually blocked by browsers though
+        }, 10000); // 10000ms = 10s
+
+        // 3. Start Timer for Virus Popup (10s + 5s = 15 seconds)
+        setTimeout(() => {
+            document.getElementById('virus-popup').style.display = 'block';
+        }, 15000); // 15000ms = 15s
     }
 </script>
 
