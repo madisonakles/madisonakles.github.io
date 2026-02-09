@@ -112,9 +112,9 @@
                 <a href="#" onclick="openPost(event)">Re: The History of Concrete (Advance Screener?)</a>
                 <span class="listing-meta">· (hollywood) · 4h ago</span>
             </div>
-            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Bumped into each other at the market</a></div>
-            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Need my pipe goated</a></div>
-            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Rad dad...</a></div>
+            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Tension at the 2nd Ave church fire</a></div>
+            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Need my building scaffolded</a></div>
+            <div class="listing-row"><span class="star">☆</span><span class="listing-date">Feb 09</span><a href="#">Did U steal my dream journal?</a></div>
         </div>
     </div>
 </div>
@@ -125,7 +125,7 @@
     <div class="reply-box"><button class="reply-btn">reply</button></div>
     <div class="post-body-container">
         <div class="post-text">
-            <p>john i really want to see your new doc because i cannot go to sundance and my regal monthly pass expired.</p>
+            <p>john i really want to see your new doc because i could not go to sundance and my movie monthly pass expired when i lost my credit card</p>
             <p>i pinky promise not to show anyone if you send me a screener &lt;radmaddz@gmail.com&gt;.</p>
         </div>
         <div class="map-box"><div class="map-circle"></div></div>
@@ -147,14 +147,14 @@
     // Data for the separate texts
     const messages = [
         { title: "Maybe: CEO of Domino's", body: "Bro" },
-        { title: "Maybe: CEO of Domino's", body: "they banned cheese" },
-        { title: "Maybe: CEO of Domino's", body: "we are going bankrupt" },
-        { title: "Maybe: CEO of Domino's", body: "Sell now hurry" }
+        { title: "Maybe: CEO of Domino's", body: "they banned cheese..." },
+        { title: "Maybe: CEO of Domino's", body: "we are going bankrupt :(" },
+        { title: "Maybe: CEO of Domino's", body: "Sell Sell Sell!!!" }
     ];
 
     function playNote() {
-        // This links to a common "Note" sound effect file
-        // It creates a new Audio instance each time to allow overlapping sounds
+        // "Note" sound effect file
+        // new Audio instance each time to allow overlapping sounds
         const audio = new Audio('https://www.myinstants.com/media/sounds/message-tone.mp3'); 
         audio.volume = 0.5;
         audio.play().catch(e => console.log("Audio play blocked until interaction"));
