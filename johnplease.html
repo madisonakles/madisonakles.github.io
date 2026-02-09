@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>craigslist: nyc missed connections / concrete</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background-color: #fff;
+            color: #000;
+            padding: 20px;
+            line-height: 1.2;
+        }
+        header {
+            background: #efefef;
+            padding: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .dada-sidebar {
+            width: 150px;
+            float: left;
+            border-right: 1px solid #ccc;
+            margin-right: 20px;
+        }
+        .dada-sidebar a {
+            display: block;
+            color: blue;
+            text-decoration: underline;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .main-content {
+            overflow: hidden;
+        }
+        h1 { font-size: 1.2em; color: brown; }
+        .post-body {
+            max-width: 600px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        /* The Dadaist Interaction */
+        #pinky-promise {
+            margin-top: 20px;
+            padding: 10px;
+            background: #eee;
+            border: 2px outset #ccc;
+            cursor: pointer;
+            display: inline-block;
+        }
+        #secret-message {
+            display: none;
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+            border: 2px dashed green;
+            padding: 10px;
+        }
+        .glitch-text { color: #551a8b; cursor: help; }
+    </style>
+</head>
+<body>
+
+<header>
+    <strong>craigslist</strong>
+    <span>new york > community > <span class="glitch-text" onclick="alert('Concrete is just liquid stone.')">missed connections</span></span>
+    <input type="text" placeholder="search concrete...">
+</header>
+
+<div class="dada-sidebar">
+    <h2 style="font-size: 1em;">community</h2>
+    <a href="#">lost+found</a>
+    <a href="#">sidewalk cracks</a>
+    <a href="#">pigeon sightings</a>
+    <a href="#">cement philosophy</a>
+    <a href="#">weather talk</a>
+</div>
+
+<div class="main-content">
+    <h1>To: The Director of "The History of Concrete" - m4m (Manhattan)</h1>
+    <div class="post-body">
+        <p>I saw you filming a piece of rebar in Queens. I was the one holding a lukewarm coffee and staring at the way the sun hit the aggregate. You looked like someone who knows that the history of the world is written in pavement.</p>
+        
+        <p>I'm looking for an <strong>advance screening</strong>. I've been thinking about the drying process for three days straight.</p>
+        
+        <p>I solemnly swear to keep the link a secret. I will not leak it. I will only watch it in a room with gray walls.</p>
+
+        <div id="pinky-promise" onclick="makePromise()">
+            [ CLICK TO PINKY PROMISE ]
+        </div>
+
+        <div id="secret-message">
+            PROMISE RECORDED. <br>
+            John, if you're seeing this: link me? 
+        </div>
+    </div>
+</div>
+
+<script>
+    function makePromise() {
+        const btn = document.getElementById('pinky-promise');
+        const msg = document.getElementById('secret-message');
+        
+        // Visual Dadaism: Change button text randomly before revealing
+        const textures = ["Hardening...", "Setting...", "Curing...", "PROMISED."];
+        let i = 0;
+        const interval = setInterval(() => {
+            btn.innerText = textures[i];
+            i++;
+            if (i === textures.length) {
+                clearInterval(interval);
+                btn.style.display = 'none';
+                msg.style.display = 'block';
+                document.body.style.backgroundColor = "#d3d3d3"; // Concrete gray
+            }
+        }, 400);
+    }
+</script>
+
+</body>
+</html>
