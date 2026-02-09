@@ -85,6 +85,7 @@
             display: flex; flex-direction: column; gap: 10px; /* Spacing between bubbles */
             z-index: 9999;
             pointer-events: none; /* Let clicks pass through empty space */
+            transition: opacity 0.5s ease-out; /* Smooth fade for the whole container */
         }
 
         .apple-notification {
@@ -156,15 +157,7 @@
             100% { border-color: red; }
         }
 
-        /* --- MOBILE RESPONSIVENESS & ANIMATIONS --- */
-        
-        /* Define fadeOut animation */
-        @keyframes mobileFade {
-            0% { opacity: 1; }
-            80% { opacity: 1; } /* Wait for most of the duration */
-            100% { opacity: 0; transform: translateY(-20px); }
-        }
-
+        /* --- MOBILE RESPONSIVENESS --- */
         @media screen and (max-width: 768px) {
             header { flex-wrap: wrap; }
             .header-right { width: 100%; justify-content: flex-end; margin-top: 10px; }
@@ -186,12 +179,6 @@
             .notif-stack { right: 10px; left: 10px; width: auto; }
             .apple-notification { width: 100%; box-sizing: border-box; transform: translateX(120%); } 
             .apple-notification.show { transform: translateX(0); }
-            
-            /* The "Jank-Free" Fade Logic */
-            /* If this class is added, the element waits 0s, then plays 'mobileFade' over 4s */
-            .apple-notification.mobile-auto-fade {
-                animation: mobileFade 4s forwards;
-            }
             
             /* Virus Popup Mobile */
             .virus-popup { width: 90%; right: 5%; left: 5%; bottom: 10px; }
@@ -402,15 +389,6 @@
             const div = createNotifElement(msg.title, msg.body);
             stack.appendChild(div);
             setTimeout(() => div.classList.add('show'), 10);
-
-            // --- MOBILE FADE LOGIC (UPDATED) ---
-            // If screen width is <= 768px, add the auto-fade animation class
-            if (window.innerWidth <= 768) {
-                div.classList.add('mobile-auto-fade');
-                // Remove from DOM after animation completes (4s) to keep stack clean
-                setTimeout(() => div.remove(), 4000);
-            }
-
         }, visualDelay);
     }
 
@@ -419,6 +397,7 @@
         if (idlePopupShown) return;
         idlePopupShown = true;
 
+        // Try to play sound (might be blocked if zero interaction, but worth a try)
         playNote();
 
         const stack = document.getElementById('notif-stack');
@@ -428,7 +407,7 @@
         // Show
         setTimeout(() => div.classList.add('show'), 10);
         
-        // NOTE: Keeping this persistent on mobile too (no fade class added here) per your previous request
+        // Keeping persistent
     }
 
     // Start Idle Timer on Page Load
@@ -471,7 +450,20 @@
             messages.forEach((msg, i) => spawnNotif(msg, i));
         }, startDelay);
 
-        // 3. Popup Timing
+        // --- NEW MOBILE FADE LOGIC (ALL AT ONCE) ---
+        // 4 messages @ 1.5s = last msg at +4500ms
+        // Wait 4s after last message = 8500ms from start of sequence
+        const fadeDelay = startDelay + (3 * 1500) + 4000;
+        
+        setTimeout(() => {
+            if (window.innerWidth <= 768) {
+                const stack = document.getElementById('notif-stack');
+                stack.style.opacity = '0'; // Fade out the whole container
+                setTimeout(() => stack.innerHTML = '', 500); // Clear DOM
+            }
+        }, fadeDelay);
+
+        // 3. Virus Popup Timing
         const totalDuration = startDelay + ((messages.length - 1) * 1500) + 4000;
         setTimeout(() => {
             document.getElementById('virus-popup').style.display = 'block';
