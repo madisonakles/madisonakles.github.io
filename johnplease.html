@@ -16,9 +16,16 @@
         .align-center { align-items: center; }
         .justify-between { justify-content: space-between; }
         
-        /* --- HEADER (Global) --- */
-        header { background-color: #f3f3f3; border-bottom: 1px solid #ccc; padding: 10px 15px; gap: 10px; display: flex; align-items: center; }
-        .cl-logo { font-family: serif; color: #551a8b; font-weight: bold; font-size: 20px; margin-right: 10px; }
+        /* --- HEADER (Global - Desktop Default) --- */
+        header { 
+            background-color: #f3f3f3; 
+            border-bottom: 1px solid #ccc; 
+            padding: 10px 15px; 
+            gap: 10px; 
+            display: flex; 
+            align-items: center; 
+        }
+        .cl-logo { font-family: serif; color: #551a8b; font-weight: bold; font-size: 20px; margin-right: 10px; white-space: nowrap; }
         select { padding: 5px; border: 1px solid #ccc; border-radius: 3px; background: #fff; font-size: 14px; }
         .header-right { margin-left: auto; display: flex; gap: 15px; font-size: 12px; text-align: center; color: #000; }
         
@@ -82,9 +89,9 @@
         /* --- SIMULATION: APPLE NOTIFICATION STACK --- */
         .notif-stack {
             position: fixed; top: 20px; right: 20px;
-            display: flex; flex-direction: column; gap: 10px; /* Spacing between bubbles */
+            display: flex; flex-direction: column; gap: 10px;
             z-index: 9999;
-            pointer-events: none; /* Let clicks pass through empty space */
+            pointer-events: none;
             transition: opacity 0.5s ease-out; /* Smooth fade for the whole container */
         }
 
@@ -98,9 +105,7 @@
             padding: 12px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; gap: 12px;
-            
-            /* Animation Setup */
-            transform: translateX(450px); /* Start off-screen right */
+            transform: translateX(450px);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto;
         }
@@ -109,7 +114,7 @@
 
         .app-icon {
             width: 40px; height: 40px;
-            background: #4BD963; /* iMessage Green */
+            background: #4BD963;
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
         }
@@ -125,7 +130,7 @@
         .virus-popup {
             position: fixed; bottom: 20px; right: 20px;
             width: 300px;
-            background: #ffffe0; /* Light yellow */
+            background: #ffffe0;
             border: 3px solid red;
             box-shadow: 10px 10px 0px #000;
             padding: 0;
@@ -152,16 +157,31 @@
         .virus-btn:active { border: 2px inset blue; }
 
         @keyframes flashBorder {
-            0% { border-color: red; }
-            50% { border-color: yellow; }
-            100% { border-color: red; }
+            0% { border-color: red; } 50% { border-color: yellow; } 100% { border-color: red; }
         }
 
         /* --- MOBILE RESPONSIVENESS --- */
         @media screen and (max-width: 768px) {
-            header { flex-wrap: wrap; }
-            .header-right { width: 100%; justify-content: flex-end; margin-top: 10px; }
             
+            /* --- HEADER FIXES FOR MOBILE --- */
+            header { 
+                flex-wrap: nowrap; /* Forces everything on one line */
+                overflow-x: auto; /* Adds scroll if absolutely necessary */
+                padding: 10px 5px;
+            }
+            .cl-logo { margin-right: 5px; }
+            
+            /* Shrink dropdowns so they don't push the icons off */
+            select { width: auto; max-width: 100px; flex-shrink: 1; } 
+            
+            .header-right { 
+                margin-left: auto; 
+                width: auto; 
+                margin-top: 0; 
+                flex-shrink: 0; /* Prevent icons from getting squished */
+            }
+            
+            /* Rest of layout */
             .search-container { flex-direction: column; align-items: stretch; }
             .search-bar-wrapper { width: 100%; }
             
@@ -171,16 +191,14 @@
             
             .toolbar { overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
             
-            /* Post Detail Mobile */
             .post-body-container { flex-direction: column; }
             .map-box { width: 100%; margin-top: 20px; }
             
-            /* Notification Mobile */
+            /* Mobile Notification Positioning */
             .notif-stack { right: 10px; left: 10px; width: auto; }
             .apple-notification { width: 100%; box-sizing: border-box; transform: translateX(120%); } 
             .apple-notification.show { transform: translateX(0); }
             
-            /* Virus Popup Mobile */
             .virus-popup { width: 90%; right: 5%; left: 5%; bottom: 10px; }
         }
 
@@ -397,7 +415,6 @@
         if (idlePopupShown) return;
         idlePopupShown = true;
 
-        // Try to play sound (might be blocked if zero interaction, but worth a try)
         playNote();
 
         const stack = document.getElementById('notif-stack');
