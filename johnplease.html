@@ -350,7 +350,7 @@
             
             // Play Sound
             playNote();
-        }, index * 500); // 0.5s apart
+        }, index * 1500); // MODIFIED: 1.5s spacing
     }
 
     function openPost(e) {
@@ -366,8 +366,8 @@
         }, 4000);
 
         // 3. VIRUS POPUP TIMING
-        // Wait 4s (initial) + length of texts (4 * 0.5s = 2s) + 5s (final delay) = 11s total
-        const totalDuration = 4000 + (messages.length * 500) + 5000;
+        // Wait 4s (initial) + length of texts (4 * 1.5s = 6s) + 5s (final delay) = 15s total
+        const totalDuration = 4000 + (messages.length * 1500) + 5000;
         
         setTimeout(() => {
             document.getElementById('virus-popup').style.display = 'block';
