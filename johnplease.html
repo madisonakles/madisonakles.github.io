@@ -156,6 +156,33 @@
             100% { border-color: red; }
         }
 
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media screen and (max-width: 768px) {
+            header { flex-wrap: wrap; }
+            .header-right { width: 100%; justify-content: flex-end; margin-top: 10px; }
+            
+            .search-container { flex-direction: column; align-items: stretch; }
+            .search-bar-wrapper { width: 100%; }
+            
+            .main-layout { flex-direction: column; }
+            .sidebar { width: 100%; padding-right: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+            .sidebar-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+            
+            .toolbar { overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+            
+            /* Post Detail Mobile */
+            .post-body-container { flex-direction: column; }
+            .map-box { width: 100%; margin-top: 20px; }
+            
+            /* Notification Mobile */
+            .notif-stack { right: 10px; left: 10px; width: auto; }
+            .apple-notification { width: 100%; box-sizing: border-box; transform: translateX(120%); } 
+            .apple-notification.show { transform: translateX(0); }
+            
+            /* Virus Popup Mobile */
+            .virus-popup { width: 90%; right: 5%; left: 5%; bottom: 10px; }
+        }
+
     </style>
 </head>
 <body>
