@@ -105,8 +105,11 @@
         }
         
         .apple-notification.show { transform: translateX(0); }
-        /* Keeping class but unused */
-        .apple-notification.fade-out { opacity: 0; transition: opacity 0.5s ease-out; }
+        /* Add a class for fading out the idle message OR mobile messages */
+        .apple-notification.fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
 
         .app-icon {
             width: 40px; height: 40px;
@@ -390,6 +393,16 @@
             const div = createNotifElement(msg.title, msg.body);
             stack.appendChild(div);
             setTimeout(() => div.classList.add('show'), 10);
+
+            // --- MOBILE FADE LOGIC (NEW) ---
+            // If screen width is <= 768px, remove this message after 3s
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    div.classList.add('fade-out');
+                    setTimeout(() => div.remove(), 500); 
+                }, 3000);
+            }
+
         }, visualDelay);
     }
 
@@ -408,7 +421,15 @@
         // Show
         setTimeout(() => div.classList.add('show'), 10);
         
-        // REMOVED: Auto fade-out code
+        // REMOVED: Auto fade-out code is gone globally, 
+        // BUT if you want the IDLE one to persist even on mobile until clicked, we leave it.
+        // If you want the IDLE one to behave like the others on mobile (fade), add the check here too.
+        // Assuming "Madison message pop-up doesn't have to fade" applies globally to desktop/mobile logic
+        // but let's stick to the prompt: "preserve everything but FOR MOBILE ONLY i want the messages to fade"
+        // This implies the Madison one (which is a message) should also fade on mobile?
+        // Prompt said: "Madison message pop-up doesn't have to fade" in previous turn, but "FOR MOBILE ONLY i want the messages to fade" in this one.
+        // I will apply the fade logic to the TEXT messages loop primarily. 
+        // I will leave the Madison Idle popup PERSISTENT because you explicitly asked for it not to fade in the previous prompt.
     }
 
     // Start Idle Timer on Page Load
