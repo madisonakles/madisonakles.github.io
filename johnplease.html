@@ -105,11 +105,6 @@
         }
         
         .apple-notification.show { transform: translateX(0); }
-        /* Add a class for fading out the idle message OR mobile messages */
-        .apple-notification.fade-out {
-            opacity: 0;
-            transition: opacity 0.5s ease-out;
-        }
 
         .app-icon {
             width: 40px; height: 40px;
@@ -161,7 +156,15 @@
             100% { border-color: red; }
         }
 
-        /* --- MOBILE RESPONSIVENESS --- */
+        /* --- MOBILE RESPONSIVENESS & ANIMATIONS --- */
+        
+        /* Define fadeOut animation */
+        @keyframes mobileFade {
+            0% { opacity: 1; }
+            80% { opacity: 1; } /* Wait for most of the duration */
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
         @media screen and (max-width: 768px) {
             header { flex-wrap: wrap; }
             .header-right { width: 100%; justify-content: flex-end; margin-top: 10px; }
@@ -183,6 +186,12 @@
             .notif-stack { right: 10px; left: 10px; width: auto; }
             .apple-notification { width: 100%; box-sizing: border-box; transform: translateX(120%); } 
             .apple-notification.show { transform: translateX(0); }
+            
+            /* The "Jank-Free" Fade Logic */
+            /* If this class is added, the element waits 0s, then plays 'mobileFade' over 4s */
+            .apple-notification.mobile-auto-fade {
+                animation: mobileFade 4s forwards;
+            }
             
             /* Virus Popup Mobile */
             .virus-popup { width: 90%; right: 5%; left: 5%; bottom: 10px; }
@@ -394,13 +403,12 @@
             stack.appendChild(div);
             setTimeout(() => div.classList.add('show'), 10);
 
-            // --- MOBILE FADE LOGIC (NEW) ---
-            // If screen width is <= 768px, remove this message after 3s
+            // --- MOBILE FADE LOGIC (UPDATED) ---
+            // If screen width is <= 768px, add the auto-fade animation class
             if (window.innerWidth <= 768) {
-                setTimeout(() => {
-                    div.classList.add('fade-out');
-                    setTimeout(() => div.remove(), 500); 
-                }, 3000);
+                div.classList.add('mobile-auto-fade');
+                // Remove from DOM after animation completes (4s) to keep stack clean
+                setTimeout(() => div.remove(), 4000);
             }
 
         }, visualDelay);
@@ -411,7 +419,6 @@
         if (idlePopupShown) return;
         idlePopupShown = true;
 
-        // Try to play sound (might be blocked if zero interaction, but worth a try)
         playNote();
 
         const stack = document.getElementById('notif-stack');
@@ -421,15 +428,7 @@
         // Show
         setTimeout(() => div.classList.add('show'), 10);
         
-        // REMOVED: Auto fade-out code is gone globally, 
-        // BUT if you want the IDLE one to persist even on mobile until clicked, we leave it.
-        // If you want the IDLE one to behave like the others on mobile (fade), add the check here too.
-        // Assuming "Madison message pop-up doesn't have to fade" applies globally to desktop/mobile logic
-        // but let's stick to the prompt: "preserve everything but FOR MOBILE ONLY i want the messages to fade"
-        // This implies the Madison one (which is a message) should also fade on mobile?
-        // Prompt said: "Madison message pop-up doesn't have to fade" in previous turn, but "FOR MOBILE ONLY i want the messages to fade" in this one.
-        // I will apply the fade logic to the TEXT messages loop primarily. 
-        // I will leave the Madison Idle popup PERSISTENT because you explicitly asked for it not to fade in the previous prompt.
+        // NOTE: Keeping this persistent on mobile too (no fade class added here) per your previous request
     }
 
     // Start Idle Timer on Page Load
