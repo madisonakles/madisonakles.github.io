@@ -259,14 +259,22 @@
         document.getElementById('messagesList').scrollTop = messagesList.scrollHeight;
     }
 
-    function finishStudy() {
-        const dataString = JSON.stringify(participantData.logs);
-        const encodedData = encodeURIComponent(dataString);
-        // Using your specific Qualtrics ID from the previous message
-        const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
-        const finalUrl = qualtricsBaseUrl + "?chat_logs=" + encodedData;
-        window.top.location.href = finalUrl;
-    }
+function finishStudy() {
+    const dataString = JSON.stringify(participantData.logs);
+    const encodedData = encodeURIComponent(dataString);
+    
+    // grab the user ID that we caught from Survey 1
+    const myUserId = participantData.userId;
+    
+    // Survey 2 link
+    const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
+    
+    // 
+    const finalUrl = qualtricsBaseUrl + "?chat_logs=" + encodedData + "&survey1_id=" + myUserId;
+    
+    window.top.location.href = finalUrl;
+}
+    
 </script>
 </body>
 </html>
