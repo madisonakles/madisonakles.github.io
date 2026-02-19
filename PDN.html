@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>In-Game Chat Prototype</title>
+    <title>In-Game Chat Prototype - Intervention</title>
     <style>
         :root {
             --bg-color: #000;
@@ -26,48 +26,75 @@
             background: var(--bg-color);
         }
 
-        #video-background {
+        /* --- Intro Screen Styles --- */
+        #introScreen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            pointer-events: none;
-            overflow: hidden;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
         }
-        
+        .intro-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .intro-card p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+        .start-btn {
+            background: var(--primary); color: white;
+            border: none; padding: 15px 30px;
+            border-radius: 8px; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: background 0.2s;
+        }
+        .start-btn:hover { background: var(--primary-hover); }
+
+        /* --- Timer Styles --- */
+        #timerDisplay {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(0,0,0,0.7); color: white;
+            padding: 10px 20px; border-radius: 8px;
+            font-family: monospace; font-size: 1.5rem; font-weight: bold;
+            z-index: 50; display: none; /* Hidden until start */
+        }
+
+        /* --- Main Layout --- */
+        #video-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; pointer-events: none; overflow: hidden;
+        }
         #player {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            min-width: 100%;
-            min-height: 100%;
-            width: 115vw;
-            height: 65vw;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            min-width: 100%; min-height: 100%; width: 115vw; height: 65vw;
         }
 
         .main-wrapper {
-            display: flex;
-            flex-direction: column; /* Allows button to stack under chat */
-            align-items: center;
+            display: none; /* Hidden until Start is clicked */
+            flex-direction: column;
+            align-items: flex-end; /* Moves content to the right */
             justify-content: center;
             height: 100vh;
             position: relative;
             z-index: 1;
+            padding-right: 10vw; /* Gives it breathing room from the right edge */
         }
 
         .chat-container {
-            width: 380px;
-            height: 550px;
-            background: var(--chat-bg);
-            border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            width: 380px; height: 550px; background: var(--chat-bg);
+            border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
         .chat-header { padding: 16px; border-bottom: 1px solid var(--secondary); font-weight: 600; display: flex; justify-content: space-between; }
@@ -90,28 +117,36 @@
         .btn-secondary { background: transparent; color: var(--text-sub); border: 1px solid var(--secondary); padding: 10px; border-radius: 8px; cursor: pointer; }
         .btn-link { background: none; border: none; color: var(--text-sub); font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
 
-        /* The Finish Button Style */
-        .finish-btn {
-            margin-top: 20px;
-            padding: 15px 30px;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
+        /* The Finish Button Style (Hidden Initially) */
+        #finishBtn {
+            display: none; /* Kept here in case you want to show it manually later */
+            margin-top: 20px; padding: 15px 30px;
+            background: #10b981; color: white; border: none;
+            border-radius: 8px; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .finish-btn:hover { background: #059669; }
+        #finishBtn:hover { background: #059669; }
     </style>
 </head>
 <body>
+
+<div id="introScreen">
+    <div class="intro-card">
+        <h2 style="margin-top: 0;">Instructions</h2>
+        <p>You will be interacting with another live participant and will be shown a simulated gaming screen. Chat as if you are playing a fast-paced multiplayer competitive game.</p>
+        <p><strong>You must chat and send messages for 5 minutes to receive credit.</strong></p>
+        <p>After 5 minutes, you will be automatically redirected to finish the survey.</p>
+        <button class="start-btn" onclick="startChat()">Click to start interactive chat</button>
+    </div>
+</div>
+
+<div id="timerDisplay">05:00</div>
 
 <div id="video-background">
     <div id="player"></div>
 </div>
 
-<div class="main-wrapper">
+<div class="main-wrapper" id="mainChatUI">
     <div class="chat-container">
         <div class="chat-header">
             <span>In-Game Chat</span>
@@ -143,7 +178,7 @@
         </div>
     </div>
 
-    <button class="finish-btn" onclick="finishStudy()">
+    <button id="finishBtn" onclick="finishStudy()">
         Finish Chat & Continue Survey
     </button>
 </div>
@@ -151,6 +186,7 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
+    // --- Setup & Logging Data ---
     const urlParams = new URLSearchParams(window.location.search);
     const participantData = {
         userId: urlParams.get('uid') || 'anonymous_user',
@@ -166,18 +202,53 @@
         ytPlayer = new YT.Player('player', {
             videoId: 'FqbHyRvTCt8',
             playerVars: {
-                'autoplay': 1,
-                'controls': 0,
-                'mute': 1,
-                'loop': 1,
-                'playlist': 'FqbHyRvTCt8'
+                'autoplay': 1, 
+                'controls': 0, 
+                'mute': 1, 
+                'loop': 1, 
+                'playlist': 'FqbHyRvTCt8',
+                'start': 60 // Starts the video at 1:00
             },
             events: {
-                'onReady': (event) => event.target.playVideo()
+                'onReady': (event) => {
+                    event.target.playVideo();
+                }
             }
         });
     }
 
+    // --- Timer & Flow Logic ---
+    let totalSeconds = 300; // 5 minutes (300 seconds)
+    let timerInterval;
+
+    function startChat() {
+        // 1. Hide intro, show main UI and Timer
+        document.getElementById('introScreen').style.display = 'none';
+        document.getElementById('mainChatUI').style.display = 'flex';
+        document.getElementById('timerDisplay').style.display = 'block';
+
+        // 2. Start the visual countdown
+        timerInterval = setInterval(updateTimer, 1000);
+
+        // 3. Force study to finish automatically after exactly 5 minutes (300,000 ms)
+        setTimeout(() => {
+            finishStudy();
+        }, 300000);
+    }
+
+    function updateTimer() {
+        totalSeconds--;
+        let mins = Math.floor(totalSeconds / 60);
+        let secs = totalSeconds % 60;
+        if (secs < 10) secs = "0" + secs;
+        document.getElementById('timerDisplay').innerText = "0" + mins + ":" + secs;
+
+        if (totalSeconds <= 0) {
+            clearInterval(timerInterval);
+        }
+    }
+
+    // --- Chat & Intervention Logic ---
     const input = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
     const modal = document.getElementById('interventionModal');
@@ -259,22 +330,22 @@
         document.getElementById('messagesList').scrollTop = messagesList.scrollHeight;
     }
 
-function finishStudy() {
-    const dataString = JSON.stringify(participantData.logs);
-    const encodedData = encodeURIComponent(dataString);
-    
-    // grab the user ID that we caught from Survey 1
-    const myUserId = participantData.userId;
-    
-    // Survey 2 link
-    const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
-    
-    // 
-    const finalUrl = qualtricsBaseUrl + "?chat_logs=" + encodedData + "&survey1_id=" + myUserId;
-    
-    window.top.location.href = finalUrl;
-}
-    
+    // --- Redirect Data Back to Qualtrics ---
+    function finishStudy() {
+        const dataString = JSON.stringify(participantData.logs);
+        const encodedData = encodeURIComponent(dataString);
+        
+        // Grab the user ID that we caught from Survey 1
+        const myUserId = participantData.userId;
+        
+        // Survey 2 link
+        const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
+        
+        // Pass data and ID back to Qualtrics
+        const finalUrl = qualtricsBaseUrl + "?chat_logs=" + encodedData + "&survey1_id=" + myUserId;
+        
+        window.top.location.href = finalUrl;
+    }
 </script>
 </body>
 </html>
