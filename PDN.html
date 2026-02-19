@@ -6,7 +6,7 @@
     <title>In-Game Chat Prototype</title>
     <style>
         :root {
-            --bg-color: #000; /* Black background for video contrast */
+            --bg-color: #000;
             --chat-bg: #ffffff;
             --primary: #4f46e5;
             --primary-hover: #4338ca;
@@ -22,11 +22,10 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            overflow: hidden; /* Prevent scrolling away from background */
+            overflow: hidden;
             background: var(--bg-color);
         }
 
-        /* --- YouTube Background --- */
         #video-background {
             position: fixed;
             top: 0;
@@ -34,7 +33,7 @@
             width: 100vw;
             height: 100vh;
             z-index: -1;
-            pointer-events: none; /* User can't click the video directly */
+            pointer-events: none;
             overflow: hidden;
         }
         
@@ -45,16 +44,15 @@
             transform: translate(-50%, -50%);
             min-width: 100%;
             min-height: 100%;
-            width: 115vw; /* Oversized to hide black bars */
+            width: 115vw;
             height: 65vw;
         }
 
-        /* --- Layout Adjustments --- */
         .main-wrapper {
             display: flex;
+            flex-direction: column; /* Allows button to stack under chat */
             align-items: center;
-            justify-content: flex-end; /* Push content to the right */
-            padding-right: 10%; /* Adjust this to move chat left/right */
+            justify-content: center;
             height: 100vh;
             position: relative;
             z-index: 1;
@@ -62,7 +60,7 @@
 
         .chat-container {
             width: 380px;
-            height: 600px;
+            height: 550px;
             background: var(--chat-bg);
             border-radius: 12px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
@@ -72,7 +70,6 @@
             position: relative;
         }
 
-        /* --- Rest of your original Styles (kept for consistency) --- */
         .chat-header { padding: 16px; border-bottom: 1px solid var(--secondary); font-weight: 600; display: flex; justify-content: space-between; }
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .message { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; }
@@ -92,6 +89,20 @@
         .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-secondary { background: transparent; color: var(--text-sub); border: 1px solid var(--secondary); padding: 10px; border-radius: 8px; cursor: pointer; }
         .btn-link { background: none; border: none; color: var(--text-sub); font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
+
+        /* The Finish Button Style */
+        .finish-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .finish-btn:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -112,7 +123,7 @@
         </div>
 
         <div class="input-area">
-            <input type="text" id="messageInput" placeholder="Type 'You are stupid'..." autocomplete="off">
+            <input type="text" id="messageInput" placeholder="Type here..." autocomplete="off">
             <button class="send-btn" id="sendBtn">Send</button>
         </div>
 
@@ -131,24 +142,26 @@
             </div>
         </div>
     </div>
+
+    <button class="finish-btn" onclick="finishStudy()">
+        Finish Chat & Continue Survey
+    </button>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    // --- Data Storage for Qualtrics ---
     const urlParams = new URLSearchParams(window.location.search);
     const participantData = {
         userId: urlParams.get('uid') || 'anonymous_user',
         sessionStart: new Date().toISOString(),
-        logs: [] // Stores: { message, type, latency, action }
+        logs: []
     };
 
     let ytPlayer;
     let modalStartTime = 0;
     let originalMessage = "";
 
-    // --- YouTube API Setup ---
     function onYouTubeIframeAPIReady() {
         ytPlayer = new YT.Player('player', {
             videoId: 'FqbHyRvTCt8',
@@ -179,9 +192,7 @@
     function handleSend() {
         const text = input.value.trim();
         if (!text) return;
-
         const isToxic = toxicKeywords.some(kw => text.toLowerCase().includes(kw));
-
         if (isToxic) {
             originalMessage = text;
             triggerIntervention(text);
@@ -193,36 +204,27 @@
     }
 
     function triggerIntervention(text) {
-        // 1. Pause Video
         if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
-        
-        // 2. Start Latency Tracker
         modalStartTime = Date.now();
-
-        // 3. Set Suggestion
         aiText.textContent = rewrites[toxicKeywords.find(k => text.includes(k))] || rewrites['default'];
         modal.classList.add('active');
     }
 
     function getLatency() {
-        return (Date.now() - modalStartTime) / 1000; // Return seconds
+        return (Date.now() - modalStartTime) / 1000;
     }
 
     function saveLog(msg, type, latency) {
         const logEntry = {
             timestamp: new Date().toISOString(),
             content: msg,
-            interactionType: type, // 'accepted_suggestion', 'sent_original', 'cancelled'
+            interactionType: type,
             latencySeconds: latency
         };
         participantData.logs.push(logEntry);
-        console.log("Updated Participant Data:", participantData);
-        // In Qualtrics, you would use: Qualtrics.SurveyEngine.setEmbeddedData('chat_logs', JSON.stringify(participantData));
+        console.log("Log saved locally:", logEntry);
     }
-// --- ADD THIS LINE ---
-    // This sends the updated data object to Qualtrics in real-time
-    window.parent.postMessage(JSON.stringify(participantData), "*"); 
-}
+
     window.acceptSuggestion = function() {
         const latency = getLatency();
         addMessageToChat(aiText.textContent, 'me');
@@ -258,22 +260,13 @@
     }
 
     function finishStudy() {
-    // 1. Convert your logs into a text string
-    const dataString = JSON.stringify(participantData.logs);
-    
-    // 2. Encode it so it's safe for a URL
-    const encodedData = encodeURIComponent(dataString);
-    
-    // 3. YOUR QUALTRICS LINK (Replace the X's with your survey link)
-    // IMPORTANT: Use the link to the NEXT part of your survey or a "Data Capture" survey
-    const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
-    
-    // 4. Combine them
-    const finalUrl = qualtricsBaseUrl + "?chat_logs=" + encodedData;
-    
-    // 5. Force the whole browser tab to go to that new URL
-    window.top.location.href = finalUrl;
-}
+        const dataString = JSON.stringify(participantData.logs);
+        const encodedData = encodeURIComponent(dataString);
+        // Using your specific Qualtrics ID from the previous message
+        const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
+        const finalUrl = qualtricsBaseUrl + "?chat_logs=" + encodedData;
+        window.top.location.href = finalUrl;
+    }
 </script>
 </body>
 </html>
