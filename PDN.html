@@ -219,7 +219,10 @@
         console.log("Updated Participant Data:", participantData);
         // In Qualtrics, you would use: Qualtrics.SurveyEngine.setEmbeddedData('chat_logs', JSON.stringify(participantData));
     }
-
+// --- ADD THIS LINE ---
+    // This sends the updated data object to Qualtrics in real-time
+    window.parent.postMessage(JSON.stringify(participantData), "*"); 
+}
     window.acceptSuggestion = function() {
         const latency = getLatency();
         addMessageToChat(aiText.textContent, 'me');
@@ -253,6 +256,24 @@
         document.getElementById('messagesList').appendChild(div);
         document.getElementById('messagesList').scrollTop = messagesList.scrollHeight;
     }
+
+    function finishStudy() {
+    // 1. Convert your logs into a text string
+    const dataString = JSON.stringify(participantData.logs);
+    
+    // 2. Encode it so it's safe for a URL
+    const encodedData = encodeURIComponent(dataString);
+    
+    // 3. YOUR QUALTRICS LINK (Replace the X's with your survey link)
+    // IMPORTANT: Use the link to the NEXT part of your survey or a "Data Capture" survey
+    const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
+    
+    // 4. Combine them
+    const finalUrl = qualtricsBaseUrl + "?chat_logs=" + encodedData;
+    
+    // 5. Force the whole browser tab to go to that new URL
+    window.top.location.href = finalUrl;
+}
 </script>
 </body>
 </html>
