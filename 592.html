@@ -3,125 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Data Ethics Pulse-Check</title>
+    <title>The Ethics Pulse-Check</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; color: #333; display: flex; justify-content: center; padding: 20px; }
-        .quiz-container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 700px; width: 100%; }
-        h1 { color: #1a1a1a; text-align: center; margin-bottom: 30px; }
-        .question { margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
-        .question p { font-weight: 600; font-size: 1.1em; margin-bottom: 15px; line-height: 1.4; }
-        .options { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
-        .options label { font-size: 0.85em; color: #777; width: 80px; text-align: center; }
-        input[type="radio"] { transform: scale(1.3); cursor: pointer; }
-        button { width: 100%; padding: 18px; background-color: #000; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: transform 0.2s, background 0.3s; }
-        button:hover { background-color: #333; transform: translateY(-2px); }
-        #result { margin-top: 25px; padding: 25px; border-radius: 8px; display: none; text-align: left; font-size: 1.1em; line-height: 1.6; border: 2px solid transparent; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; display: flex; justify-content: center; padding: 20px; }
+        .quiz-container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 650px; width: 100%; }
+        h1 { color: #1a1a1a; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-style: italic; }
+        .question { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; }
+        .question p { font-weight: 600; font-size: 1.05em; margin-bottom: 12px; }
         
-        /* Result Styles */
-        .convenience { background-color: #fff9db; color: #e67e22; border-color: #f1c40f !important; }
-        .privacy { background-color: #ebfaeb; color: #27ae60; border-color: #2ecc71 !important; }
-        .balanced { background-color: #edf2ff; color: #3b5bdb; border-color: #4c6ef5 !important; }
-        .result-heading { font-size: 1.3em; font-weight: bold; text-align: center; margin-bottom: 15px; }
-        .score-box { background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); }
+        /* Layout for Q1 Scale */
+        .scale-options { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .scale-options label { font-size: 0.8em; color: #888; width: 70px; text-align: center; }
+
+        /* Layout for Yes/No */
+        .yn-options { display: flex; gap: 20px; }
+        .yn-options label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal; }
+
+        button { width: 100%; padding: 18px; background-color: #222; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #000; }
+
+        #result { margin-top: 25px; padding: 25px; border-radius: 8px; display: none; line-height: 1.6; border: 2px solid #ddd; }
+        .highlight-box { background: #f1f3f5; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 5px solid #222; }
+        .match { border-color: #2ecc71; background-color: #effaf3; }
+        .clash { border-color: #e74c3c; background-color: #fdf2f2; }
     </style>
 </head>
 <body>
 
 <div class="quiz-container">
     <h1>The Ethics Pulse-Check</h1>
+    <p class="subtitle">A quick diagnostic of your digital footprint.</p>
+    
     <form id="quizForm">
         <div class="question">
-            <p>1. Honestly, how much do you think your data is actually private today?</p>
-            <div class="options">
-                <label>It's all public</label>
+            <p>1. On a scale of 1 to 5, how much do you believe your personal data is private today?</p>
+            <div class="scale-options">
+                <label>Not at all</label>
                 <input type="radio" name="q1" value="1" required>
                 <input type="radio" name="q1" value="2">
                 <input type="radio" name="q1" value="3">
                 <input type="radio" name="q1" value="4">
                 <input type="radio" name="q1" value="5">
-                <label>Strictly Confidential</label>
+                <label>Completely</label>
             </div>
         </div>
 
         <div class="question">
-            <p>2. Do you log into personal accounts (banking, social) on work devices?</p>
-            <div class="options">
-                <label>Daily</label>
-                <input type="radio" name="q2" value="1" required>
-                <input type="radio" name="q2" value="2">
-                <input type="radio" name="q2" value="3">
-                <input type="radio" name="q2" value="4">
-                <input type="radio" name="q2" value="5">
-                <label>Never</label>
+            <p>2. Do you log into personal accounts on your work computer?</p>
+            <div class="yn-options">
+                <label><input type="radio" name="q2" value="conv" required> Yes</label>
+                <label><input type="radio" name="q2" value="priv"> No</label>
             </div>
         </div>
 
         <div class="question">
-            <p>3. Do you have a piece of tape or a slider over your laptop camera?</p>
-            <div class="options">
-                <label>No, why?</label>
-                <input type="radio" name="q3" value="1" required>
-                <input type="radio" name="q3" value="2">
-                <input type="radio" name="q3" value="3">
-                <input type="radio" name="q3" value="4">
-                <input type="radio" name="q3" value="5">
-                <label>Always</label>
+            <p>3. Do you have a physical cover (tape/slider) over your webcam?</p>
+            <div class="yn-options">
+                <label><input type="radio" name="q3" value="priv" required> Yes</label>
+                <label><input type="radio" name="q3" value="conv"> No</label>
             </div>
         </div>
 
         <div class="question">
-            <p>4. Do you ever say "Oh, my algorithm is so good today!" regarding TikTok/Spotify?</p>
-            <div class="options">
-                <label>All the time!</label>
-                <input type="radio" name="q4" value="1" required>
-                <input type="radio" name="q4" value="2">
-                <input type="radio" name="q4" value="3">
-                <input type="radio" name="q4" value="4">
-                <input type="radio" name="q4" value="5">
-                <label>It creeps me out when its too good...</label>
+            <p>4. Have you ever said "my algorithm is so good today" or similar?</p>
+            <div class="yn-options">
+                <label><input type="radio" name="q4" value="conv" required> Yes</label>
+                <label><input type="radio" name="q4" value="priv"> No</label>
             </div>
         </div>
 
         <div class="question">
-            <p>5. Does it bother you that Alexa seems to know you're about to speak before you even say anything word?</p>
-            <div class="options">
-                <label>It's helpful!</label>
-                <input type="radio" name="q5" value="1" required>
-                <input type="radio" name="q5" value="2">
-                <input type="radio" name="q5" value="3">
-                <input type="radio" name="q5" value="4">
-                <input type="radio" name="q5" value="5">
-                <label>I unplug it</label>
+            <p>5. Do you have an Amazon Alexa or Echo Dot in your home?</p>
+            <div class="yn-options">
+                <label><input type="radio" name="q5" value="conv" required> Yes</label>
+                <label><input type="radio" name="q5" value="priv"> No</label>
             </div>
         </div>
 
         <div class="question">
-            <p>6. You talk about a niche product at dinner, and 20 minutes later you see an Instagram ad for it. Your reaction?</p>
-            <div class="options">
-                <label>"Convenient!"</label>
-                <input type="radio" name="q6" value="1" required>
-                <input type="radio" name="q6" value="2">
-                <input type="radio" name="q6" value="3">
-                <input type="radio" name="q6" value="4">
-                <input type="radio" name="q6" value="5">
-                <label>"I'm being spied on"</label>
+            <p>6. Do you "Accept Cookies" without reading what they are?</p>
+            <div class="yn-options">
+                <label><input type="radio" name="q6" value="conv" required> Yes</label>
+                <label><input type="radio" name="q6" value="priv"> No</label>
             </div>
         </div>
 
         <div class="question">
-            <p>7. You're at an airport with 1% battery and need to check your email. Do you join the "Free_Public_WiFi" with no password?</p>
-            <div class="options">
-                <label>Immediately</label>
-                <input type="radio" name="q7" value="1" required>
-                <input type="radio" name="q7" value="2">
-                <input type="radio" name="q7" value="3">
-                <input type="radio" name="q7" value="4">
-                <input type="radio" name="q7" value="5">
-                <label>I'd rather stay offline</label>
+            <p>7. Do you actually know what "Accept Cookies" means for your data?</p>
+            <div class="yn-options">
+                <label><input type="radio" name="q7" value="priv" required> Yes</label>
+                <label><input type="radio" name="q7" value="conv"> No</label>
             </div>
         </div>
 
-        <button type="button" onclick="calculateResult()">Analyze My Digital Soul</button>
+        <button type="button" onclick="calculateResult()">Compare My Results</button>
     </form>
 
     <div id="result"></div>
@@ -133,65 +109,63 @@
         const formData = new FormData(form);
         
         if (Array.from(formData.keys()).length < 7) {
-            alert("Please answer all 7 questions to get your analysis!");
+            alert("Please answer all questions!");
             return;
         }
 
-        // 1. Extract Perception Score (Q1)
-        const perceptionScore = parseInt(formData.get('q1'));
-
-        // 2. Calculate Behavioral Score (Qs 2-7)
-        let behavioralTotal = 0;
-        const behavioralKeys = ['q2', 'q3', 'q4', 'q5', 'q6', 'q7'];
+        const perception = parseInt(formData.get('q1'));
         
-        behavioralKeys.forEach(key => {
-            behavioralTotal += parseInt(formData.get(key));
-        });
+        // Scoring Behavior: We count "Privacy" choices vs "Convenience" choices
+        let privCount = 0;
+        let convCount = 0;
+
+        for (let [key, value] of formData.entries()) {
+            if (key === 'q1') continue;
+            if (value === 'priv') privCount++;
+            if (value === 'conv') convCount++;
+        }
 
         const resultDiv = document.getElementById('result');
         resultDiv.style.display = 'block';
 
-        // Set base class based on behavioral score (out of 30)
-        let ranking = "";
-        if (behavioralTotal <= 14) {
-            resultDiv.className = 'convenience';
-            ranking = "Convenience First";
-        } else if (behavioralTotal <= 22) {
-            resultDiv.className = 'balanced';
-            ranking = "Cautious Optimist";
+        // Logic for Comparison
+        let title = "";
+        let analysis = "";
+        let statusClass = "";
+
+        // Determine if Perception matches Behavior
+        // High perception (4-5) + High Privacy actions (4+) = Alignment
+        // High perception (4-5) + High Conv actions (4+) = Clash
+        if (perception >= 4 && privCount >= 4) {
+            title = "THE FORTRESS";
+            analysis = "You believe your data is private, and you back it up with your actions. You are the rare user who practices what they preach.";
+            statusClass = "match";
+        } else if (perception >= 4 && convCount >= 4) {
+            title = "THE DANGEROUS OPTIMIST";
+            analysis = "You believe your data is secure, yet your habits (Alexa, no camera tape, work logins) suggest you've actually handed over the keys to the castle.";
+            statusClass = "clash";
+        } else if (perception <= 2 && convCount >= 4) {
+            title = "THE NIHILIST";
+            analysis = "You've accepted that privacy is dead. You think nothing is private, so you don't bother fighting it. You are the 'convenience at all costs' user.";
+            statusClass = "match";
+        } else if (perception <= 2 && privCount >= 4) {
+            title = "THE URBAN GUERRILLA";
+            analysis = "You think the system is watching everything, so you've gone underground. You don't trust the tech, and your habits prove it.";
+            statusClass = "clash";
         } else {
-            resultDiv.className = 'privacy';
-            ranking = "Privacy Hawk";
+            title = "THE DIGITAL PRAGMATIST";
+            analysis = "You're in the middle. You know the risks, but you're willing to trade some privacy for a little bit of convenience when it matters.";
+            statusClass = "match";
         }
 
-        // Generate dynamic narrative comparing Perception vs. Behavior
-        let analysisNarrative = "";
-
-        // Scenario 1: Alignment (Low/Low or High/High)
-        if (perceptionScore <= 2 && behavioralTotal <= 14) {
-            analysisNarrative = "<strong>ANALYSIS:</strong> You're a realist. You believe true privacy is dead, and you've embraced the convenience of the surveillance economy. Your actions perfectly align with your beliefs.";
-        } else if (perceptionScore >= 4 && behavioralTotal >= 23) {
-            analysisNarrative = "<strong>ANALYSIS:</strong> You are a true digital ghost. You believe privacy is attainable, and you work exceptionally hard to maintain your perimeter. You are aligned, but perhaps isolated.";
-        } 
-        // Scenario 2: Tension (The "Reality Gap")
-        else if (perceptionScore <= 2 && behavioralTotal >= 23) {
-            analysisNarrative = "<strong>ANALYSIS: THE REALITY GAP.</strong> You believe your data is totally public, *yet* you act like a digital ghost to protect it. Are you succeeding, or are you just a paranoid user fighting a war you already lost?";
-        } else if (perceptionScore >= 4 && behavioralTotal <= 14) {
-            analysisNarrative = "<strong>ANALYSIS: THE CAUTIOUS ILLUSION.</strong> You hold onto the belief that your data is private, but your daily habits create an massive surveillance trail. You are trading your actual security for an illusion of safety.";
-        } 
-        // Scenario 3: The Gray Area (Balanced)
-        else {
-            analysisNarrative = "<strong>ANALYSIS:</strong> Like most people, you navigate the messy middle. You hold a healthy skepticism about privacy (Score: " + perceptionScore + "/5) and adjust your behaviors situationally. You recognize that data ethics is a constant trade-off, not a binary choice.";
-        }
-
+        resultDiv.className = statusClass;
         resultDiv.innerHTML = `
-            <div class="result-heading">ANALYSIS COMPLETE</div>
-            <div class="score-box">
-                <strong>Your Perception (Q1):</strong> ${perceptionScore} / 5 ('Confidentiality')<br>
-                <strong>Your Behavior (Qs 2-7):</strong> ${behavioralTotal} / 30 ('Security Behavior')
+            <h2 style="margin-top:0; text-align:center;">${title}</h2>
+            <div class="highlight-box">
+                <strong>Your Perception:</strong> ${perception}/5 (5 = Most Private)<br>
+                <strong>Your Actions:</strong> ${privCount} Privacy choices vs. ${convCount} Convenience choices.
             </div>
-            <p><strong>RANKING:</strong> ${ranking}</p>
-            <p>${analysisNarrative}</p>
+            <p>${analysis}</p>
         `;
     }
 </script>
