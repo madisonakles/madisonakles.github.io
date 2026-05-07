@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-Game Chat Prototype - Friction</title>
+    <style>
+        :root {
+            --bg-color: #000; --chat-bg: #ffffff; --primary: #4f46e5; --primary-hover: #4338ca;
+            --secondary: #e5e7eb; --text-main: #111827; --text-sub: #6b7280; --danger: #ef4444;
+            --success: #10b981; --bubble-me: #4f46e5; --bubble-them: #f3f4f6;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; overflow: hidden; background: var(--bg-color); }
+
+        /* --- Overlay Screens (Identical to pdn.html) --- */
+        .overlay-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.9); z-index: 100; display: flex;
+            align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+
+        .intro-card {
+            background: white; padding: 40px; border-radius: 12px;
+            max-width: 600px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .intro-card p { font-size: 1.1rem; line-height: 1.6; color: var(--text-main); margin-bottom: 20px; }
+
+        .start-btn {
+            background: var(--primary); color: white; border: none; padding: 15px 30px;
+            border-radius: 8px; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); transition: background 0.2s;
+        }
+        .start-btn:disabled { background: #a5a5a5; cursor: not-allowed; box-shadow: none; }
+
+        .loader {
+            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary);
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite; margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Chat UI --- */
+        #timerDisplay {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 8px;
+            font-family: monospace; font-size: 1.5rem; font-weight: bold;
+            z-index: 50; display: none;
+        }
+
+        #video-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
+        #player { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-width: 100%; min-height: 100%; width: 115vw; height: 65vw; }
+
+        .main-wrapper {
+            display: none; flex-direction: column; align-items: flex-end; justify-content: center;
+            height: 100vh; position: relative; z-index: 1; padding-right: 10vw;
+        }
+
+        .chat-container {
+            width: 380px; height: 550px; background: var(--chat-bg);
+            border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+
+        .chat-header { padding: 16px; border-bottom: 1px solid var(--secondary); font-weight: 600; display: flex; justify-content: space-between; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        .message { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; }
+        .message.them { align-self: flex-start; background: var(--bubble-them); border-bottom-left-radius: 4px; }
+        .message.me { align-self: flex-end; background: var(--bubble-me); color: white; border-bottom-right-radius: 4px; }
+        .input-area { padding: 16px; border-top: 1px solid var(--secondary); display: flex; gap: 10px; background: var(--chat-bg); }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid var(--secondary); border-radius: 24px; outline: none; }
+        button.send-btn { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 24px; cursor: pointer; font-weight: 600; }
+        
+        /* Modal - Friction/Timer Version */
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(4px); z-index: 10; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background: white; width: 85%; padding: 24px; border-radius: 16px; text-align: center; }
+        .timer-box { background: #fff1f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .actions { display: flex; flex-direction: column; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-secondary { background: transparent; color: var(--text-sub); border: 1px solid var(--secondary); padding: 10px; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="introScreen" class="overlay-screen">
+    <div class="intro-card">
+        <h2 style="margin-top: 0;">Instructions</h2>
+        <p>You will be interacting with another live participant and will be shown a simulated gaming screen to test a new chatbox. Chat as if you are playing a fast-paced multiplayer competitive game.</p>
+        <p><strong>You must chat and send messages for 10 minutes to receive credit.</strong></p>
+        <p>After chatting, you will be automatically redirected to finish the survey.</p>
+        <button class="start-btn" onclick="goToConsent()">Click to start interactive chat</button>
+    </div>
+</div>
+
+<div id="consentScreen" class="overlay-screen" style="display:none;">
+    <div class="intro-card">
+        <p>Imagine you are playing an <span id="unlockWord" style="color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline;">online</span> game.</p> 
+        <p>You must actively participate in the chat as you would in a game and complete the follow-up survey after to receive credit.</p>
+        <p><strong>Please click the word "online" to proceed.</strong></p>
+        <button id="understandBtn" class="start-btn" disabled onclick="fakeConnecting()">I understand</button>
+    </div>
+</div>
+
+<div id="loadingScreen" class="overlay-screen" style="display:none;">
+    <div class="intro-card">
+        <h3>Connecting to other participant...</h3>
+        <div class="loader"></div>
+        <p style="color: var(--text-sub);">Finding a match in your region</p>
+    </div>
+</div>
+
+<div id="timerDisplay">10:00</div>
+<div id="video-background"><div id="player"></div></div>
+
+<div class="main-wrapper" id="mainChatUI">
+    <div class="chat-container">
+        <div class="chat-header"><span>In-Game Chat</span><span style="font-size: 0.8rem; color: #10b981;">● Match Live</span></div>
+        <div class="chat-messages" id="messagesList"></div>
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Type here..." autocomplete="off">
+            <button class="send-btn" id="sendBtn">Send</button>
+        </div>
+
+        <div class="modal-overlay" id="interventionModal">
+            <div class="modal-card">
+                <h3 style="margin-top:0">Pause for a moment</h3>
+                <p style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 15px;">Your message may violate guidelines. Please reflect before sending.</p>
+                <div class="timer-box">
+                    <span id="frictionTimer" style="color: #e11d48; font-weight: bold; font-size: 1.5rem;">5s</span>
+                </div>
+                <div class="actions">
+                    <button class="btn-primary" id="sendAnywayBtn" onclick="sendOriginal()" disabled>Send Original Anyway</button>
+                    <button class="btn-secondary" onclick="cancelSend()">Edit / Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const participantData = {
+        userId: urlParams.get('uid') || 'anonymous_user',
+        condition: urlParams.get('cond') || 'friction',
+        sessionStart: new Date().toISOString(),
+        logs: []
+    };
+
+    let ytPlayer, modalStartTime = 0, originalMessage = "";
+
+    function onYouTubeIframeAPIReady() {
+        ytPlayer = new YT.Player('player', {
+            videoId: 'FqbHyRvTCt8',
+            playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 1, 'loop': 1, 'playlist': 'FqbHyRvTCt8', 'start': 60 },
+            events: { 'onReady': (event) => { event.target.playVideo(); } }
+        });
+    }
+
+    // --- Automated Bot Script (Identical to pdn.html) ---
+    const scriptedMessages = [
+        { time: 5000, text: "i've literally never played this game before lol" },
+        { time: 30000, text: "hey can you help me figure out what's going on in this match?" },
+        { time: 70000, text: "are you actually this stupid or just pretending?" },
+        { time: 110000, text: "uninstall the game right now, you suck so much." },
+        { time: 160000, text: "how much did you pay to get carried to this rank? idiot." },
+        { time: 220000, text: "you are literally the worst player I have ever seen." },
+        { time: 280000, text: "what are you doing? help the team for once." },
+        { time: 340000, text: "im done playing with you, enjoy the loss." },
+        { time: 400000, text: "gg, we lose because our teammate is a brain dead bot." },
+        { time: 460000, text: "report this guy for throwing, absolute trash." },
+        { time: 510000, text: "wow, great job dying again. really helpful." },
+        { time: 550000, text: "is your monitor even turned on?" },
+        { time: 580000, text: "imagine being this bad at a free game." },
+        { time: 595000, text: "nice aim... do you play with a steering wheel?" }
+    ];
+
+    function scheduleBotMessages() {
+        scriptedMessages.forEach(msg => {
+            setTimeout(() => {
+                addMessageToChat(msg.text, 'them');
+                saveLog(msg.text, 'bot_message', 0);
+            }, msg.time);
+        });
+    }
+
+    // --- Flow Controls ---
+    function goToConsent() {
+        document.getElementById('introScreen').style.display = 'none';
+        document.getElementById('consentScreen').style.display = 'flex';
+    }
+
+    document.getElementById('unlockWord').onclick = function() {
+        document.getElementById('understandBtn').disabled = false;
+        this.style.color = "var(--success)";
+        this.style.cursor = "default";
+        this.style.textDecoration = "none";
+    };
+
+    function fakeConnecting() {
+        document.getElementById('consentScreen').style.display = 'none';
+        document.getElementById('loadingScreen').style.display = 'flex';
+        setTimeout(startChat, 4000); 
+    }
+
+    // --- Timer Logic (10 Minutes) ---
+    let totalSeconds = 600; 
+    let timerInterval;
+
+    function startChat() {
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('mainChatUI').style.display = 'flex';
+        document.getElementById('timerDisplay').style.display = 'block';
+
+        timerInterval = setInterval(updateTimer, 1000);
+        scheduleBotMessages();
+        setTimeout(finishStudy, 600000); 
+    }
+
+    function updateTimer() {
+        totalSeconds--;
+        let mins = Math.floor(totalSeconds / 60);
+        let secs = totalSeconds % 60;
+        document.getElementById('timerDisplay').innerText = (mins < 10 ? "0" : "") + mins + ":" + (secs < 10 ? "0" : "") + secs;
+        if (totalSeconds <= 0) clearInterval(timerInterval);
+    }
+
+    // --- Chat Logic ---
+    const input = document.getElementById('messageInput'), sendBtn = document.getElementById('sendBtn'), modal = document.getElementById('interventionModal');
+    const toxicKeywords = ['stupid', 'idiot', 'suck', 'fuck', 'bitch', 'trash', 'bot'];
+
+    sendBtn.addEventListener('click', handleSend);
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+
+    function handleSend() {
+        const text = input.value.trim();
+        if (!text) return;
+        if (toxicKeywords.some(kw => text.toLowerCase().includes(kw))) {
+            originalMessage = text; input.value = ''; triggerIntervention(text);
+        } else {
+            addMessageToChat(text, 'me'); saveLog(text, 'direct_send', 0); input.value = '';
+        }
+    }
+
+    async function triggerIntervention(text) {
+        if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+        modalStartTime = Date.now();
+        modal.classList.add('active');
+        
+        let timeLeft = 5;
+        const timerLabel = document.getElementById('frictionTimer');
+        const actionBtn = document.getElementById('sendAnywayBtn');
+        actionBtn.disabled = true;
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerLabel.innerText = timeLeft + "s";
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerLabel.innerText = "Ready";
+                actionBtn.disabled = false;
+            }
+        }, 1000);
+
+        // API Call (Background logging of toxicity score)
+        try {
+            await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: [{ message: text }] })
+            });
+        } catch (e) { console.error("Logging Error:", e); }
+    }
+
+    function saveLog(msg, type, latency) {
+        participantData.logs.push({ timestamp: new Date().toISOString(), content: msg, interactionType: type, latencySeconds: latency });
+    }
+
+    window.sendOriginal = function() {
+        addMessageToChat(originalMessage, 'me');
+        saveLog(originalMessage, 'friction_sent_original', (Date.now() - modalStartTime)/1000);
+        resumeExperiment();
+    };
+
+    window.cancelSend = function() {
+        input.value = originalMessage; 
+        input.focus();
+        saveLog(originalMessage, 'friction_cancelled', (Date.now() - modalStartTime)/1000);
+        resumeExperiment();
+    };
+
+    function resumeExperiment() { modal.classList.remove('active'); if (ytPlayer && ytPlayer.playVideo) ytPlayer.playVideo(); }
+
+    function addMessageToChat(text, sender) {
+        const div = document.createElement('div'); div.className = `message ${sender}`; div.textContent = text;
+        const list = document.getElementById('messagesList'); list.appendChild(div); list.scrollTop = list.scrollHeight;
+    }
+
+    function finishStudy() {
+        const encodedData = encodeURIComponent(JSON.stringify(participantData.logs));
+        const qualtricsBaseUrl = "https://qualtricsxmsm35hk9by.qualtrics.com/jfe/form/SV_8oYwbTh7QBrUbeS";
+        const finalUrl = `${qualtricsBaseUrl}?chat_logs=${encodedData}&survey1_id=${participantData.userId}&condition=${participantData.condition}`;
+        window.top.location.href = finalUrl;
+    }
+</script>
+</body>
+</html>
