@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APS 2026 Simulation Prototype v3</title>
+    <title>APS 2026 Simulation Prototype v4</title>
     <style>
         body, html {
             margin: 0;
@@ -14,6 +14,7 @@
             display: flex;
             justify-content: center;
             overflow: hidden;
+            transition: background-color 0.3s ease;
         }
 
         #mobile-container {
@@ -24,9 +25,17 @@
             display: flex;
             flex-direction: column;
             background-color: #000;
+            transition: background-color 0.3s ease;
         }
 
-        /* 1/4 Video Placeholder Area */
+        /* --- TIKTOK UI STYLES --- */
+        #tiktok-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
         #video-placeholder {
             height: 25vh;
             width: 100%;
@@ -36,7 +45,6 @@
             background-color: #000;
         }
 
-        /* 3/4 Comments Sheet */
         #comment-sheet {
             height: 75vh;
             background-color: #fff;
@@ -70,7 +78,7 @@
             box-sizing: border-box;
         }
 
-        #start-btn {
+        .primary-btn {
             background-color: #fe2c55;
             color: white;
             border: none;
@@ -80,6 +88,8 @@
             border-radius: 4px;
             margin-top: 30px;
             cursor: pointer;
+            width: 100%;
+            text-align: center;
         }
 
         /* Header UI */
@@ -114,17 +124,17 @@
             align-items: center;
         }
 
-        /* Comments List - Scrollable */
+        /* Comments List */
         .comments-list {
             flex: 1;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth iOS scroll */
+            -webkit-overflow-scrolling: touch;
             padding: 16px;
         }
 
         .comment-item {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .avatar {
@@ -213,6 +223,13 @@
             fill: #8a8a8a;
         }
 
+        .finish-simulation-container {
+            padding: 20px 0 40px 0;
+            text-align: center;
+            border-top: 1px solid #f1f1f2;
+            margin-top: 10px;
+        }
+
         /* Footer Input Area */
         .footer {
             padding: 10px 12px;
@@ -258,101 +275,334 @@
             width: 22px;
             height: 22px;
         }
+
+        /* --- SURVEY UI STYLES --- */
+        #survey-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            overflow-y: auto;
+            padding: 24px;
+            box-sizing: border-box;
+            color: #121212;
+        }
+
+        .survey-header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #121212;
+            padding-bottom: 10px;
+        }
+
+        .survey-header h2 {
+            margin: 0 0 10px 0;
+            font-size: 22px;
+        }
+
+        .survey-header p {
+            margin: 0;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .survey-question {
+            background-color: #f9f9f9;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .survey-comment-text {
+            font-size: 15px;
+            font-style: italic;
+            margin-bottom: 16px;
+            color: #333;
+            border-left: 3px solid #ccc;
+            padding-left: 10px;
+        }
+
+        .likert-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .likert-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 18%;
+        }
+
+        .likert-option input[type="radio"] {
+            margin-bottom: 6px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .likert-label {
+            font-size: 11px;
+            color: #555;
+        }
+
+        #submit-survey-btn {
+            background-color: #121212;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        #thank-you-view {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 
 <div id="mobile-container">
-    <div id="video-placeholder">
-        </div>
+    
+    <div id="tiktok-view">
+        <div id="video-placeholder"></div>
 
-    <div id="comment-sheet">
-        <div id="intro-modal">
-            <h2 style="margin: 0 0 10px 0;">APS 2026 Simulation</h2>
-            <p style="margin: 0; line-height: 1.5; font-size: 15px;">
-                This is a prototype for an experimental intervention. 
-                Users should interact with comments as they naturally would on social media.
-            </p>
-            <p style="margin-top: 15px; color: #8a8a8a; font-size: 13px;">No data will be collected.</p>
-            <button id="start-btn" onclick="closeModal()">Begin Simulation</button>
-        </div>
-
-        <div class="header">
-            <div class="tabs">
-                <div class="tab active">Comments 1,024</div>
-                <div class="tab">Likes 4.7K</div>
+        <div id="comment-sheet">
+            <div id="intro-modal">
+                <h2 style="margin: 0 0 10px 0;">APS 2026 Simulation</h2>
+                <p style="margin: 0; line-height: 1.5; font-size: 15px;">
+                    This is a prototype for an experimental intervention. 
+                    Users should interact with comments as they naturally would on social media.
+                </p>
+                <p style="margin-top: 15px; color: #8a8a8a; font-size: 13px;">No data will be collected.</p>
+                <button class="primary-btn" onclick="closeModal()">Begin Simulation</button>
             </div>
-            <div class="header-actions">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </div>
-        </div>
 
-        <div class="comments-list">
-            
-            <div class="comment-item">
-                <div class="avatar"></div>
-                <div class="comment-content">
-                    <div class="user-info">Mia 🦢 <span>· Friends</span></div>
-                    <div class="comment-text">Exactly</div>
-                    <div class="tag">First comment</div>
-                    <div class="interaction-row">
-                        <div class="meta-left">
-                            <span>20h</span>
-                            <span style="font-weight:600;">Reply</span>
-                        </div>
-                        <div class="actions-right">
-                            <div class="action-icon" onclick="toggleLike(this)">
-                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            </div>
-                            <div class="action-icon" onclick="toggleDislike(this)">
-                                <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+            <div class="header">
+                <div class="tabs">
+                    <div class="tab active">Comments 1,024</div>
+                    <div class="tab">Likes 4.7K</div>
+                </div>
+                <div class="header-actions">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </div>
+            </div>
+
+            <div class="comments-list">
+                
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">Mia 🦢 <span>· Friends</span></div>
+                        <div class="comment-text">Exactly</div>
+                        <div class="tag">First comment</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>20h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="comment-item">
-                <div class="avatar"></div>
-                <div class="comment-content">
-                    <div class="user-info">user90210</div>
-                    <div class="comment-text">I love how you just wear anything and don't care what people think 🥰 You're so brave!</div>
-                    <div class="interaction-row">
-                        <div class="meta-left">
-                            <span>2h</span>
-                            <span style="font-weight:600;">Reply</span>
-                        </div>
-                        <div class="actions-right">
-                            <div class="action-icon" onclick="toggleLike(this)">
-                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            </div>
-                            <div class="action-icon" onclick="toggleDislike(this)">
-                                <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">user90210</div>
+                        <div class="comment-text">I love how you just wear anything and don't care what people think 🥰 You're so brave!</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>2h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">tea_spiller</div>
+                        <div class="comment-text">i ran to the comments 🏃‍♀️💨</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>3h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">anon_troll99</div>
+                        <div class="comment-text">This is actually garbage. Please delete your account.</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>4h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">sarah_smiles</div>
+                        <div class="comment-text">y'all are fighting invisible comments 😭</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>5h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">fashion_critique</div>
+                        <div class="comment-text">The outfit is... certainly a choice!</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>6h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">daily_vlogs</div>
+                        <div class="comment-text">Where did you get that shirt? It's really cute!</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>6h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">hater_burner</div>
+                        <div class="comment-text">literally nobody asked for this</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>8h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">sweet_peach</div>
+                        <div class="comment-text">Bless your heart, you tried your best! 💕</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>9h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">cool_kid_01</div>
+                        <div class="comment-text">W video, keep it up 🔥</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>11h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="finish-simulation-container">
+                    <button class="primary-btn" style="width: auto; padding: 12px 24px;" onclick="proceedToSurvey()">Finish & Proceed to Survey</button>
+                </div>
+
             </div>
 
-        </div>
-
-        <div class="footer">
-            <div class="footer-avatar"></div>
-            <div class="input-wrapper">
-                <input type="text" placeholder="Add comment..." disabled>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-            </div>
-            <div class="footer-icons">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-3.92 7.94"/></svg>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+            <div class="footer">
+                <div class="footer-avatar"></div>
+                <div class="input-wrapper">
+                    <input type="text" placeholder="Add comment..." disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                </div>
+                <div class="footer-icons">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-3.92 7.94"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="survey-view">
+        <div class="survey-header">
+            <h2>Post-Simulation Survey</h2>
+            <p>Please rate the following comments based on your <strong>perceived level of hostility</strong>.</p>
+        </div>
+
+        <form id="comment-survey">
+            </form>
+
+        <button id="submit-survey-btn" onclick="submitSurvey()">Submit Responses</button>
+    </div>
+
+    <div id="thank-you-view">
+        <h2>Thank You</h2>
+        <p>Your responses have been recorded.</p>
+    </div>
+
 </div>
 
 <script>
+    // --- TikTok UI Logic ---
     function closeModal() {
         document.getElementById('intro-modal').style.display = 'none';
     }
@@ -371,6 +621,76 @@
         if (el.classList.contains('active-dislike')) {
             like.classList.remove('active-like');
         }
+    }
+
+    // --- Transition to Survey Logic ---
+    const commentsData = [
+        "Exactly",
+        "I love how you just wear anything and don't care what people think 🥰 You're so brave!",
+        "i ran to the comments 🏃‍♀️💨",
+        "This is actually garbage. Please delete your account.",
+        "y'all are fighting invisible comments 😭",
+        "The outfit is... certainly a choice!",
+        "Where did you get that shirt? It's really cute!",
+        "literally nobody asked for this",
+        "Bless your heart, you tried your best! 💕",
+        "W video, keep it up 🔥"
+    ];
+
+    function proceedToSurvey() {
+        // Change UI state
+        document.getElementById('tiktok-view').style.display = 'none';
+        document.getElementById('survey-view').style.display = 'flex';
+        
+        // Change background colors to white
+        document.body.style.backgroundColor = '#f1f1f2';
+        document.getElementById('mobile-container').style.backgroundColor = '#fff';
+
+        // Generate survey questions dynamically
+        const form = document.getElementById('comment-survey');
+        form.innerHTML = ''; // clear
+
+        commentsData.forEach((commentText, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'survey-question';
+            
+            let likertHTML = `<div class="survey-comment-text">"${commentText}"</div>
+                              <div class="likert-container">`;
+            
+            for (let i = 1; i <= 5; i++) {
+                let label = i === 1 ? 'Not Hostile' : (i === 5 ? 'Extremely Hostile' : i);
+                likertHTML += `
+                    <label class="likert-option">
+                        <input type="radio" name="q${index}" value="${i}" required>
+                        <span class="likert-label">${label}</span>
+                    </label>
+                `;
+            }
+            likertHTML += `</div>`;
+            questionDiv.innerHTML = likertHTML;
+            form.appendChild(questionDiv);
+        });
+    }
+
+    function submitSurvey() {
+        // Simple validation check (optional, but good for prototype)
+        const form = document.getElementById('comment-survey');
+        const totalQuestions = commentsData.length;
+        let answered = 0;
+        
+        for(let i=0; i<totalQuestions; i++) {
+            if(document.querySelector(`input[name="q${i}"]:checked`)) {
+                answered++;
+            }
+        }
+
+        if(answered < totalQuestions) {
+            alert("Please rate all comments before submitting.");
+            return;
+        }
+
+        document.getElementById('survey-view').style.display = 'none';
+        document.getElementById('thank-you-view').style.display = 'flex';
     }
 </script>
 
