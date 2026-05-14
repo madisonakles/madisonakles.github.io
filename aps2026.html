@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APS 2026 Simulation Prototype</title>
+    <title>APS 2026 Simulation Prototype v2</title>
     <style>
         body, html {
             margin: 0;
@@ -24,6 +24,25 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Bar with video edge simulation */
+        .video-edge {
+            height: 4px;
+            background: linear-gradient(to bottom, #222, #444, #111, #000);
+            width: 100%;
+        }
+
+        /* Main comments container with rounded top */
+        #content-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border-radius: 12px 12px 0 0; /* Rounded top corners like reference */
+            position: relative;
+            z-index: 10;
         }
 
         /* Intro Modal */
@@ -65,27 +84,56 @@
             margin-top: 20px;
         }
 
-        /* TikTok Comments UI */
+        /* Revised TikTok Comments UI Header */
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start; /* Left-aligned tabs like reference */
             align-items: center;
-            padding: 15px 20px;
+            padding: 10px 15px;
             border-bottom: 1px solid #e8e8e8;
         }
 
-        .header-title {
+        .header-tabs {
+            display: flex;
+            gap: 20px;
             flex: 1;
-            text-align: center;
-            font-weight: bold;
+        }
+
+        .header-tab {
             font-size: 15px;
+            font-weight: bold;
+            color: #121212;
+            cursor: pointer;
+        }
+
+        .header-tab.active {
+            position: relative;
+        }
+
+        .header-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -11px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #121212;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 15px;
             color: #121212;
         }
 
-        .close-icon {
+        .close-icon, .settings-icon {
             font-size: 20px;
-            color: #121212;
             cursor: pointer;
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
         }
 
         .comments-list {
@@ -109,12 +157,6 @@
             overflow: hidden;
         }
 
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         .comment-body {
             flex: 1;
         }
@@ -123,7 +165,12 @@
             font-size: 13px;
             color: #8a8a8a;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+        }
+
+        .friends-text {
+            color: #8a8a8a;
+            font-weight: normal;
         }
 
         .text {
@@ -133,25 +180,33 @@
             margin-bottom: 6px;
         }
 
-        .footer {
-            font-size: 12px;
+        .first-comment-tag {
+            background-color: #f1f1f2;
+            color: #8a8a8a;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        /* Combined comment actions line like reference */
+        .comment-meta {
+            font-size: 13px;
             color: #8a8a8a;
             display: flex;
+            align-items: center;
             gap: 15px;
         }
 
         .comment-actions {
             display: flex;
-            flex-direction: column;
+            gap: 8px; /* Heart and Thumbs down side-by-side */
             align-items: center;
-            width: 40px;
-            flex-shrink: 0;
-            gap: 15px;
         }
 
         .action-btn {
             display: flex;
-            flex-direction: column;
             align-items: center;
             cursor: pointer;
             color: #8a8a8a;
@@ -169,10 +224,6 @@
             fill: #fe2c55;
             stroke: #fe2c55;
         }
-        
-        .action-btn.liked .count {
-            color: #fe2c55;
-        }
 
         .action-btn.disliked svg {
             fill: currentColor;
@@ -180,23 +231,43 @@
 
         .count {
             font-size: 12px;
-            margin-top: 4px;
+            margin-left: 4px;
         }
 
-        /* Bottom Input */
+        /* Corrected Bottom Input Area like reference */
         .comment-input-area {
             border-top: 1px solid #e8e8e8;
-            padding: 15px;
+            padding: 10px 15px;
             display: flex;
             align-items: center;
             background: #fff;
+            position: sticky;
+            bottom: 0;
+            z-index: 20;
+        }
+
+        .input-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #d8d8d8;
+            margin-right: 10px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .input-field-container {
+            flex: 1;
+            background-color: #f1f1f2;
+            border-radius: 20px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
         }
 
         .input-box {
             flex: 1;
-            background-color: #f1f1f2;
-            border-radius: 20px;
-            padding: 10px 15px;
+            background: none;
             border: none;
             font-size: 14px;
             color: #121212;
@@ -205,118 +276,131 @@
         }
 
         .input-box::placeholder {
-            color: #8a8a8a;
+            color: #a0a0a0;
+        }
+
+        .input-icons {
+            display: flex;
+            gap: 12px;
+            color: #121212;
+            margin-left: 10px;
+        }
+
+        .input-icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            color: #121212;
         }
     </style>
 </head>
 <body>
 
     <div id="mobile-container">
-        
-        <div id="intro-modal">
-            <h2 style="margin-top:0;">Experimental Intervention</h2>
-            <p>This is a prototype of an experimental intervention for APS 2026 as a more externally validated simulation of social media interactions.</p>
-            <p>No data will be collected.</p>
-            <p>Users will be prompted to like and thumbs down comments how they would on social media.</p>
-            <button id="start-btn" onclick="startSimulation()">Begin Simulation</button>
-        </div>
+        <div class="video-edge"></div>
 
-        <div class="header">
-            <div style="width: 20px;"></div>
-            <div class="header-title">1,024 comments</div>
-            <div class="close-icon">✕</div>
-        </div>
-
-        <div class="comments-list">
+        <div id="content-container">
             
-            <div class="comment-thread">
-                <div class="avatar"></div>
-                <div class="comment-body">
-                    <div class="username">user89127391</div>
-                    <div class="text">Wow, you’re so brave for posting this without a filter! I could never.</div>
-                    <div class="footer">
-                        <span>2h</span>
-                        <span>Reply</span>
-                    </div>
+            <div id="intro-modal">
+                <h2 style="margin-top:0;">Experimental Intervention</h2>
+                <p>This is a prototype of an experimental intervention for APS 2026 as a more externally validated simulation of social media interactions.</p>
+                <p>No data will be collected.</p>
+                <p>Users will be prompted to like and thumbs down comments how they would on social media.</p>
+                <button id="start-btn" onclick="startSimulation()">Begin Simulation</button>
+            </div>
+
+            <div class="header">
+                <div class="header-tabs">
+                    <div class="header-tab active">Comments 1,024</div>
+                    <div class="header-tab">Likes 4.7K</div>
                 </div>
-                <div class="comment-actions">
-                    <div class="action-btn like-btn" onclick="toggleLike(this, 342)">
-                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        <span class="count">342</span>
-                    </div>
-                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
-                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
-                    </div>
+                <div class="header-icons">
+                    <svg class="settings-icon" viewBox="0 0 24 24"><path d="M11 12.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill="currentColor"/><path d="M12 21a9 9 0 100-18 9 9 0 000 18zm0-2a7 7 0 110-14 7 7 0 010 14z" fill="currentColor"/><path d="M12 7V5.5m0 3v1m0 4v1.5m0-1.5v3m0 3v1" stroke="currentColor"/></svg>
+                    <svg class="close-icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
                 </div>
             </div>
 
-            <div class="comment-thread">
-                <div class="avatar"></div>
-                <div class="comment-body">
-                    <div class="username">sarah_smiles</div>
-                    <div class="text">Where did you get that shirt? It's really cute!</div>
-                    <div class="footer">
-                        <span>4h</span>
-                        <span>Reply</span>
+            <div class="comments-list">
+                
+                <div class="comment-thread">
+                    <div class="avatar"></div>
+                    <div class="comment-body">
+                        <div class="username">Mia 🦢 · <span class="friends-text">Friends</span></div>
+                        <div class="text">Wow, you’re so brave for posting this without a filter! I could never.</div>
+                        <div class="first-comment-tag">First comment</div>
+                        <div class="comment-meta">
+                            <span>20h</span>
+                            <span>Reply</span>
+                            <div class="comment-actions">
+                                <div class="action-btn like-btn" onclick="toggleLike(this, 342)">
+                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                    <span class="count">342</span>
+                                </div>
+                                <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
+                                    <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="comment-actions">
-                    <div class="action-btn like-btn" onclick="toggleLike(this, 12)">
-                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        <span class="count">12</span>
+
+                <div class="comment-thread">
+                    <div class="avatar"></div>
+                    <div class="comment-body">
+                        <div class="username">sarah_smiles · <span class="friends-text">Friends</span></div>
+                        <div class="text">Where did you get that shirt? It's really cute!</div>
+                        <div class="comment-meta">
+                            <span>4h</span>
+                            <span>Reply</span>
+                            <div class="comment-actions">
+                                <div class="action-btn like-btn" onclick="toggleLike(this, 12)">
+                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                    <span class="count">12</span>
+                                </div>
+                                <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
+                                    <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
-                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                </div>
+
+                <div class="comment-thread">
+                    <div class="avatar"></div>
+                    <div class="comment-body">
+                        <div class="username">anon_troll99</div>
+                        <div class="text">This is actually garbage. Please delete your account.</div>
+                        <div class="comment-meta">
+                            <span>5h</span>
+                            <span>Reply</span>
+                            <div class="comment-actions">
+                                <div class="action-btn like-btn" onclick="toggleLike(this, 8)">
+                                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                    <span class="count">8</span>
+                                </div>
+                                <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
+                                    <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+            </div>
+
+            <div class="comment-input-area">
+                <div class="input-avatar"></div>
+                <div class="input-field-container">
+                    <input type="text" class="input-box" placeholder="Add comment..." disabled>
+                </div>
+                <div class="input-icons">
+                    <svg class="input-icon" viewBox="0 0 24 24"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    <svg class="input-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="15.5" cy="9.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path d="M12 17.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" fill="currentColor"/></svg>
+                    <svg class="input-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 1c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>
+                    <svg class="input-icon" viewBox="0 0 24 24"><path d="M21 19.96H3c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2h18c1.1 0 2 .9 2 2v10.96c0 1.1-.9 2-2 2zm-9-10h7.5V7H12v2.96zm-7.5 0H11V7H4.5v2.96zm12 5H19v-2.96h-2.5V14.92zm-9 0H11v-2.96H4.5V14.92z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
                 </div>
             </div>
 
-            <div class="comment-thread">
-                <div class="avatar"></div>
-                <div class="comment-body">
-                    <div class="username">anon_troll99</div>
-                    <div class="text">This is actually garbage. Please delete your account.</div>
-                    <div class="footer">
-                        <span>5h</span>
-                        <span>Reply</span>
-                    </div>
-                </div>
-                <div class="comment-actions">
-                    <div class="action-btn like-btn" onclick="toggleLike(this, 8)">
-                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        <span class="count">8</span>
-                    </div>
-                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
-                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="comment-thread">
-                <div class="avatar"></div>
-                <div class="comment-body">
-                    <div class="username">daily_vlogs</div>
-                    <div class="text">I love how you just wear anything and really don't care what people think 🥰</div>
-                    <div class="footer">
-                        <span>6h</span>
-                        <span>Reply</span>
-                    </div>
-                </div>
-                <div class="comment-actions">
-                    <div class="action-btn like-btn" onclick="toggleLike(this, 891)">
-                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        <span class="count">891</span>
-                    </div>
-                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
-                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="comment-input-area">
-            <input type="text" class="input-box" placeholder="Add comment..." disabled>
         </div>
 
     </div>
@@ -327,7 +411,7 @@
             document.getElementById('intro-modal').style.display = 'none';
         }
 
-        // Toggle Like functionality
+        // Toggle Like functionality (corrected logic for side-by-side icons)
         function toggleLike(element, baseCount) {
             const isLiked = element.classList.contains('liked');
             const countSpan = element.querySelector('.count');
@@ -339,7 +423,7 @@
                 element.classList.add('liked');
                 countSpan.innerText = baseCount + 1;
                 
-                // Remove dislike if present
+                // Remove dislike if present in the same actions group
                 const dislikeBtn = element.nextElementSibling;
                 if (dislikeBtn && dislikeBtn.classList.contains('disliked')) {
                     dislikeBtn.classList.remove('disliked');
@@ -347,7 +431,7 @@
             }
         }
 
-        // Toggle Dislike functionality
+        // Toggle Dislike functionality (corrected logic for side-by-side icons)
         function toggleDislike(element) {
             const isDisliked = element.classList.contains('disliked');
             
@@ -356,11 +440,11 @@
             } else {
                 element.classList.add('disliked');
                 
-                // Remove like if present
+                // Remove like if present in the same actions group
                 const likeBtn = element.previousElementSibling;
                 if (likeBtn && likeBtn.classList.contains('liked')) {
-                    // trigger click to cleanly handle the decrement
-                    likeBtn.click(); 
+                    // Trigger click on like to decrement it cleanly
+                    likeBtn.click();
                 }
             }
         }
