@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APS 2026 Simulation Prototype</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #mobile-container {
+            width: 100%;
+            max-width: 400px; /* Simulates a mobile screen on desktop */
+            height: 100%;
+            background-color: #fff;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Intro Modal */
+        #intro-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #fff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        #intro-modal p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        #start-btn {
+            background-color: #fe2c55; /* TikTok Red */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* TikTok Comments UI */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            color: #121212;
+        }
+
+        .close-icon {
+            font-size: 20px;
+            color: #121212;
+            cursor: pointer;
+        }
+
+        .comments-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .comment-thread {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #d8d8d8;
+            margin-right: 12px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-body {
+            flex: 1;
+        }
+
+        .username {
+            font-size: 13px;
+            color: #8a8a8a;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .text {
+            font-size: 15px;
+            color: #121212;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #8a8a8a;
+            display: flex;
+            gap: 15px;
+        }
+
+        .comment-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40px;
+            flex-shrink: 0;
+            gap: 15px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            color: #8a8a8a;
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .action-btn.liked svg {
+            fill: #fe2c55;
+            stroke: #fe2c55;
+        }
+        
+        .action-btn.liked .count {
+            color: #fe2c55;
+        }
+
+        .action-btn.disliked svg {
+            fill: currentColor;
+        }
+
+        .count {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* Bottom Input */
+        .comment-input-area {
+            border-top: 1px solid #e8e8e8;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            background: #fff;
+        }
+
+        .input-box {
+            flex: 1;
+            background-color: #f1f1f2;
+            border-radius: 20px;
+            padding: 10px 15px;
+            border: none;
+            font-size: 14px;
+            color: #121212;
+            outline: none;
+            font-family: Arial, sans-serif;
+        }
+
+        .input-box::placeholder {
+            color: #8a8a8a;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mobile-container">
+        
+        <div id="intro-modal">
+            <h2 style="margin-top:0;">Experimental Intervention</h2>
+            <p>This is a prototype of an experimental intervention for APS 2026 as a more externally validated simulation of social media interactions.</p>
+            <p>No data will be collected.</p>
+            <p>Users will be prompted to like and thumbs down comments how they would on social media.</p>
+            <button id="start-btn" onclick="startSimulation()">Begin Simulation</button>
+        </div>
+
+        <div class="header">
+            <div style="width: 20px;"></div>
+            <div class="header-title">1,024 comments</div>
+            <div class="close-icon">✕</div>
+        </div>
+
+        <div class="comments-list">
+            
+            <div class="comment-thread">
+                <div class="avatar"></div>
+                <div class="comment-body">
+                    <div class="username">user89127391</div>
+                    <div class="text">Wow, you’re so brave for posting this without a filter! I could never.</div>
+                    <div class="footer">
+                        <span>2h</span>
+                        <span>Reply</span>
+                    </div>
+                </div>
+                <div class="comment-actions">
+                    <div class="action-btn like-btn" onclick="toggleLike(this, 342)">
+                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span class="count">342</span>
+                    </div>
+                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
+                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comment-thread">
+                <div class="avatar"></div>
+                <div class="comment-body">
+                    <div class="username">sarah_smiles</div>
+                    <div class="text">Where did you get that shirt? It's really cute!</div>
+                    <div class="footer">
+                        <span>4h</span>
+                        <span>Reply</span>
+                    </div>
+                </div>
+                <div class="comment-actions">
+                    <div class="action-btn like-btn" onclick="toggleLike(this, 12)">
+                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span class="count">12</span>
+                    </div>
+                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
+                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comment-thread">
+                <div class="avatar"></div>
+                <div class="comment-body">
+                    <div class="username">anon_troll99</div>
+                    <div class="text">This is actually garbage. Please delete your account.</div>
+                    <div class="footer">
+                        <span>5h</span>
+                        <span>Reply</span>
+                    </div>
+                </div>
+                <div class="comment-actions">
+                    <div class="action-btn like-btn" onclick="toggleLike(this, 8)">
+                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span class="count">8</span>
+                    </div>
+                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
+                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comment-thread">
+                <div class="avatar"></div>
+                <div class="comment-body">
+                    <div class="username">daily_vlogs</div>
+                    <div class="text">I love how you just wear anything and really don't care what people think 🥰</div>
+                    <div class="footer">
+                        <span>6h</span>
+                        <span>Reply</span>
+                    </div>
+                </div>
+                <div class="comment-actions">
+                    <div class="action-btn like-btn" onclick="toggleLike(this, 891)">
+                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span class="count">891</span>
+                    </div>
+                    <div class="action-btn dislike-btn" onclick="toggleDislike(this)">
+                        <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="comment-input-area">
+            <input type="text" class="input-box" placeholder="Add comment..." disabled>
+        </div>
+
+    </div>
+
+    <script>
+        // Dismiss Intro Modal
+        function startSimulation() {
+            document.getElementById('intro-modal').style.display = 'none';
+        }
+
+        // Toggle Like functionality
+        function toggleLike(element, baseCount) {
+            const isLiked = element.classList.contains('liked');
+            const countSpan = element.querySelector('.count');
+            
+            if (isLiked) {
+                element.classList.remove('liked');
+                countSpan.innerText = baseCount;
+            } else {
+                element.classList.add('liked');
+                countSpan.innerText = baseCount + 1;
+                
+                // Remove dislike if present
+                const dislikeBtn = element.nextElementSibling;
+                if (dislikeBtn && dislikeBtn.classList.contains('disliked')) {
+                    dislikeBtn.classList.remove('disliked');
+                }
+            }
+        }
+
+        // Toggle Dislike functionality
+        function toggleDislike(element) {
+            const isDisliked = element.classList.contains('disliked');
+            
+            if (isDisliked) {
+                element.classList.remove('disliked');
+            } else {
+                element.classList.add('disliked');
+                
+                // Remove like if present
+                const likeBtn = element.previousElementSibling;
+                if (likeBtn && likeBtn.classList.contains('liked')) {
+                    // trigger click to cleanly handle the decrement
+                    likeBtn.click(); 
+                }
+            }
+        }
+    </script>
+</body>
+</html>
