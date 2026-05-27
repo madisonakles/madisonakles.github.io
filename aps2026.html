@@ -2,96 +2,156 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Mobile Interface Mockup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APS 2026 Simulation Prototype v4</title>
     <style>
-        body {
+        body, html {
             margin: 0;
-            padding: 20px;
-            background-color: #121212;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
         }
 
-        .phone-container {
-            width: 375px;
-            height: 812px;
-            background-color: #000000;
-            border: 8px solid #333;
-            border-radius: 40px;
+        #mobile-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            position: relative;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            position: relative;
+            background-color: #000;
+            transition: background-color 0.3s ease;
         }
 
-        /* Video Player Area */
-        .video-placeholder {
-            flex: 1;
-            background-color: #1a1a1a;
+        /* --- TIKTOK UI STYLES --- */
+        #tiktok-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        #video-placeholder {
+            height: 25vh;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 30px;
-            text-align: center;
-            box-sizing: border-box;
-            border-bottom: 1px solid #292929;
+            background-color: #000;
+            border-bottom: 1px solid #121212;
         }
 
         .stimuli-text {
             color: #8e8e93;
-            font-size: 14px;
+            font-size: 13px;
             font-style: italic;
+            text-align: center;
+            padding: 16px;
             line-height: 1.4;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px dashed #444;
         }
 
-        /* Comments Section */
-        .comments-section {
-            height: 320px;
-            background-color: #121212;
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
+        #comment-sheet {
+            height: 75vh;
+            background-color: #fff;
+            border-radius: 12px 12px 0 0;
             display: flex;
             flex-direction: column;
-            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* Intro Modal Overlay */
+        #intro-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.96);
+            color: #fff;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
             box-sizing: border-box;
         }
 
-        .comments-header {
-            font-size: 13px;
-            font-weight: 600;
+        .primary-btn {
+            background-color: #fe2c55;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-top: 30px;
+            cursor: pointer;
+            width: 100%;
             text-align: center;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #292929;
-            color: #e1e1e1;
         }
 
+        /* Header UI */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f1f2;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 24px;
+        }
+
+        .tab {
+            font-size: 15px;
+            font-weight: 600;
+            color: #8a8a8a;
+            padding-bottom: 8px;
+        }
+
+        .tab.active {
+            color: #121212;
+            border-bottom: 2px solid #121212;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Comments List */
         .comments-list {
             flex: 1;
             overflow-y: auto;
-            margin-top: 10px;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
         }
 
         .comment-item {
             display: flex;
-            align-items: flex-start;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
 
         .avatar {
-            width: 32px;
-            height: 32px;
-            background-color: #3a3a3c;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
+            background-color: #e1e1e1;
             margin-right: 12px;
             flex-shrink: 0;
         }
@@ -100,75 +160,145 @@
             flex: 1;
         }
 
-        .username {
-            font-size: 12px;
-            font-weight: 600;
-            color: #8e8e93;
-            margin-bottom: 2px;
+        .user-info {
+            font-size: 13px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 4px;
+        }
+
+        .user-info span {
+            color: #8a8a8a;
+            font-weight: 400;
+            margin-left: 4px;
         }
 
         .comment-text {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #121212;
+            margin-bottom: 6px;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #f1f1f2;
+            color: #8a8a8a;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            margin-bottom: 8px;
+        }
+
+        /* Metadata & Right-Aligned Actions */
+        .interaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #8a8a8a;
+        }
+
+        .meta-left {
+            display: flex;
+            gap: 16px;
+        }
+
+        .actions-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .action-icon {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .action-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #8a8a8a;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .action-icon.active-like svg {
+            fill: #fe2c55;
+            stroke: #fe2c55;
+        }
+
+        .action-icon.active-dislike svg {
+            fill: #8a8a8a;
+        }
+
+        .finish-simulation-container {
+            padding: 20px 0 40px 0;
+            text-align: center;
+            border-top: 1px solid #f1f1f2;
+            margin-top: 10px;
+        }
+
+        /* Footer Input Area */
+        .footer {
+            padding: 10px 12px;
+            border-top: 1px solid #f1f1f2;
+            display: flex;
+            align-items: center;
+            background: #fff;
+        }
+
+        .footer-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #e1e1e1;
+            margin-right: 8px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background-color: #f1f1f2;
+            border-radius: 20px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
             font-size: 14px;
-            color: #ffffff;
-            line-height: 1.3;
         }
 
-        /* Hide scrollbar for clean aesthetic */
-        .comments-list::-webkit-scrollbar {
-            width: 0px;
+        .footer-icons {
+            display: flex;
+            gap: 12px;
+            margin-left: 10px;
+            color: #121212;
         }
-    </style>
-</head>
-<body>
 
-    <div class="phone-container">
-        
-        <div class="video-placeholder">
-            <div class="stimuli-text">
-                [visual sitmuli will go here, for example: person with a visable facial asymmetry]
-            </div>
-        </div>
+        .footer-icons svg {
+            width: 22px;
+            height: 22px;
+        }
 
-        <div class="comments-section">
-            <div class="comments-header">Comments (4)</div>
-            
-            <div class="comments-list">
-                <div class="comment-item">
-                    <div class="avatar"></div>
-                    <div class="comment-content">
-                        <div class="username">user_771</div>
-                        <div class="comment-text">Stop hating y'all. she's beautiful</div>
-                    </div>
-                </div>
+        /* --- SURVEY UI STYLES --- */
+        #survey-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            overflow-y: auto;
+            padding: 24px;
+            box-sizing: border-box;
+            color: #121212;
+        }
 
-                <div class="comment-item">
-                    <div class="avatar"></div>
-                    <div class="comment-content">
-                        <div class="username">dwn_to_earth</div>
-                        <div class="comment-text">fake compliments are worse than insults btw</div>
-                    </div>
-                </div>
-
-                <div class="comment-item">
-                    <div class="avatar"></div>
-                    <div class="comment-content">
-                        <div class="username">vibe.check.99</div>
-                        <div class="comment-text">she's so cute guys stop being mean &lt;3</div>
-                    </div>
-                </div>
-
-                <div class="comment-item">
-                    <div class="avatar"></div>
-                    <div class="comment-content">
-                        <div class="username">tea_spiller</div>
-                        <div class="comment-text">i thought her body was tea 🤷</div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-        
-    </div>
-
-</body>
-</html>
+        .survey-header {
+            margin-bottom: 30px;
+            border-bottom: 2px
