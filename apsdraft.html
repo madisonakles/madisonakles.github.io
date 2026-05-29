@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APS 2026 Simulation Prototype v6</title>
+    <title>APS 2026 Simulation Prototype v7</title>
     <style>
         body, html {
             margin: 0;
@@ -145,7 +145,7 @@
             align-items: center;
         }
 
-        /* Comments List */
+        /* Comments List Layout */
         .comments-list {
             flex: 1;
             overflow-y: auto;
@@ -175,13 +175,7 @@
             font-size: 13px;
             font-weight: 700;
             color: #121212;
-            margin-bottom: 2px;
-        }
-
-        .user-info span {
-            color: #8a8a8a;
-            font-weight: 400;
-            margin-left: 4px;
+            margin-bottom: 4px;
         }
 
         .comment-text {
@@ -429,9 +423,9 @@
         }
 
         .academic-debrief h3 {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
-            margin: 20px 0 10px 0;
+            margin: 18px 0 8px 0;
             text-transform: uppercase;
             border-bottom: 1px solid #e1e1e1;
             padding-bottom: 4px;
@@ -440,21 +434,21 @@
 
         .academic-debrief p {
             font-size: 13px;
-            line-height: 1.55;
+            line-height: 1.5;
             color: #333;
-            margin: 0 0 12px 0;
+            margin: 0 0 10px 0;
         }
 
         .academic-list {
-            margin: 0 0 16px 0;
+            margin: 0 0 12px 0;
             padding-left: 20px;
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.45;
             color: #333;
         }
 
         .academic-list li {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -615,59 +609,43 @@
     <div id="survey-view">
         <div class="survey-header">
             <h2>Evaluation Scale</h2>
-            <p>Please rate the following comments based on your <strong>perceived level of hostility</strong>.</p>
+            <p>Rate the comments based on your perceived hostility. You may skip questions if desired.</p>
         </div>
 
         <form id="comment-survey"></form>
 
-        <button id="submit-survey-btn" onclick="submitSurvey()">Submit Responses</button>
+        <button id="submit-survey-btn" onclick="submitSurvey()">Submit & View Framework</button>
     </div>
 
     <div id="thank-you-view">
-        <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">Data Submitted</h2>
-        <p style="color: #666; font-size: 13px; margin: 0 0 16px 0;">Simulation sequence execution recorded.</p>
+        <p style="color: #666; font-size: 12px; font-style: italic; margin: 0 0 16px 0; line-height: 1.4;">
+            (no actual data collected - simulation just as proof of concept for a naturalistic tiktok comment section)
+        </p>
         
         <div class="academic-debrief">
-            <h3>Background & Theoretical Framework</h3>
+            <h3>Background Summary</h3>
             <p>
-                Social media comment sections are dense hubs of complex interpersonal interaction. Over time, these digital micro-cultures develop distinct, socially constructed virtual communication norms that implicitly regulate user behavior and group dynamics (Postmes et al., 2000). 
-            </p>
-            <p>
-                Online passive-aggressiveness closely mirrors traditional, culturally embedded regional norms. A prime example is the classic Southern American idiom "bless your heart"—a phrase that leverages a surface-level veneer of sympathy to mask a patronizing, backhanded critique. Employing polite incongruence allows speakers to deliver harsh critiques while protecting their own social image from appearing outwardly aggressive (Brown & Levinson, 1987).
-            </p>
-            <p>
-                Literature exists on the effects of “toxic positivity” on social media (Lew & Flanagin, 2025) and demonstrates that sarcastic criticism is overall rated as less negative than literal criticism (Filik et al., 2016). However, there is a growing trend of digital hyperpositivity—colloquially termed <strong>“glazing”</strong>—that remains largely unexamined. Masked hostility utilizes "weaponized politeness" to deliver face-threatening acts while maintaining the social protections of prosocial behavior (Taylor, 2015; Dynel, 2016).
-            </p>
-            <p>
-                Traditional cyberbullying research has historically prioritized overt toxicity (e.g., flaming or threats), yet adolescent social dynamics are increasingly defined by indirect aggression and social manipulation (Underwood & Ehrenreich, 2017). Research on relational aggression suggests that these subtle slights can be more distressing than direct insults because they threaten a victim’s social inclusion without offering a clear path for defense. Because external observers—and automated moderation systems—perceive the surface-level language as positive, the social norms that typically trigger bystander intervention are never activated (Koehler, 2018).
+                Digital spaces generate implicit virtual communication norms that regulate user interaction (Postmes et al., 2000). Masked hostility utilizes "weaponized politeness" or polite incongruence to deliver harsh critiques while buffering the commenter's social image (Brown & Levinson, 1987; Taylor, 2015). While "toxic positivity" and traditional cyberbullying are highly researched (Underwood & Ehrenreich, 2017; Lew & Flanagin, 2025), hyper-positive sarcasm—colloquially termed <strong>"glazing"</strong>—remains unexamined.
             </p>
 
-            <h3>The Proposed Study</h3>
+            <h3>Core Study Hypotheses</h3>
             <p>
-                This framework investigates online “glazing”—overcompensatory, hyper-positive praise or flattery that feels forced, unearned, or overtly sarcastic. Commenters are potentially over-positive because they anticipate a wave of hateful or toxic comments on a post. Utilizing a preregistered, between-subjects experimental design targeting approximately 300 participants (ages 13–24), users are exposed to fictional, TikTok-style comment threads across three randomly assigned conditions:
-            </p>
-            <ul class="academic-list">
-                <li><strong>Condition 1 (Glazing):</strong> Comment threads utilizing polite surface language to convey hostility (e.g., backhanded compliments).</li>
-                <li><strong>Condition 2 (Direct Hostility):</strong> Explicitly negative, overt insults derived from common real-world toxicity streams.</li>
-                <li><strong>Condition 3 (Control):</strong> Neutral, standard interactions established via pilot testing baseline limits.</li>
-            </ul>
-
-            <h3>Hypotheses & Primary Outcome Measures</h3>
-            <p>
-                <strong>H1:</strong> Participants in the Glazing condition will rate the comments as significantly "nicer" and less punishable than those in the Direct Hate condition (p < .05).<br>
-                <strong>H2:</strong> There will be no significant difference in self-reported emotional distress between the Glazing and Direct Hate groups, supporting the hypothesis that the "sting" of hostility is not dulled by polite phrasing.
+                The underlying study evaluates youth responses (ages 13–24) exposed to simulated TikTok layouts across three experimental assignments: <em>Glazing</em> (polite surface hostility), <em>Direct Hostility</em>, and <em>Control</em>.
             </p>
             <p>
-                To test this, the simulation parses tracked behavioral and evaluative metrics: interaction time-deltas, selection frequency of interactive elements (likes/dislikes), structural perception arrays (severity, hatred vs politeness/niceness), and emotional outcomes using custom subscales.
+                <strong>H1 (Perception Gap):</strong> Participants in the <em>Glazing</em> condition will rate comments as significantly "nicer" and less punishable than those in the <em>Direct Hate</em> condition ($p < .05$). Because language markers mimic prosocial patterns, standard bystander intervention triggers are not activated (Koehler, 2018).
+            </p>
+            <p>
+                <strong>H2 (Relational Sting):</strong> Self-reported emotional distress will show <em>no significant difference</em> between the Glazing and Direct Hostility groups. This supports the assertion that subtle relational aggression is equally toxic, threatening target inclusion without presenting a transparent path for self-defense.
             </p>
 
-            <h3>Platform Infrastructure Implications</h3>
+            <h3>Methodology & System Gaps</h3>
             <p>
-                The practically targeted objective exposes critical vulnerabilities in automated content evaluation. Current AI moderation tools rely heavily on keyword or expression blacklists (e.g., profanity filters) to identify threats. When weaponized civility matches standard prosocial patterns, it lowers bystander intervention while leaving target subjects socially isolated. Platform data systems must adjust toward context-aware architectures engineered to process multi-layered contextual intent over simple lexical pattern mapping.
+                The research parses tracking metrics (dwell-times, structural scale arrays, and behavioral triggers) to counter a vital vulnerability in automated platform safety: modern keyword-detection models routinely bypass weaponized civility, leaving vulnerable creators unprotected against context-coded toxicity.
             </p>
         </div>
 
-        <button class="restart-btn" onclick="location.reload()">Run New Iteration</button>
+        <button class="restart-btn" onclick="location.reload()">Reset Prototype</button>
     </div>
 
 </div>
@@ -693,7 +671,6 @@
         }
     }
 
-    // Comprehensive isolated glazing instances parsed for survey generation
     const commentsData = [
         "I love how you just wear anything and don't care what people think 🥰 You're so brave!",
         "The outfit is... certainly a choice!",
@@ -724,7 +701,7 @@
                 let label = i === 1 ? 'Not Hostile' : (i === 5 ? 'Extremely Hostile' : i);
                 likertHTML += `
                     <label class="likert-option">
-                        <input type="radio" name="q${index}" value="${i}" required>
+                        <input type="radio" name="q${index}" value="${i}">
                         <span class="likert-label">${label}</span>
                     </label>
                 `;
@@ -736,20 +713,7 @@
     }
 
     function submitSurvey() {
-        const totalQuestions = commentsData.length;
-        let answered = 0;
-        
-        for(let i=0; i<totalQuestions; i++) {
-            if(document.querySelector(`input[name="q${i}"]:checked`)) {
-                answered++;
-            }
-        }
-
-        if(answered < totalQuestions) {
-            alert("Please provide a rating evaluation for all items before submitting.");
-            return;
-        }
-
+        // Advanced without enforcement validation rules per user design instructions
         document.getElementById('survey-view').style.display = 'none';
         document.getElementById('thank-you-view').style.display = 'flex';
     }
