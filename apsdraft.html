@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Naturalistic TikTok Feed Simulator</title>
+    <title>APS 2026 Simulation Prototype v4</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #000;
             height: 100vh;
             display: flex;
@@ -37,38 +37,16 @@
         }
 
         #video-placeholder {
-            height: 30vh;
+            height: 25vh;
             width: 100%;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: #121212;
-            border-bottom: 1px solid #222;
-            color: #777;
-            text-align: center;
-            padding: 16px;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        #video-placeholder h3 {
-            margin: 0 0 6px 0;
-            color: #fff;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-        }
-
-        #video-placeholder p {
-            margin: 0;
-            font-size: 11px;
-            line-height: 1.4;
+            background-color: #000;
         }
 
         #comment-sheet {
-            height: 70vh;
+            height: 75vh;
             background-color: #fff;
             border-radius: 12px 12px 0 0;
             display: flex;
@@ -90,13 +68,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.97);
+            background-color: rgba(0, 0, 0, 0.96);
             color: #fff;
             z-index: 100;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 32px;
+            padding: 40px;
             box-sizing: border-box;
         }
 
@@ -104,11 +82,11 @@
             background-color: #fe2c55;
             color: white;
             border: none;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 700;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
             border-radius: 4px;
-            margin-top: 24px;
+            margin-top: 30px;
             cursor: pointer;
             width: 100%;
             text-align: center;
@@ -119,20 +97,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 16px;
+            padding: 12px 16px;
             border-bottom: 1px solid #f1f1f2;
         }
 
         .tabs {
             display: flex;
-            gap: 20px;
+            gap: 24px;
         }
 
         .tab {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: #8a8a8a;
-            padding-bottom: 4px;
+            padding-bottom: 8px;
         }
 
         .tab.active {
@@ -146,7 +124,7 @@
             align-items: center;
         }
 
-        /* Comments List Layout */
+        /* Comments List */
         .comments-list {
             flex: 1;
             overflow-y: auto;
@@ -156,12 +134,12 @@
 
         .comment-item {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .avatar {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background-color: #e1e1e1;
             margin-right: 12px;
@@ -179,20 +157,35 @@
             margin-bottom: 4px;
         }
 
-        .comment-text {
-            font-size: 14px;
-            line-height: 1.45;
-            color: #121212;
-            margin-bottom: 6px;
-            word-break: break-word;
+        .user-info span {
+            color: #8a8a8a;
+            font-weight: 400;
+            margin-left: 4px;
         }
 
-        /* Interaction Row Mechanics */
+        .comment-text {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #121212;
+            margin-bottom: 6px;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #f1f1f2;
+            color: #8a8a8a;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            margin-bottom: 8px;
+        }
+
+        /* Metadata & Right-Aligned Actions */
         .interaction-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 13px;
             color: #8a8a8a;
         }
 
@@ -203,7 +196,7 @@
 
         .actions-right {
             display: flex;
-            gap: 18px;
+            gap: 20px;
             align-items: center;
         }
 
@@ -214,8 +207,8 @@
         }
 
         .action-icon svg {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             stroke: #8a8a8a;
             stroke-width: 2;
             fill: none;
@@ -227,50 +220,41 @@
         }
 
         .action-icon.active-dislike svg {
-            fill: #555;
-            stroke: #555;
+            fill: #8a8a8a;
         }
 
         .finish-simulation-container {
-            padding: 16px 0 32px 0;
+            padding: 20px 0 40px 0;
             text-align: center;
             border-top: 1px solid #f1f1f2;
-            margin-top: 12px;
+            margin-top: 10px;
         }
 
-        /* Native TikTok Comment Section Footer Icons */
+        /* Footer Input Area */
         .footer {
-            padding: 10px 12px;
+            padding: 10px 14px;
             border-top: 1px solid #f1f1f2;
             display: flex;
-            flex-direction: column;
-            background: #fff;
-            gap: 8px;
-        }
-
-        .footer-input-row {
-            display: flex;
             align-items: center;
-            width: 100%;
+            background: #fff;
         }
 
         .footer-avatar {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background-color: #e1e1e1;
-            margin-right: 8px;
+            margin-right: 10px;
             flex-shrink: 0;
         }
 
         .input-wrapper {
             flex: 1;
             background-color: #f1f1f2;
-            border-radius: 20px;
+            border-radius: 22px;
             padding: 8px 14px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
         }
 
         .input-wrapper input {
@@ -278,56 +262,37 @@
             border: none;
             background: transparent;
             outline: none;
-            font-size: 14px;
+            font-size: 15px;
             color: #121212;
         }
 
-        .input-embed-icons {
-            display: flex;
-            gap: 12px;
-            color: #555;
-            align-items: center;
-        }
-
-        .input-embed-icons svg {
-            width: 20px;
-            height: 20px;
-            cursor: not-allowed;
-            fill: none;
-            stroke: #121212;
-            stroke-width: 2;
-        }
-
-        .footer-shortcut-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2px 4px 4px 40px;
-        }
-
-        .emoji-shortcuts {
-            display: flex;
-            gap: 14px;
-            font-size: 18px;
+        .input-wrapper input::placeholder {
             color: #8a8a8a;
-            cursor: not-allowed;
         }
 
-        .system-shortcuts {
+        .input-wrapper .inner-icon {
+            color: #121212;
+            display: flex;
+            align-items: center;
+            margin-left: 6px;
+        }
+
+        .footer-icons {
             display: flex;
             gap: 14px;
+            margin-left: 14px;
             color: #121212;
             align-items: center;
         }
 
-        .system-shortcuts svg {
-            width: 22px;
-            height: 22px;
-            cursor: not-allowed;
+        .footer-icons svg {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
         }
 
-        /* --- SURVEY & ACADEMIC DEBRIEF STYLES --- */
-        #survey-view, #thank-you-view {
+        /* --- SURVEY UI STYLES --- */
+        #survey-view {
             display: none;
             flex-direction: column;
             height: 100%;
@@ -340,50 +305,45 @@
         }
 
         .survey-header {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             border-bottom: 2px solid #121212;
-            padding-bottom: 12px;
+            padding-bottom: 10px;
         }
 
         .survey-header h2 {
-            margin: 0 0 8px 0;
-            font-size: 18px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin: 0 0 10px 0;
+            font-size: 22px;
         }
 
         .survey-header p {
             margin: 0;
             color: #555;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.5;
         }
 
         .survey-question {
             background-color: #f9f9f9;
             border: 1px solid #e1e1e1;
-            border-radius: 6px;
-            padding: 14px;
-            margin-bottom: 16px;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
         }
 
         .survey-comment-text {
-            font-size: 14px;
+            font-size: 15px;
             font-style: italic;
-            margin-bottom: 14px;
-            color: #121212;
-            background: #f1f1f2;
-            padding: 10px;
-            border-radius: 4px;
-            line-height: 1.4;
+            margin-bottom: 16px;
+            color: #333;
+            border-left: 3px solid #ccc;
+            padding-left: 10px;
         }
 
         .likert-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         .likert-option {
@@ -396,52 +356,41 @@
 
         .likert-option input[type="radio"] {
             margin-bottom: 6px;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             cursor: pointer;
         }
 
         .likert-label {
-            font-size: 9px;
+            font-size: 11px;
             color: #555;
-            line-height: 1.2;
         }
 
-        #submit-survey-btn, .restart-btn {
+        #submit-survey-btn {
             background-color: #121212;
             color: white;
             border: none;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 700;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 20px;
             margin-bottom: 40px;
         }
 
-        /* Pure Academic Text Layout */
-        .academic-debrief {
-            text-align: left;
-            margin-top: 8px;
-        }
-
-        .academic-debrief h3 {
-            font-size: 14px;
-            font-weight: 700;
-            margin: 18px 0 8px 0;
-            text-transform: uppercase;
-            border-bottom: 1px solid #e1e1e1;
-            padding-bottom: 4px;
-            color: #000;
-        }
-
-        .academic-debrief p {
-            font-size: 13px;
-            line-height: 1.5;
-            color: #333;
-            margin: 0 0 10px 0;
+        #thank-you-view {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -450,34 +399,48 @@
 <div id="mobile-container">
     
     <div id="tiktok-view">
-        <div id="video-placeholder">
-            <h3>[ Visual Stimuli Placeholder ]</h3>
-            <p>Fictional TikTok Media content area for experimental context presentation.</p>
-        </div>
+        <div id="video-placeholder"></div>
 
         <div id="comment-sheet">
             <div id="intro-modal">
-                <h2 style="margin: 0 0 10px 0; font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px;">Naturalistic TikTok Feed Simulator</h2>
-                <p style="margin: 0; line-height: 1.5; font-size: 14px; color: #ccc;">
-                    Please review the interaction feed below and react to the comment conditions naturally as you would on your personal account.
+                <h2 style="margin: 0 0 10px 0;">APS 2026 Simulation</h2>
+                <p style="margin: 0; line-height: 1.5; font-size: 15px;">
+                    This is a prototype for an experimental intervention. 
+                    Users should interact with comments as they naturally would on social media.
                 </p>
-                <p style="margin-top: 12px; color: #8a8a8a; font-size: 12px;">You may scroll freely, like, or dislike comments before moving forward.</p>
+                <p style="margin-top: 15px; color: #8a8a8a; font-size: 13px;">No data will be collected.</p>
                 <button class="primary-btn" onclick="closeModal()">Begin Simulation</button>
             </div>
 
             <div class="header">
                 <div class="tabs">
-                    <div class="tab active">Comments (10)</div>
-                    <div class="tab">Likes (34.1K)</div>
+                    <div class="tab active">Comments 1</div>
+                    <div class="tab">Likes 47</div>
                 </div>
                 <div class="header-actions">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                 </div>
             </div>
 
             <div class="comments-list">
                 
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">Mia 🦢 <span>· Friends</span></div>
+                        <div class="comment-text">Exactly</div>
+                        <div class="tag">First comment</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>20h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="comment-item">
                     <div class="avatar"></div>
                     <div class="comment-content">
@@ -496,10 +459,85 @@
                 <div class="comment-item">
                     <div class="avatar"></div>
                     <div class="comment-content">
+                        <div class="user-info">tea_spiller</div>
+                        <div class="comment-text">i ran to the comments 🏃‍♀️💨</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>3h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">anon_troll99</div>
+                        <div class="comment-text">This is actually garbage. Please delete your account.</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>4h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">sarah_smiles</div>
+                        <div class="comment-text">y'all are fighting invisible comments 😭</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>5h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
                         <div class="user-info">fashion_critique</div>
                         <div class="comment-text">The outfit is... certainly a choice!</div>
                         <div class="interaction-row">
-                            <div class="meta-left"><span>3h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="meta-left"><span>6h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">daily_vlogs</div>
+                        <div class="comment-text">Where did you get that shirt? It's really cute!</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>6h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="actions-right">
+                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"></div>
+                    <div class="comment-content">
+                        <div class="user-info">hater_burner</div>
+                        <div class="comment-text">literally nobody asked for this</div>
+                        <div class="interaction-row">
+                            <div class="meta-left"><span>8h</span><span style="font-weight:600;">Reply</span></div>
                             <div class="actions-right">
                                 <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
                                 <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
@@ -514,7 +552,7 @@
                         <div class="user-info">sweet_peach</div>
                         <div class="comment-text">Bless your heart, you tried your best! 💕</div>
                         <div class="interaction-row">
-                            <div class="meta-left"><span>5h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="meta-left"><span>9h</span><span style="font-weight:600;">Reply</span></div>
                             <div class="actions-right">
                                 <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
                                 <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
@@ -526,40 +564,10 @@
                 <div class="comment-item">
                     <div class="avatar"></div>
                     <div class="comment-content">
-                        <div class="user-info">critique_crew</div>
-                        <div class="comment-text">Wow, look at you... so incredibly confident to post this video. Absolute goals! 😭</div>
+                        <div class="user-info">cool_kid_01</div>
+                        <div class="comment-text">W video, keep it up 🔥</div>
                         <div class="interaction-row">
-                            <div class="meta-left"><span>6h</span><span style="font-weight:600;">Reply</span></div>
-                            <div class="actions-right">
-                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
-                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="comment-item">
-                    <div class="avatar"></div>
-                    <div class="comment-content">
-                        <div class="user-info">vibe_checker</div>
-                        <div class="comment-text">The level of effort you put into this is actually so cute. It really shows.</div>
-                        <div class="interaction-row">
-                            <div class="meta-left"><span>8h</span><span style="font-weight:600;">Reply</span></div>
-                            <div class="actions-right">
-                                <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
-                                <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="comment-item">
-                    <div class="avatar"></div>
-                    <div class="comment-content">
-                        <div class="user-info">style_watcher</div>
-                        <div class="comment-text">I mean, if you love it then that is literally all that matters at the end of the day! 🫶</div>
-                        <div class="interaction-row">
-                            <div class="meta-left"><span>10h</span><span style="font-weight:600;">Reply</span></div>
+                            <div class="meta-left"><span>11h</span><span style="font-weight:600;">Reply</span></div>
                             <div class="actions-right">
                                 <div class="action-icon" onclick="toggleLike(this)"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
                                 <div class="action-icon" onclick="toggleDislike(this)"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
@@ -575,75 +583,58 @@
             </div>
 
             <div class="footer">
-                <div class="footer-input-row">
-                    <div class="footer-avatar"></div>
-                    <div class="input-wrapper">
-                        <input type="text" placeholder="Add comment..." disabled>
-                        <div class="input-embed-icons">
-                            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10v-1.5a2.5 2.5 0 0 0-5 0V12a5 5 0 1 1-5-5 5 5 0 0 1 5 5v1.5a4.5 4.5 0 0 0 9 0V12A10 10 0 0 0 12 2z"/></svg>
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
-                        </div>
+                <div class="footer-avatar"></div>
+                <div class="input-wrapper">
+                    <input type="text" placeholder="Add comment..." disabled>
+                    <div class="inner-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
                     </div>
                 </div>
-                <div class="footer-shortcut-bar">
-                    <div class="emoji-shortcuts">
-                        <span>😂</span><span>😳</span><span>🥺</span><span>👍</span>
-                    </div>
-                    <div class="system-shortcuts">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10h2v4H7zm7 0h3v1h-2v1h2v1h-2v1h-1zm-3 0h1v4h-1z"/></svg>
-                    </div>
+                <div class="footer-icons">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M8 13.5a4 4 0 0 0 8 0"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 12 20 22 4 22 4 12"/>
+                        <rect x="2" y="7" width="20" height="5"/>
+                        <line x1="12" y1="22" x2="12" y2="7"/>
+                        <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                    </svg>
                 </div>
             </div>
-
         </div>
     </div>
 
     <div id="survey-view">
         <div class="survey-header">
-            <h2>Evaluation Scale</h2>
-            <p>Rate the comments based on your perceived hostility. You may skip questions if desired.</p>
+            <h2>Post-Simulation Survey</h2>
+            <p>Please rate the following comments based on your <strong>perceived level of hostility</strong>.</p>
         </div>
 
         <form id="comment-survey"></form>
 
-        <button id="submit-survey-btn" onclick="submitSurvey()">Submit & View Framework</button>
+        <button id="submit-survey-btn" onclick="submitSurvey()">Submit Responses</button>
     </div>
 
     <div id="thank-you-view">
-        <p style="color: #666; font-size: 12px; font-style: italic; margin: 0 0 16px 0; line-height: 1.4; text-align: center;">
-            (no actual data collected - simulation just as proof of concept for a naturalistic tiktok comment section)
-        </p>
-        
-        <div class="academic-debrief">
-            <h3>Background Context</h3>
-            <p>
-                Social platforms construct distinct virtual norms that implicitly regulate interactions (Postmes et al., 2000). Commenters deploy "weaponized politeness" or polite incongruence to deliver sharp critiques while shielding their outward social image (Brown & Levinson, 1987; Taylor, 2015). While overt cyberbullying is widely documented, hyper-positive sarcasm—colloquially termed <strong>"glazing"</strong>—remains conceptually unexamined.
-            </p>
-
-            <h3>Core Study Hypotheses</h3>
-            <p>
-                This between-subjects experiment randomly assigns youth participants (ages 13–24) to simulated feeds containing either *Glazing* (masked hostility), *Direct Hostility*, or *Neutral* control streams.
-            </p>
-            <p>
-                <strong>H1 (The Validation Illusion):</strong> Participants in the <em>Glazing</em> condition will evaluate target comments as significantly "nicer" and less punishable than those in the <em>Direct Hate</em> group ($p < .05$). Because surface markers appear positive, the regular social norms that activate baseline bystander intervention fail to trigger (Koehler, 2018).
-            </p>
-            <p>
-                <strong>H2 (The Relational Sting):</strong> There will be <em>no statistically significant difference</em> in actual self-reported emotional distress between the Glazing and Direct Hate cohorts. This confirms that indirect relational aggression delivers a comparable psychological impact, tracking as toxic because it subverts inclusion without offering a direct method of defense.
-            </p>
-
-            <h3>Systemic Gaps</h3>
-            <p>
-                By processing tracking metrics (dwell times, interaction counts, and raw structural scales), this model uncovers an automated gap: traditional moderation engines depend heavily on keyword detection to identify abuse. Context-aware systems are required to accurately intercept weaponized civility that routinely evades surface lexical sweeps.
-            </p>
-        </div>
-
-        <button class="restart-btn" onclick="location.reload()">Reset Prototype</button>
+        <h2>Thank You</h2>
+        <p>Your responses have been recorded.</p>
     </div>
 
 </div>
 
 <script>
+    // --- TikTok UI Logic ---
     function closeModal() {
         document.getElementById('intro-modal').style.display = 'none';
     }
@@ -664,24 +655,32 @@
         }
     }
 
+    // --- Transition to Survey Logic ---
     const commentsData = [
+        "Exactly",
         "I love how you just wear anything and don't care what people think 🥰 You're so brave!",
+        "i ran to the comments 🏃‍♀️💨",
+        "This is actually garbage. Please delete your account.",
+        "y'all are fighting invisible comments 😭",
         "The outfit is... certainly a choice!",
+        "Where did you get that shirt? It's really cute!",
+        "literally nobody asked for this",
         "Bless your heart, you tried your best! 💕",
-        "Wow, look at you... so incredibly confident to post this video. Absolute goals! 😭",
-        "The level of effort you put into this is actually so cute. It really shows.",
-        "I mean, if you love it then that is literally all that matters at the end of the day! 🫶"
+        "W video, keep it up 🔥"
     ];
 
     function proceedToSurvey() {
+        // Change UI state
         document.getElementById('tiktok-view').style.display = 'none';
         document.getElementById('survey-view').style.display = 'flex';
         
+        // Change background colors to white
         document.body.style.backgroundColor = '#f1f1f2';
         document.getElementById('mobile-container').style.backgroundColor = '#fff';
 
+        // Generate survey questions dynamically
         const form = document.getElementById('comment-survey');
-        form.innerHTML = ''; 
+        form.innerHTML = ''; // clear
 
         commentsData.forEach((commentText, index) => {
             const questionDiv = document.createElement('div');
@@ -694,7 +693,7 @@
                 let label = i === 1 ? 'Not Hostile' : (i === 5 ? 'Extremely Hostile' : i);
                 likertHTML += `
                     <label class="likert-option">
-                        <input type="radio" name="q${index}" value="${i}">
+                        <input type="radio" name="q${index}" value="${i}" required>
                         <span class="likert-label">${label}</span>
                     </label>
                 `;
@@ -706,6 +705,21 @@
     }
 
     function submitSurvey() {
+        const form = document.getElementById('comment-survey');
+        const totalQuestions = commentsData.length;
+        let answered = 0;
+        
+        for(let i=0; i<totalQuestions; i++) {
+            if(document.querySelector(`input[name="q${i}"]:checked`)) {
+                answered++;
+            }
+        }
+
+        if(answered < totalQuestions) {
+            alert("Please rate all comments before submitting.");
+            return;
+        }
+
         document.getElementById('survey-view').style.display = 'none';
         document.getElementById('thank-you-view').style.display = 'flex';
     }
