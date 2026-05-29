@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APS 2026 Simulation Prototype v7</title>
+    <title>Naturalistic TikTok Feed Simulator</title>
     <style>
         body, html {
             margin: 0;
@@ -49,6 +49,7 @@
             text-align: center;
             padding: 16px;
             box-sizing: border-box;
+            position: relative;
         }
 
         #video-placeholder h3 {
@@ -237,7 +238,7 @@
             margin-top: 12px;
         }
 
-        /* Minimalist Footer Input Layout with Full Icon Triggers */
+        /* Native TikTok Comment Section Footer Icons */
         .footer {
             padding: 10px 12px;
             border-top: 1px solid #f1f1f2;
@@ -283,8 +284,8 @@
 
         .input-embed-icons {
             display: flex;
-            gap: 10px;
-            color: #121212;
+            gap: 12px;
+            color: #555;
             align-items: center;
         }
 
@@ -292,6 +293,9 @@
             width: 20px;
             height: 20px;
             cursor: not-allowed;
+            fill: none;
+            stroke: #121212;
+            stroke-width: 2;
         }
 
         .footer-shortcut-bar {
@@ -311,13 +315,14 @@
 
         .system-shortcuts {
             display: flex;
-            gap: 12px;
+            gap: 14px;
             color: #121212;
+            align-items: center;
         }
 
         .system-shortcuts svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             cursor: not-allowed;
         }
 
@@ -416,7 +421,7 @@
             margin-bottom: 40px;
         }
 
-        /* Pure Academic Text Layout (No Vibe Coding Border-Lines) */
+        /* Pure Academic Text Layout */
         .academic-debrief {
             text-align: left;
             margin-top: 8px;
@@ -438,18 +443,6 @@
             color: #333;
             margin: 0 0 10px 0;
         }
-
-        .academic-list {
-            margin: 0 0 12px 0;
-            padding-left: 20px;
-            font-size: 13px;
-            line-height: 1.45;
-            color: #333;
-        }
-
-        .academic-list li {
-            margin-bottom: 4px;
-        }
     </style>
 </head>
 <body>
@@ -464,7 +457,7 @@
 
         <div id="comment-sheet">
             <div id="intro-modal">
-                <h2 style="margin: 0 0 10px 0; font-size: 20px;">APS 2026 Simulation</h2>
+                <h2 style="margin: 0 0 10px 0; font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px;">Naturalistic TikTok Feed Simulator</h2>
                 <p style="margin: 0; line-height: 1.5; font-size: 14px; color: #ccc;">
                     Please review the interaction feed below and react to the comment conditions naturally as you would on your personal account.
                 </p>
@@ -587,8 +580,8 @@
                     <div class="input-wrapper">
                         <input type="text" placeholder="Add comment..." disabled>
                         <div class="input-embed-icons">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a10 10 0 1 0 10 10v-1.5a2.5 2.5 0 0 0-5 0V12a5 5 0 1 1-5-5 5 5 0 0 1 5 5v1.5a4.5 4.5 0 0 0 9 0V12A10 10 0 0 0 12 2z"/></svg>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10v-1.5a2.5 2.5 0 0 0-5 0V12a5 5 0 1 1-5-5 5 5 0 0 1 5 5v1.5a4.5 4.5 0 0 0 9 0V12A10 10 0 0 0 12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
                         </div>
                     </div>
                 </div>
@@ -618,30 +611,30 @@
     </div>
 
     <div id="thank-you-view">
-        <p style="color: #666; font-size: 12px; font-style: italic; margin: 0 0 16px 0; line-height: 1.4;">
+        <p style="color: #666; font-size: 12px; font-style: italic; margin: 0 0 16px 0; line-height: 1.4; text-align: center;">
             (no actual data collected - simulation just as proof of concept for a naturalistic tiktok comment section)
         </p>
         
         <div class="academic-debrief">
-            <h3>Background Summary</h3>
+            <h3>Background Context</h3>
             <p>
-                Digital spaces generate implicit virtual communication norms that regulate user interaction (Postmes et al., 2000). Masked hostility utilizes "weaponized politeness" or polite incongruence to deliver harsh critiques while buffering the commenter's social image (Brown & Levinson, 1987; Taylor, 2015). While "toxic positivity" and traditional cyberbullying are highly researched (Underwood & Ehrenreich, 2017; Lew & Flanagin, 2025), hyper-positive sarcasm—colloquially termed <strong>"glazing"</strong>—remains unexamined.
+                Social platforms construct distinct virtual norms that implicitly regulate interactions (Postmes et al., 2000). Commenters deploy "weaponized politeness" or polite incongruence to deliver sharp critiques while shielding their outward social image (Brown & Levinson, 1987; Taylor, 2015). While overt cyberbullying is widely documented, hyper-positive sarcasm—colloquially termed <strong>"glazing"</strong>—remains conceptually unexamined.
             </p>
 
             <h3>Core Study Hypotheses</h3>
             <p>
-                The underlying study evaluates youth responses (ages 13–24) exposed to simulated TikTok layouts across three experimental assignments: <em>Glazing</em> (polite surface hostility), <em>Direct Hostility</em>, and <em>Control</em>.
+                This between-subjects experiment randomly assigns youth participants (ages 13–24) to simulated feeds containing either *Glazing* (masked hostility), *Direct Hostility*, or *Neutral* control streams.
             </p>
             <p>
-                <strong>H1 (Perception Gap):</strong> Participants in the <em>Glazing</em> condition will rate comments as significantly "nicer" and less punishable than those in the <em>Direct Hate</em> condition ($p < .05$). Because language markers mimic prosocial patterns, standard bystander intervention triggers are not activated (Koehler, 2018).
+                <strong>H1 (The Validation Illusion):</strong> Participants in the <em>Glazing</em> condition will evaluate target comments as significantly "nicer" and less punishable than those in the <em>Direct Hate</em> group ($p < .05$). Because surface markers appear positive, the regular social norms that activate baseline bystander intervention fail to trigger (Koehler, 2018).
             </p>
             <p>
-                <strong>H2 (Relational Sting):</strong> Self-reported emotional distress will show <em>no significant difference</em> between the Glazing and Direct Hostility groups. This supports the assertion that subtle relational aggression is equally toxic, threatening target inclusion without presenting a transparent path for self-defense.
+                <strong>H2 (The Relational Sting):</strong> There will be <em>no statistically significant difference</em> in actual self-reported emotional distress between the Glazing and Direct Hate cohorts. This confirms that indirect relational aggression delivers a comparable psychological impact, tracking as toxic because it subverts inclusion without offering a direct method of defense.
             </p>
 
-            <h3>Methodology & System Gaps</h3>
+            <h3>Systemic Gaps</h3>
             <p>
-                The research parses tracking metrics (dwell-times, structural scale arrays, and behavioral triggers) to counter a vital vulnerability in automated platform safety: modern keyword-detection models routinely bypass weaponized civility, leaving vulnerable creators unprotected against context-coded toxicity.
+                By processing tracking metrics (dwell times, interaction counts, and raw structural scales), this model uncovers an automated gap: traditional moderation engines depend heavily on keyword detection to identify abuse. Context-aware systems are required to accurately intercept weaponized civility that routinely evades surface lexical sweeps.
             </p>
         </div>
 
@@ -713,7 +706,6 @@
     }
 
     function submitSurvey() {
-        // Advanced without enforcement validation rules per user design instructions
         document.getElementById('survey-view').style.display = 'none';
         document.getElementById('thank-you-view').style.display = 'flex';
     }
