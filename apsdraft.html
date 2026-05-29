@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APS 2026 Simulation Prototype v4</title>
+    <title>APS 2026 Simulation Prototype v5</title>
     <style>
         body, html {
             margin: 0;
@@ -305,7 +305,7 @@
         }
 
         .survey-header {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-bottom: 2px solid #121212;
             padding-bottom: 10px;
         }
@@ -320,6 +320,23 @@
             color: #555;
             font-size: 14px;
             line-height: 1.5;
+        }
+
+        .visual-stimuli-placeholder {
+            width: 100%;
+            min-height: 120px;
+            background-color: #f9f9f9;
+            border: 2px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #8a8a8a;
+            font-style: italic;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            padding: 16px;
+            box-sizing: border-box;
         }
 
         .survey-question {
@@ -376,7 +393,7 @@
             border-radius: 4px;
             cursor: pointer;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
             margin-bottom: 40px;
         }
 
@@ -621,9 +638,13 @@
             <p>Please rate the following comments based on your <strong>perceived level of hostility</strong>.</p>
         </div>
 
+        <div class="visual-stimuli-placeholder">
+            [optional/customizable visual stimuli here]
+        </div>
+
         <form id="comment-survey"></form>
 
-        <button id="submit-survey-btn" onclick="submitSurvey()">Submit Responses</button>
+        <button id="submit-survey-btn" onclick="submitSurvey()">Next</button>
     </div>
 
     <div id="thank-you-view">
@@ -691,9 +712,10 @@
             
             for (let i = 1; i <= 5; i++) {
                 let label = i === 1 ? 'Not Hostile' : (i === 5 ? 'Extremely Hostile' : i);
+                // "required" attribute removed to allow skipping
                 likertHTML += `
                     <label class="likert-option">
-                        <input type="radio" name="q${index}" value="${i}" required>
+                        <input type="radio" name="q${index}" value="${i}">
                         <span class="likert-label">${label}</span>
                     </label>
                 `;
@@ -705,21 +727,8 @@
     }
 
     function submitSurvey() {
-        const form = document.getElementById('comment-survey');
-        const totalQuestions = commentsData.length;
-        let answered = 0;
-        
-        for(let i=0; i<totalQuestions; i++) {
-            if(document.querySelector(`input[name="q${i}"]:checked`)) {
-                answered++;
-            }
-        }
-
-        if(answered < totalQuestions) {
-            alert("Please rate all comments before submitting.");
-            return;
-        }
-
+        // Validation loop has been fully removed.
+        // Users can now progress without selecting any radio buttons.
         document.getElementById('survey-view').style.display = 'none';
         document.getElementById('thank-you-view').style.display = 'flex';
     }
